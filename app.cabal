@@ -26,6 +26,7 @@ executable app
                        Databases.HitmenBusiness.ErasedMarks
                        Databases.HitmenBusiness.Util.Chronos
                        Databases.HitmenBusiness.Util.Types
+                       Databases.HitmenBusiness.Util.JSON
                        Models.HitmenBusiness
                        Typeclass.Base
                        Util.Client

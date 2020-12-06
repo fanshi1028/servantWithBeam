@@ -39,6 +39,8 @@ cradle:
     - path: "./Databases/HitmenBusiness/Util/Types.hs"
       component: "app:exe:app"
 
+    - path: "./Databases/HitmenBusiness/Util/JSON.hs"
+      component: "app:exe:app"
 
     - path: "./Models/HitmenBusiness.hs"
       component: "app:exe:app"

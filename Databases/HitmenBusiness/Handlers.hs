@@ -20,10 +20,8 @@ module Databases.HitmenBusiness.Handlers
 where
 
 import Chronos (Datetime)
-import Data.Aeson.Types
-  ( FromJSON,
-    ToJSON,
-  )
+import Control.Applicative (Applicative (liftA2))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, withObject, (.:))
 import Data.Generics.Labels ()
 import Data.Int (Int32)
 import Data.Text (Text)
@@ -33,10 +31,11 @@ import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_, (<-.))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
+import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
-import Prelude (Maybe, Show, (.), (<$>))
+import Prelude (Applicative ((<*>)), Maybe, Show, ($), (.), (<$>))
 
 data HandlerB f = Handler
   { _codename :: C f Codename,
@@ -65,11 +64,14 @@ instance FromHttpApiData HandlerId where
 instance ToHttpApiData HandlerId where
   toUrlPiece (HandlerId (SqlSerial i)) = toUrlPiece i
 
-deriving instance ToJSON (HandlerB Identity)
-
 deriving instance Show (HandlerT Identity)
 
-deriving instance ToJSON (HandlerT Identity)
+instance ToJSON (HandlerB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
+
+instance ToJSON (HandlerT Identity) where
+  toJSON = flattenBase <$> genericToJSON noCamelOpt
 
 deriving instance Show (PrimaryKey HandlerT Identity)
 
@@ -79,10 +81,9 @@ instance Table HandlerT where
   data PrimaryKey HandlerT f = HandlerId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = HandlerId . _id
 
--- instance FromJSON (HandlerB Identity) where
---   parseJSON = withObject "HandlerB" $ liftA2 Handler <$> (.: "codename") <*> (.: "dieAt")
-
-instance FromJSON (HandlerB Identity)
+instance FromJSON (HandlerB Identity) where
+  -- parseJSON = withObject "HandlerB" $ liftA2 Handler <$> (.: "codename") <*> (.: "die_at")
+  parseJSON = genericParseJSON noCamelOpt
 
 instance FromJSON (HandlerT Identity)
 

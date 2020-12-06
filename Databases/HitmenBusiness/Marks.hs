@@ -24,28 +24,22 @@ where
 
 import Chronos (Datetime)
 import Control.Applicative (Applicative ((<*>)), (<$>))
-import Data.Aeson (ToJSON)
-import Data.Aeson.Types (FromJSON (parseJSON), withObject, (.:))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, withObject, (.:))
 import Data.Int (Int32)
 import Data.Text (Text)
-import Database.Beam (Generic, Identity, Nullable, Typeable)
-import Database.Beam.AutoMigrate (HasColumnType (..), PgEnum)
+import Database.Beam (Generic, Identity, Nullable)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
-import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize, HasSqlValueSyntax (..), autoSqlValueSyntax)
-import Database.Beam.Backend.SQL.Row (FromBackendRow (..))
-import Database.Beam.Backend.Types (BeamBackend)
+import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_, (<-.))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
+import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (FirstName, LastName, MarkDescription, MarkStatus)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
-import Text.Read (Read (..), readMaybe)
+import Text.Read (Read (..))
 import Text.Show (Show (..))
 import Typeclass.Base (ToBase (..))
-import Prelude (Bounded, Enum, Maybe (..), String, fail, maybe, return, ($), (.), (>>=))
-
-instance FromJSON (PrimaryKey MarkT Identity)
-
+import Prelude (Maybe (..), ($), (.))
 
 data MarkB f = Mark
   { _listBounty :: C f Int32,
@@ -70,11 +64,14 @@ deriving instance ToJSON (PrimaryKey MarkT Identity)
 
 deriving instance ToJSON MarkStatus
 
-deriving instance ToJSON (MarkB Identity)
-
 type MarkAll = MarkT Identity
 
-deriving instance ToJSON (MarkT Identity)
+instance ToJSON (MarkB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
+
+instance ToJSON (MarkT Identity) where
+  toJSON = flattenBase <$> genericToJSON noCamelOpt
 
 type MarkId = PrimaryKey MarkT Identity
 
@@ -96,9 +93,12 @@ instance Table MarkT where
   data PrimaryKey MarkT f = MarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = MarkId . _mid
 
+instance FromJSON (PrimaryKey MarkT Identity)
+
 instance FromJSON (MarkB Identity) where
-  parseJSON = withObject "MarkB" $ \obj ->
-    Mark <$> (obj .: "list_bounty") <*> (obj .: "first_name") <*> (obj .: "last_name") <*> (obj .: "description") <*> (obj .: "status")
+  -- parseJSON = withObject "MarkB" $ \obj ->
+  --   Mark <$> (obj .: "list_bounty") <*> (obj .: "first_name") <*> (obj .: "last_name") <*> (obj .: "description") <*> (obj .: "status")
+  parseJSON = genericParseJSON noCamelOpt
 
 instance FromJSON (MarkT Identity)
 

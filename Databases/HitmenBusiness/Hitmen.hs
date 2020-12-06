@@ -22,7 +22,7 @@ where
 
 import Chronos (Datetime)
 import Control.Applicative (Applicative (liftA2, (<*>)), (<$>))
-import Data.Aeson.Types (FromJSON (parseJSON), ToJSON, withObject, (.:))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, withObject, (.:))
 import Data.Int (Int32)
 import Data.Text (Text)
 import Database.Beam (Generic, Identity, Nullable, default_, val_, (<-.))
@@ -31,6 +31,7 @@ import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Handlers (HandlerT, PrimaryKey (HandlerId))
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
+import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
@@ -52,11 +53,14 @@ data HitmanT f = HitmanAll
 
 type Hitman = HitmanB Identity
 
-deriving instance ToJSON (HitmanB Identity)
-
 type HitmanAll = HitmanT Identity
 
-deriving instance ToJSON (HitmanT Identity)
+instance ToJSON (HitmanB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
+
+instance ToJSON (HitmanT Identity) where
+  toJSON = flattenBase <$> genericToJSON noCamelOpt
 
 instance FromHttpApiData HitmanId where
   parseUrlPiece = (HitmanId . SqlSerial <$>) . parseUrlPiece
@@ -72,18 +76,12 @@ deriving instance Show HitmanAll
 
 deriving instance Show HitmanId
 
--- deriving instance ToJSON (HitmanB Identity)
-
--- deriving instance ToJSON (HitmanT Identity)
-
--- deriving instance ToJSON (PrimaryKey HandlerT Identity)
-
 instance Table HitmanT where
   data PrimaryKey HitmanT f = HitmanId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = HitmanId . _id
 
 instance FromJSON (HitmanB Identity) where
-  parseJSON = withObject "HitmanB" $ liftA2 Hitman <$> (.: "codename") <*> (.: "dieAt")
+  parseJSON = genericParseJSON noCamelOpt
 
 instance FromJSON (HitmanT Identity)
 

@@ -16,7 +16,7 @@ module Databases.HitmenBusiness.ErasedMarks
 where
 
 import Chronos (Datetime)
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Int (Int32)
 import Database.Beam (Generic, Identity, default_, val_, (<-.))
 import Database.Beam.Backend (BeamSqlBackend, SqlSerial (SqlSerial))
@@ -24,6 +24,7 @@ import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Hitmen (HitmanT)
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
+import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
 import Prelude (Show, (.), (<$>))
@@ -59,13 +60,17 @@ instance ToHttpApiData (PrimaryKey ErasedMarkT Identity) where
 
 instance ToJSON (PrimaryKey HitmanT Identity)
 
-instance ToJSON (ErasedMarkB Identity)
+instance ToJSON (ErasedMarkB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
 
-instance ToJSON (ErasedMarkT Identity)
+instance ToJSON (ErasedMarkT Identity) where
+  toJSON = flattenBase <$> genericToJSON noCamelOpt
 
 instance FromJSON (PrimaryKey HitmanT Identity)
 
-instance FromJSON (ErasedMarkB Identity)
+instance FromJSON (ErasedMarkB Identity) where
+  parseJSON = genericParseJSON noCamelOpt
 
 instance FromJSON (ErasedMarkT Identity)
 
