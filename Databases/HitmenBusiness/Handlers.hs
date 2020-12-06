@@ -19,43 +19,34 @@ module Databases.HitmenBusiness.Handlers
   )
 where
 
--- import Control.Applicative (liftA2)
--- import Data.Aeson (withObject, (.:))
+import Chronos (Datetime)
 import Data.Aeson.Types
-  ( FromJSON, -- (parseJSON)
+  ( FromJSON,
     ToJSON,
   )
 import Data.Generics.Labels ()
 import Data.Int (Int32)
 import Data.Text (Text)
-import Data.Time.LocalTime (LocalTime)
 import Database.Beam (Generic, Identity, Nullable)
--- ($),
-
-import Database.Beam.Backend (SqlSerial (SqlSerial, unSerial))
+import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
-import Database.Beam.Postgres (serial)
-import Database.Beam.Query (SqlValable (val_), currentTimestamp_, default_, (<-.))
+import Database.Beam.Query (SqlValable (val_), default_, (<-.))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
+import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
-import Prelude
-  ( Maybe,
-    Show,
-    (.),
-    (<$>),
-  )
+import Prelude (Maybe, Show, (.), (<$>))
 
 data HandlerB f = Handler
   { _codename :: C f Text,
-    _dieAt :: C (Nullable f) LocalTime
+    _dieAt :: C (Nullable f) Datetime
   }
   deriving (Generic, Beamable)
 
 data HandlerT f = HandlerAll
   { _id :: C f (SqlSerial Int32),
     _base :: HandlerB f,
-    _createdAt :: C f LocalTime
+    _createdAt :: C f Datetime
   }
   deriving (Generic, Beamable)
 
@@ -96,16 +87,19 @@ instance FromJSON (HandlerT Identity)
 
 instance FromJSON (PrimaryKey HandlerT Identity)
 
-instance (BeamSqlBackend be, BeamSqlBackendCanSerialize be Text, BeamSqlBackendCanSerialize be (Maybe LocalTime)) => ToBase be HandlerT where
+instance
+  ( BeamSqlBackend be,
+    BeamSqlBackendCanSerialize be Text,
+    BeamSqlBackendCanSerialize be (Maybe Datetime)
+  ) =>
+  ToBase be HandlerT
+  where
   type Base HandlerT = HandlerB
-
-  -- type Extra HandlerT = ()
-  -- fromBase b _ =
   fromBase b =
     HandlerAll
       { _id = default_,
         _base = val_ b,
-        _createdAt = currentTimestamp_
+        _createdAt = currentTimestamp_'
       }
   baseAsUpdate body = (<-. val_ body) . _base
 

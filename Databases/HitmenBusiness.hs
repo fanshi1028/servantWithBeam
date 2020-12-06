@@ -33,29 +33,26 @@ where
 -- import Database.Beam.Backend.SQL (BeamSqlBackend, HasSqlValueSyntax (sqlValueSyntax))
 -- import Database.Beam.Backend.SQL.Row (FromBackendRow (fromBackendRow))
 
-import Data.Bifunctor (Bifunctor (first))
-import Data.Char (isUpper)
-import qualified Data.Char as C
-import Data.Generics.Labels ()
-import Data.List.NonEmpty (last)
-import Data.Text (break, cons, dropWhile, intercalate, null, toLower, uncons)
 -- tableModification
 
 -- annotateTableFields,
 
 -- printMigration,
 
-import Database.Beam (Generic, SqlValable (val_), dbModification, tableModification)
+import Data.Bifunctor (Bifunctor (first))
+import Data.Char (isUpper)
+import qualified Data.Char as C
+import Data.Generics.Labels ()
+import Data.List.NonEmpty (last)
+import Data.Text (break, cons, dropWhile, intercalate, null, toLower, uncons)
+import Database.Beam (Generic, dbModification)
 import Database.Beam.AutoMigrate
   ( AnnotatedDatabaseSettings,
     UniqueConstraint (U),
-    annotateTableFields,
     defaultAnnotatedDbSettings,
-    defaultsTo,
     fromAnnotatedDbSettings,
     uniqueConstraintOn,
   )
-import Database.Beam.Postgres (Postgres)
 import Database.Beam.Query (oneToMany_, oneToOne_)
 import Database.Beam.Schema (Database)
 import Database.Beam.Schema.Tables (DatabaseSettings, TableEntity, defaultDbSettings, renamingFields, withDbModification)
@@ -64,16 +61,10 @@ import Databases.HitmenBusiness.Handlers (HandlerT (..))
 import Databases.HitmenBusiness.Hitmen (HitmanT (..))
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..))
-import Lens.Micro ((&), (.~), (^.))
+import Lens.Micro ((^.))
 import Lens.Micro.Extras (view)
 import Servant (Proxy (Proxy))
-import Prelude (Eq ((==)), Maybe (Just), maybe, mempty, not, otherwise, uncurry, ($), (.))
-
--- instance (BeamSqlBackend be, HasSqlValueSyntax be Int64) => HasSqlValueSyntax be Time where
---   sqlValueSyntax = sqlValueSyntax . getTime
-
--- instance (BeamSqlBackend be, FromBackendRow be Int64) => FromBackendRow be Time where
---   fromBackendRow = Time <$> fromBackendRow
+import Prelude (Eq ((==)), maybe, mempty, not, otherwise, uncurry, ($), (.))
 
 data HitmenBusinessDb f = HitmenBusinessDb
   { _hitmen :: f (TableEntity HitmanT),
@@ -103,8 +94,6 @@ hitmenBusinessDb =
                in toLower comp : unCamelCase next'
             | otherwise -> []
 
--- >> hitmenBusinessDb
-
 handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view #_handlerId) handlers
 
 markPursuedBy hitmen = oneToMany_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_hitmanId) hitmen
@@ -115,7 +104,7 @@ markErasedBy hitmen = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_
 
 erasedMarkOf marks = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . #_markId) marks
 
-annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings Postgres HitmenBusinessDb
+annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings be HitmenBusinessDb
 annotatedHitmenBusinessDb =
   defaultAnnotatedDbSettings hitmenBusinessDb
     `withDbModification` ( dbModification

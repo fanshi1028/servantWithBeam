@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Models.HitmenBusiness
@@ -25,8 +24,7 @@ module Models.HitmenBusiness
   )
 where
 
--- import Chronos.Types (Time)
-
+import Chronos (Datetime)
 import Data.Int (Int32)
 import Data.Time.LocalTime (LocalTime)
 import Database.Beam (filter_', pk)
@@ -153,7 +151,7 @@ getLatestKillsBy hitmen = do
 
 -- Latest kills
 getLatestKills ::
-  (BeamSqlBackend be, HasSqlEqualityCheck be Int32, HasSqlEqualityCheck be LocalTime) =>
+  (BeamSqlBackend be, HasSqlEqualityCheck be Int32, HasSqlEqualityCheck be LocalTime, HasSqlEqualityCheck be Datetime) =>
   Q be HitmenBusinessDb (QNested s) (Q be HitmenBusinessDb s (HitmanT (QExpr be s), ErasedMarkT (QExpr be s)))
 getLatestKills = getLatestKillsBy <$> getAllHitmen
 

@@ -9,23 +9,19 @@
 module Controllers.Util
   ( simpleCRUDServer,
     SimpleCRUDAPI,
-    doSqliteQueryWithDebug,
+    doPgQueryWithDebug,
     simpleCRUDServerForHitmenBusiness,
+    doSqliteQueryWithDebug,
   )
 where
 
--- import Data.Generics.Product.Fields (HasField' (field'))
-import Database.Beam (FromBackendRow, Identity, MonadBeam, MonadIO, PrimaryKey, liftIO)
+import Database.Beam (FromBackendRow, Identity, MonadBeam, PrimaryKey, liftIO)
 import Database.Beam.Backend.SQL (BeamSqlBackendCanSerialize)
--- import Database.SQLite.Simple (Connection)
-
 import Database.Beam.Postgres (runBeamPostgresDebug)
 import Database.Beam.Query (HasSqlEqualityCheck, all_, delete, insert, insertExpressions, lookup_, runDelete, runInsert, runSelectReturningList, runSelectReturningOne, runUpdate, select, update, val_, (==.))
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (Beamable, Database, DatabaseEntity, FieldsFulfillConstraint, Table, TableEntity, pk)
-import Database.Beam.Sqlite (SqliteM)
 import Database.Beam.Sqlite.Connection (runBeamSqliteDebug)
-import Database.PostgreSQL.Simple (Connection)
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
 import Lens.Micro ((&), (^.))
@@ -66,12 +62,8 @@ simpleCRUDServer doQuery db = createOne :<|> readMany :<|> readOne :<|> updateOn
     updateOne id body = update db (baseAsUpdate body) ((==. val_ id) . pk) & runUpdate & doQuery >> return NoContent
     deleteOne id = delete db ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
 
--- doSqliteQueryWithDebug :: MonadIO m => Connection -> SqliteM a -> m a
--- doSqliteQueryWithDebug :: MonadIO m => Connection -> _ a -> m a
-doSqliteQueryWithDebug conn = liftIO <$> runBeamPostgresDebug putStrLn conn
+doPgQueryWithDebug conn = liftIO <$> runBeamPostgresDebug putStrLn conn
 
--- doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn
+doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn
 
-simpleCRUDServerForHitmenBusiness dbGetter conn = simpleCRUDServer (doSqliteQueryWithDebug conn) (hitmenBusinessDb ^. dbGetter)
-
--- <$> open "hitmenbusiness.db"
+simpleCRUDServerForHitmenBusiness dbGetter conn = simpleCRUDServer (doPgQueryWithDebug conn) (hitmenBusinessDb ^. dbGetter)

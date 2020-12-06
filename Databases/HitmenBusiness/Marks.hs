@@ -1,11 +1,9 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ImpredicativeTypes #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -24,20 +22,21 @@ module Databases.HitmenBusiness.Marks
   )
 where
 
+import Chronos (Datetime)
 import Control.Applicative (Applicative ((<*>)), (<$>))
 import Data.Aeson (ToJSON)
 import Data.Aeson.Types (FromJSON (parseJSON), withObject, (.:))
 import Data.Int (Int32)
 import Data.Text (Text)
-import Data.Time.LocalTime (LocalTime)
 import Database.Beam (Generic, Identity, Nullable, Typeable)
 import Database.Beam.AutoMigrate (HasColumnType (..), PgEnum)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize, HasSqlValueSyntax (..), autoSqlValueSyntax)
 import Database.Beam.Backend.SQL.Row (FromBackendRow (..))
 import Database.Beam.Backend.Types (BeamBackend)
-import Database.Beam.Query (SqlValable (val_), currentTimestamp_, default_, (<-.))
+import Database.Beam.Query (SqlValable (val_), default_, (<-.))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
+import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Text.Read (Read (..), readMaybe)
 import Text.Show (Show (..))
@@ -87,8 +86,8 @@ data MarkB f = Mark
 
 data MarkT f = MarkAll
   { _mid :: C f (SqlSerial Int32),
-    _createdAt :: C f LocalTime,
-    _updatedAt :: C f LocalTime,
+    _createdAt :: C f Datetime,
+    _updatedAt :: C f Datetime,
     _base :: MarkB f
   }
   deriving (Generic, Beamable)
@@ -138,21 +137,16 @@ instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be (Maybe Text),
     BeamSqlBackendCanSerialize be Text,
-    BeamSqlBackendCanSerialize be Int32,
-    BeamSqlBackendCanSerialize be LocalTime,
     BeamSqlBackendCanSerialize be MarkStatus
   ) =>
   ToBase be MarkT
   where
   type Base MarkT = MarkB
-
-  -- type Extra MarkT = ()
-  -- fromBase b _ =
   fromBase b =
     MarkAll
       { _mid = default_,
         _base = val_ b,
-        _createdAt = currentTimestamp_,
-        _updatedAt = currentTimestamp_
+        _createdAt = currentTimestamp_',
+        _updatedAt = currentTimestamp_'
       }
   baseAsUpdate body = (<-. val_ body) . _base

@@ -16,17 +16,16 @@ module Databases.HitmenBusiness.PursuingMarks
   )
 where
 
--- import Chronos.Types (Time)
-
-import Data.Aeson (FromJSON, ToJSON)
+import Chronos (Datetime)
+import Data.Aeson (FromJSON (..), ToJSON)
 import Data.Int (Int32)
-import Data.Time.LocalTime (LocalTime)
-import Database.Beam (Generic, Identity, Nullable, currentTimestamp_, default_, val_, (<-.))
+import Database.Beam (Generic, Identity, Nullable, default_, val_, (<-.))
 import Database.Beam.Backend (BeamSqlBackend, BeamSqlBackendCanSerialize, SqlSerial (SqlSerial))
 import Database.Beam.Schema (Table (..))
 import Database.Beam.Schema.Tables (Beamable, C)
 import Databases.HitmenBusiness.Hitmen (HitmanT)
 import Databases.HitmenBusiness.Marks (MarkT)
+import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
 import Prelude (Maybe, Show, (.), (<$>))
@@ -34,13 +33,13 @@ import Prelude (Maybe, Show, (.), (<$>))
 data PursuingMarkB f = PursuingMark
   { _hitmanId :: PrimaryKey HitmanT f,
     _markId :: PrimaryKey MarkT f,
-    _endAt :: C (Nullable f) LocalTime
+    _endAt :: C (Nullable f) Datetime
   }
   deriving (Generic, Beamable)
 
 data PursuingMarkT f = PursuingMarkAll
   { _id :: C f (SqlSerial Int32),
-    _createdAt :: C f LocalTime,
+    _createdAt :: C f Datetime,
     _base :: PursuingMarkB f
   }
   deriving (Generic, Beamable)
@@ -65,11 +64,11 @@ instance ToJSON (PursuingMarkB Identity)
 
 instance ToJSON (PursuingMarkT Identity)
 
-instance FromJSON (PursuingMarkT Identity)
+instance FromJSON Datetime => FromJSON (PursuingMarkT Identity)
 
 instance FromJSON (PrimaryKey HitmanT Identity)
 
-instance FromJSON (PursuingMarkB Identity)
+instance FromJSON Datetime => FromJSON (PursuingMarkB Identity)
 
 instance Table PursuingMarkT where
   data PrimaryKey PursuingMarkT f = PursuingMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
@@ -77,7 +76,7 @@ instance Table PursuingMarkT where
 
 instance
   ( BeamSqlBackend be,
-    BeamSqlBackendCanSerialize be (Maybe LocalTime)
+    BeamSqlBackendCanSerialize be (Maybe Datetime)
   ) =>
   ToBase be PursuingMarkT
   where
@@ -86,6 +85,6 @@ instance
     PursuingMarkAll
       { _id = default_,
         _base = val_ b,
-        _createdAt = currentTimestamp_
+        _createdAt = currentTimestamp_'
       }
   baseAsUpdate body = (<-. val_ body) . _base

@@ -15,18 +15,15 @@ module Databases.HitmenBusiness.ErasedMarks
   )
 where
 
+import Chronos (Datetime)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Int (Int32)
-import Data.Time.LocalTime (LocalTime)
-import Database.Beam (Generic, Identity, currentTimestamp_, default_, val_, (<-.))
-import Database.Beam.Backend (BeamSqlBackend, BeamSqlBackendCanSerialize, SqlSerial (SqlSerial))
+import Database.Beam (Generic, Identity, default_, val_, (<-.))
+import Database.Beam.Backend (BeamSqlBackend, SqlSerial (SqlSerial))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
-import Databases.HitmenBusiness.Hitmen
-  ( HitmanT,
-  )
-import Databases.HitmenBusiness.Marks
-  ( MarkT,
-  )
+import Databases.HitmenBusiness.Hitmen (HitmanT)
+import Databases.HitmenBusiness.Marks (MarkT)
+import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
 import Prelude (Show, (.), (<$>))
@@ -39,7 +36,7 @@ data ErasedMarkB f = ErasedMark
 
 data ErasedMarkT f = ErasedMarkAll
   { _id :: C f (SqlSerial Int32),
-    _createdAt :: C f LocalTime,
+    _createdAt :: C f Datetime,
     _base :: ErasedMarkB f
   }
   deriving (Generic, Beamable)
@@ -76,16 +73,12 @@ instance Table ErasedMarkT where
   data PrimaryKey ErasedMarkT f = ErasedMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = ErasedMarkId . _id
 
-instance
-  ( BeamSqlBackend be
-  ) =>
-  ToBase be ErasedMarkT
-  where
+instance (BeamSqlBackend be) => ToBase be ErasedMarkT where
   type Base ErasedMarkT = ErasedMarkB
   fromBase b =
     ErasedMarkAll
       { _id = default_,
         _base = val_ b,
-        _createdAt = currentTimestamp_
+        _createdAt = currentTimestamp_'
       }
   baseAsUpdate body = (<-. val_ body) . _base

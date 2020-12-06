@@ -4,7 +4,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -21,23 +20,29 @@ module Databases.HitmenBusiness.Hitmen
   )
 where
 
+import Chronos (Datetime)
 import Control.Applicative (Applicative (liftA2, (<*>)), (<$>))
 import Data.Aeson.Types (FromJSON (parseJSON), ToJSON, withObject, (.:))
 import Data.Int (Int32)
 import Data.Text (Text)
-import Data.Time (LocalTime)
-import Database.Beam (Generic, Identity, Nullable, currentTimestamp_, default_, val_, (<-.))
+import Database.Beam (Generic, Identity, Nullable, default_, val_, (<-.))
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Handlers (HandlerT, PrimaryKey (HandlerId))
+import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
 import Prelude (Maybe, Show, ($), (.))
 
+-- newtype Codename = Codename {unCodename :: Text} deriving (Generic, ToJSON, Show, FromJSON)
+
+-- instance BeamSqlBackendCanSerialize be Codename where
+--   val_ cn = val_ $ unCodename cn
+
 data HitmanB f = Hitman
   { _codename :: C f Text,
-    _dieAt :: C (Nullable f) LocalTime
+    _dieAt :: C (Nullable f) Datetime
   }
   deriving (Generic, Beamable)
 
@@ -45,7 +50,7 @@ data HitmanT f = HitmanAll
   { _id :: C f (SqlSerial Int32),
     _handlerId :: PrimaryKey HandlerT f,
     _base :: HitmanB f,
-    _createdAt :: C f LocalTime
+    _createdAt :: C f Datetime
   }
   deriving (Generic, Beamable)
 
@@ -86,16 +91,19 @@ instance FromJSON (HitmanB Identity) where
 
 instance FromJSON (HitmanT Identity)
 
-instance (BeamSqlBackend be, BeamSqlBackendCanSerialize be Text, BeamSqlBackendCanSerialize be (Maybe LocalTime)) => ToBase be HitmanT where
+instance
+  ( BeamSqlBackend be,
+    BeamSqlBackendCanSerialize be Text,
+    BeamSqlBackendCanSerialize be (Maybe Datetime)
+  ) =>
+  ToBase be HitmanT
+  where
   type Base HitmanT = HitmanB
-
-  -- type Extra HitmanT = HandlerId
-  -- fromBase b hid =
   fromBase b =
     HitmanAll
       { _id = default_,
         _base = val_ b,
-        _createdAt = currentTimestamp_,
+        _createdAt = currentTimestamp_',
         -- _handlerId = val_ hid
         _handlerId = val_ (HandlerId 1) --  TEMP TEMP
       }
