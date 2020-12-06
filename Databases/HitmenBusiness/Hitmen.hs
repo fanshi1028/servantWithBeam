@@ -44,7 +44,7 @@ data HitmanB f = Hitman
   deriving (Generic, Beamable)
 
 data HitmanT f = HitmanAll
-  { _id :: C f (SqlSerial Int32),
+  { _hitmanId :: C f (SqlSerial Int32),
     _handlerId :: PrimaryKey HandlerT f,
     _base :: HitmanB f,
     _createdAt :: C f Datetime
@@ -78,7 +78,7 @@ deriving instance Show HitmanId
 
 instance Table HitmanT where
   data PrimaryKey HitmanT f = HitmanId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = HitmanId . _id
+  primaryKey = HitmanId . _hitmanId
 
 instance FromJSON (HitmanB Identity) where
   parseJSON = genericParseJSON noCamelOpt
@@ -95,7 +95,7 @@ instance
   type Base HitmanT = HitmanB
   fromBase b =
     HitmanAll
-      { _id = default_,
+      { _hitmanId = default_,
         _base = val_ b,
         _createdAt = currentTimestamp_',
         -- _handlerId = val_ hid

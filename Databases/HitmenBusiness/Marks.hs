@@ -51,7 +51,7 @@ data MarkB f = Mark
   deriving (Generic, Beamable)
 
 data MarkT f = MarkAll
-  { _mid :: C f (SqlSerial Int32),
+  { _markId :: C f (SqlSerial Int32),
     _createdAt :: C f Datetime,
     _updatedAt :: C f Datetime,
     _base :: MarkB f
@@ -91,7 +91,7 @@ deriving instance Read (PrimaryKey MarkT Identity)
 
 instance Table MarkT where
   data PrimaryKey MarkT f = MarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = MarkId . _mid
+  primaryKey = MarkId . _markId
 
 instance FromJSON (PrimaryKey MarkT Identity)
 
@@ -113,7 +113,7 @@ instance
   type Base MarkT = MarkB
   fromBase b =
     MarkAll
-      { _mid = default_,
+      { _markId = default_,
         _base = val_ b,
         _createdAt = currentTimestamp_',
         _updatedAt = currentTimestamp_'

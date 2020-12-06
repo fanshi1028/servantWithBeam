@@ -39,7 +39,7 @@ data PursuingMarkB f = PursuingMark
   deriving (Generic, Beamable)
 
 data PursuingMarkT f = PursuingMarkAll
-  { _id :: C f (SqlSerial Int32),
+  { _pursuingMarkId :: C f (SqlSerial Int32),
     _createdAt :: C f Datetime,
     _base :: PursuingMarkB f
   }
@@ -77,7 +77,7 @@ instance FromJSON (PursuingMarkB Identity) where
 
 instance Table PursuingMarkT where
   data PrimaryKey PursuingMarkT f = PursuingMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = PursuingMarkId . _id
+  primaryKey = PursuingMarkId . _pursuingMarkId
 
 instance
   ( BeamSqlBackend be,
@@ -88,7 +88,7 @@ instance
   type Base PursuingMarkT = PursuingMarkB
   fromBase b =
     PursuingMarkAll
-      { _id = default_,
+      { _pursuingMarkId = default_,
         _base = val_ b,
         _createdAt = currentTimestamp_'
       }

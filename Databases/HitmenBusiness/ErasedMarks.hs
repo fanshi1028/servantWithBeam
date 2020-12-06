@@ -36,7 +36,7 @@ data ErasedMarkB f = ErasedMark
   deriving (Generic, Beamable)
 
 data ErasedMarkT f = ErasedMarkAll
-  { _id :: C f (SqlSerial Int32),
+  { _erasedMarkId :: C f (SqlSerial Int32),
     _createdAt :: C f Datetime,
     _base :: ErasedMarkB f
   }
@@ -76,13 +76,13 @@ instance FromJSON (ErasedMarkT Identity)
 
 instance Table ErasedMarkT where
   data PrimaryKey ErasedMarkT f = ErasedMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = ErasedMarkId . _id
+  primaryKey = ErasedMarkId . _erasedMarkId
 
 instance (BeamSqlBackend be) => ToBase be ErasedMarkT where
   type Base ErasedMarkT = ErasedMarkB
   fromBase b =
     ErasedMarkAll
-      { _id = default_,
+      { _erasedMarkId = default_,
         _base = val_ b,
         _createdAt = currentTimestamp_'
       }

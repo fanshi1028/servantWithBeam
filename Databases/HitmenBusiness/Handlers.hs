@@ -20,8 +20,7 @@ module Databases.HitmenBusiness.Handlers
 where
 
 import Chronos (Datetime)
-import Control.Applicative (Applicative (liftA2))
-import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, withObject, (.:))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, (.:))
 import Data.Generics.Labels ()
 import Data.Int (Int32)
 import Data.Text (Text)
@@ -35,7 +34,7 @@ import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
-import Prelude (Applicative ((<*>)), Maybe, Show, ($), (.), (<$>))
+import Prelude (Maybe, Show, (.), (<$>))
 
 data HandlerB f = Handler
   { _codename :: C f Codename,
@@ -44,7 +43,7 @@ data HandlerB f = Handler
   deriving (Generic, Beamable)
 
 data HandlerT f = HandlerAll
-  { _id :: C f (SqlSerial Int32),
+  { _handlerId :: C f (SqlSerial Int32),
     _base :: HandlerB f,
     _createdAt :: C f Datetime
   }
@@ -79,7 +78,7 @@ instance ToJSON (PrimaryKey HandlerT Identity)
 
 instance Table HandlerT where
   data PrimaryKey HandlerT f = HandlerId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = HandlerId . _id
+  primaryKey = HandlerId . _handlerId
 
 instance FromJSON (HandlerB Identity) where
   -- parseJSON = withObject "HandlerB" $ liftA2 Handler <$> (.: "codename") <*> (.: "die_at")
@@ -99,7 +98,7 @@ instance
   type Base HandlerT = HandlerB
   fromBase b =
     HandlerAll
-      { _id = default_,
+      { _handlerId = default_,
         _base = val_ b,
         _createdAt = currentTimestamp_'
       }

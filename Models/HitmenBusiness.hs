@@ -120,7 +120,7 @@ getAllErasedMarksSince date = getAllHitmen >>= getAllErasedMarksSinceBy date
 -- Get all the active marks that have only a single pursuer
 getActiveMarkWithSinglePurserFrom hitmen = do
   myJoin getActiveMarks hitmen
-    & aggregate_ (\(h, pm) -> (group_ pm, count_ $ h ^. #_id))
+    & aggregate_ (\(h, pm) -> (group_ pm, count_ $ h ^. #_hitmanId))
     & filter_ (\(_, count) -> count ==. 1)
 
 getActiveMarkWithSinglePurser ::
