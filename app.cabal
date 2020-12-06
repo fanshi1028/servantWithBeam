@@ -25,6 +25,7 @@ executable app
                        Databases.HitmenBusiness.PursuingMarks
                        Databases.HitmenBusiness.ErasedMarks
                        Databases.HitmenBusiness.Util.Chronos
+                       Databases.HitmenBusiness.Util.Types
                        Models.HitmenBusiness
                        Typeclass.Base
                        Util.Client
@@ -32,6 +33,7 @@ executable app
                        Util.Migration
   build-depends:       base >= 4.9,
                        time >= 1.9,
+                       unordered-containers >= 0.2.13,
                        servant-server >= 0.18,
                        servant-client >= 0.18,
                        servant-docs >= 0.11,

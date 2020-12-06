@@ -33,12 +33,13 @@ import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_, (<-.))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
+import Databases.HitmenBusiness.Util.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Typeclass.Base (ToBase (..))
 import Prelude (Maybe, Show, (.), (<$>))
 
 data HandlerB f = Handler
-  { _codename :: C f Text,
+  { _codename :: C f Codename,
     _dieAt :: C (Nullable f) Datetime
   }
   deriving (Generic, Beamable)
