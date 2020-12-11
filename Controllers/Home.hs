@@ -11,6 +11,7 @@ module Controllers.Home
 where
 
 import Control.Applicative (Applicative (liftA2))
+import Control.Monad.Reader (ReaderT (runReaderT))
 import Controllers.Handlers (simpleCRUDServerForHandler)
 import Controllers.Hitmen (simpleCRUDServerForHitman)
 import Controllers.Util (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
@@ -20,7 +21,7 @@ import Databases.HitmenBusiness.Handlers (HandlerT)
 import Databases.HitmenBusiness.Hitmen (HitmanT)
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT)
-import Servant (Proxy (Proxy), (:<|>) ((:<|>)))
+import Servant (Proxy (Proxy), hoistServer, (:<|>) ((:<|>)))
 import Servant.Server (Application, serve)
 import Util.Docs (APIWithDoc, serveDocs)
 
@@ -32,15 +33,31 @@ type HomeAPI =
     :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkT
 
 homeApp :: Connection -> Application
-homeApp =
+homeApp conn =
   serve @(APIWithDoc HomeAPI)
     Proxy
-    . serveDocs @HomeAPI Proxy
-    <$> simpleCRUDServerForHandler
-      |:<|> simpleCRUDServerForHitman
-      |:<|> simpleCRUDServerForHitmenBusiness #_marks
-      |:<|> simpleCRUDServerForHitmenBusiness #_hbErasedMarks
-      |:<|> simpleCRUDServerForHitmenBusiness #_hbPursuingMarks
-  where
-    infixr 5 |:<|>
-    (|:<|>) = liftA2 (:<|>)
+    $ serveDocs @HomeAPI
+      Proxy
+      $ hoistServer @HomeAPI
+        Proxy
+        (`runReaderT` conn)
+        ( simpleCRUDServerForHandler
+            :<|> simpleCRUDServerForHitman
+            :<|> simpleCRUDServerForHitmenBusiness #_marks
+            :<|> simpleCRUDServerForHitmenBusiness #_hbErasedMarks
+            :<|> simpleCRUDServerForHitmenBusiness #_hbPursuingMarks
+        )
+
+-- homeApp :: Connection -> Application
+-- homeApp =
+--   serve @(APIWithDoc HomeAPI)
+--     Proxy
+--     . serveDocs @HomeAPI Proxy
+--     <$> simpleCRUDServerForHandler
+--       |:<|> simpleCRUDServerForHitman
+--       |:<|> simpleCRUDServerForHitmenBusiness #_marks
+--       |:<|> simpleCRUDServerForHitmenBusiness #_hbErasedMarks
+--       |:<|> simpleCRUDServerForHitmenBusiness #_hbPursuingMarks
+--   where
+--     infixr 5 |:<|>
+--     (|:<|>) = liftA2 (:<|>)

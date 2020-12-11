@@ -18,7 +18,7 @@ import Data.Text.Lazy.Encoding (encodeUtf8)
 import Database.Beam.Backend (SqlSerial (..))
 import Network.HTTP.Types.Status (ok200)
 import Network.Wai (responseLBS)
-import Servant (Raw, Server, (:<|>) ((:<|>)))
+import Servant (HasServer (ServerT), Raw, Server, (:<|>) ((:<|>)))
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
 import Servant.Server (Tagged (Tagged))
 
@@ -34,7 +34,7 @@ type DocAPI api = Raw
 
 type APIWithDoc api = api :<|> DocAPI api
 
-serveDocs :: (HasDocs api) => Proxy api -> Server api -> Server (APIWithDoc api)
+serveDocs :: (HasDocs api) => Proxy api -> ServerT api m -> ServerT (APIWithDoc api) m
 serveDocs api server = server :<|> Tagged toDocs
   where
     docsBS = encodeUtf8 . pack . markdown . docs $ api

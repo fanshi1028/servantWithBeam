@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -11,21 +12,23 @@ module Controllers.Util
     SimpleCRUDAPI,
     doPgQueryWithDebug,
     simpleCRUDServerForHitmenBusiness,
-    doSqliteQueryWithDebug,
+    -- doSqliteQueryWithDebug,
   )
 where
 
+import Control.Monad.Cont (MonadIO)
+import Control.Monad.Reader (Reader, ReaderT (..), lift)
 import Database.Beam (FromBackendRow, Identity, MonadBeam, PrimaryKey, liftIO)
 import Database.Beam.Backend.SQL (BeamSqlBackendCanSerialize)
-import Database.Beam.Postgres (runBeamPostgresDebug)
+import Database.Beam.Postgres (Connection, Pg, runBeamPostgresDebug)
 import Database.Beam.Query (HasSqlEqualityCheck, all_, delete, insert, insertExpressions, lookup_, runDelete, runInsert, runSelectReturningList, runSelectReturningOne, runUpdate, select, update, val_, (==.))
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (Beamable, Database, DatabaseEntity, FieldsFulfillConstraint, Table, TableEntity, pk)
-import Database.Beam.Sqlite.Connection (runBeamSqliteDebug)
+import Database.Beam.Sqlite.Connection (SqliteM, runBeamSqliteDebug)
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
-import Lens.Micro ((&), (^.))
-import Servant (Capture, Delete, Get, Handler, JSON, NoContent (NoContent), Post, Put, ReqBody, throwError, (:<|>) ((:<|>)), (:>))
+import Lens.Micro ((&), (<&>), (^.))
+import Servant (Capture, Delete, Get, Handler, HasServer (ServerT), JSON, NoContent (NoContent), Post, Put, ReqBody, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Servant.Server (Server)
 import Servant.Server.Internal.ServerError (err404)
@@ -55,9 +58,11 @@ simpleCRUDServer ::
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a,
     ToBase be a
   ) =>
-  (forall t. (m t -> Handler t)) ->
+  (forall t. (m t -> ReaderT conn Handler t)) ->
+  -- (forall t. m t ->  Handler t) ->
   DatabaseEntity be db (TableEntity a) ->
-  Server (SimpleCRUDAPI path a)
+  ServerT (SimpleCRUDAPI path a) (ReaderT conn Handler)
+-- Server (SimpleCRUDAPI path a)
 simpleCRUDServer doQuery db = createOne :<|> readMany :<|> readOne :<|> updateOne :<|> deleteOne
   where
     createOne body = insertExpressions [fromBase body] & insert db & runInsert & doQuery >> return NoContent
@@ -66,8 +71,16 @@ simpleCRUDServer doQuery db = createOne :<|> readMany :<|> readOne :<|> updateOn
     updateOne id body = update db (baseAsUpdate body) ((==. val_ id) . pk) & runUpdate & doQuery >> return NoContent
     deleteOne id = delete db ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
 
-doPgQueryWithDebug conn = liftIO <$> runBeamPostgresDebug putStrLn conn
+doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
+doPgQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamPostgresDebug putStrLn)
 
-doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn
+-- doPgQueryWithDebug conn = liftIO <$> runBeamPostgresDebug putStrLn conn
 
-simpleCRUDServerForHitmenBusiness dbGetter conn = simpleCRUDServer (doPgQueryWithDebug conn) (hitmenBusinessDb ^. dbGetter)
+-- doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM a -> ReaderT Connection m a)
+-- doSqliteQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamSqliteDebug putStrLn)
+
+-- doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn
+
+simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (hitmenBusinessDb ^. dbGetter)
+
+-- simpleCRUDServerForHitmenBusiness dbGetter conn = simpleCRUDServer (doPgQueryWithDebug conn) (hitmenBusinessDb ^. dbGetter)
