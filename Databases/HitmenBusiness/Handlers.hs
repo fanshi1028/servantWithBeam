@@ -82,7 +82,6 @@ instance Table HandlerT where
   primaryKey = HandlerId . _handlerId
 
 instance FromJSON (HandlerB Identity) where
-  -- parseJSON = withObject "HandlerB" $ liftA2 Handler <$> (.: "codename") <*> (.: "die_at")
   parseJSON = genericParseJSON noCamelOpt
 
 instance FromJSON (HandlerT Identity)
@@ -94,6 +93,7 @@ instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey HandlerT Identity)
 instance (ToSample (C f (Maybe Datetime)), ToSample (C f Codename)) => ToSample (HandlerB f)
 
 instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (HandlerT Identity)
+
 instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be Text,

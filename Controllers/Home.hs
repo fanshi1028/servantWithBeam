@@ -22,7 +22,7 @@ import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT)
 import Servant (Proxy (Proxy), (:<|>) ((:<|>)))
 import Servant.Server (Application, serve)
-import Util.Docs (DocAPI, serveDocs)
+import Util.Docs (APIWithDoc, serveDocs)
 
 type HomeAPI =
   SimpleCRUDAPI "handlers" HandlerT
@@ -33,7 +33,7 @@ type HomeAPI =
 
 homeApp :: Connection -> Application
 homeApp =
-  serve @(DocAPI HomeAPI)
+  serve @(APIWithDoc HomeAPI)
     Proxy
     . serveDocs @HomeAPI Proxy
     <$> simpleCRUDServerForHandler

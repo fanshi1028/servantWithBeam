@@ -2,7 +2,7 @@
 let hsPkgs = import ./default.nix { };
 in hsPkgs.shellFor {
   # Include only the *local* packages of your project.
-  packages = ps: with ps; [ ps.app ];
+  packages = ps: with ps; [ app ];
 
   # Builds a Hoogle documentation index of all dependencies,
   # and provides a "hoogle" command to search the index.

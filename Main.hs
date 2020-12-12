@@ -5,7 +5,7 @@
 
 module Main where
 
-import Controllers.Home (HomeAPI, homeApp)
+import Controllers.Home (homeApp)
 import Database.Beam.Postgres (connectPostgreSQL, defaultConnectInfo)
 import Database.PostgreSQL.Simple (postgreSQLConnectionString)
 import Lens.Micro ((&), (.~))
@@ -44,3 +44,5 @@ main =
         & setPort port
         & setOnExceptionResponse exceptionResponseForDebug
         & setBeforeMainLoop (hPutStrLn stderr $ "listening on port: " <> show port)
+
+-- main = connectDb >>= run 6868 . homeApp

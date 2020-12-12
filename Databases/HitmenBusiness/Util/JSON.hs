@@ -12,7 +12,6 @@ import Prelude (fmap, foldMap, maybe, tail, ($), (.), (<$>), (<>), (==))
 
 noCamelOpt = defaultOptions {fieldLabelModifier = camelTo2 '_' . tail}
 
-
 flattenBase obj@(Object v) =
   maybe
     obj

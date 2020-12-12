@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -7,7 +8,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Util.Docs (serveDocs, DocAPI) where
+module Util.Docs (serveDocs, DocAPI, APIWithDoc) where
 
 import Chronos (Datetime, epoch, timeToDatetime)
 import Data.Data (Proxy)
@@ -29,9 +30,11 @@ instance ToSample Int32 where
 
 deriving newtype instance ToSample (SqlSerial Int32)
 
-type DocAPI api = api :<|> Raw
+type DocAPI api = Raw
 
-serveDocs :: (HasDocs api) => Proxy api -> Server api -> Server (DocAPI api)
+type APIWithDoc api = api :<|> DocAPI api
+
+serveDocs :: (HasDocs api) => Proxy api -> Server api -> Server (APIWithDoc api)
 serveDocs api server = server :<|> Tagged toDocs
   where
     docsBS = encodeUtf8 . pack . markdown . docs $ api
