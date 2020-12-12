@@ -3,11 +3,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness.Handlers
   ( HandlerT (..),
@@ -22,9 +20,7 @@ where
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, (.:))
 import Data.Generics.Labels ()
-import Data.Int (Int32)
-import Data.Text (Text)
-import Database.Beam (Generic, Identity, Nullable)
+import Database.Beam (Nullable)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_, (<-.))
@@ -32,10 +28,9 @@ import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (Codename)
-import Servant (Capture, FromHttpApiData (..), ToHttpApiData (..))
-import Servant.Docs (ToCapture, ToSample)
+import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
-import Prelude (Maybe, Show, (.), (<$>))
 
 data HandlerB f = Handler
   { _codename :: C f Codename,

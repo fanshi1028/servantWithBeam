@@ -2,13 +2,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness.Hitmen
   ( HitmanT (..),
@@ -21,11 +19,8 @@ module Databases.HitmenBusiness.Hitmen
 where
 
 import Chronos (Datetime)
-import Control.Applicative (Applicative (liftA2, (<*>)), (<$>))
-import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, withObject, (.:))
-import Data.Int (Int32)
-import Data.Text (Text)
-import Database.Beam (Generic, Identity, Nullable, default_, val_, (<-.))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, (.:))
+import Database.Beam (Nullable, default_, val_, (<-.))
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
@@ -36,7 +31,6 @@ import Databases.HitmenBusiness.Util.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
-import Prelude (Maybe, Show, ($), (.))
 
 data HitmanB f = Hitman
   { _codename :: C f Codename,
@@ -96,6 +90,7 @@ instance
     ToSample Datetime
   ) =>
   ToSample (HitmanT Identity)
+
 instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be Text,

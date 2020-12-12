@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Util.Migration
   ( showAndDoMigration,
     doMigration,
@@ -33,13 +31,13 @@ showMigration1 conn = do
 -- doMigration = tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb
 doMigration conn = do
   tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb conn
-  putStrLn "Migration done"
+  putTextLn "Migration done"
   return conn
 
 showAndDoMigration conn = do
   showMigration conn
-  putStrLn "migrate?"
+  putTextLn "migrate?"
   getLine >>= \case
     "y" -> doMigration conn
     "Y" -> doMigration conn
-    _ -> putStrLn "Exiting" >> return conn
+    _ -> putTextLn "Exiting" >> return conn

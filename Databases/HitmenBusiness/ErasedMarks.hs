@@ -2,12 +2,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness.ErasedMarks
   ( ErasedMark,
@@ -19,8 +17,7 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
-import Data.Int (Int32)
-import Database.Beam (Generic, Identity, default_, val_, (<-.))
+import Database.Beam (default_, val_, (<-.))
 import Database.Beam.Backend (BeamSqlBackend, SqlSerial (SqlSerial))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Hitmen (HitmanT)
@@ -30,7 +27,6 @@ import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
-import Prelude (Show, (.), (<$>))
 
 data ErasedMarkB f = ErasedMark
   { _hitmanId :: PrimaryKey HitmanT f,
@@ -82,6 +78,7 @@ instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey ErasedMarkT Identity
 instance (ToSample (PrimaryKey HitmanT f), ToSample (PrimaryKey MarkT f)) => ToSample (ErasedMarkB f)
 
 instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (ErasedMarkT Identity)
+
 instance Table ErasedMarkT where
   data PrimaryKey ErasedMarkT f = ErasedMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = ErasedMarkId . _erasedMarkId

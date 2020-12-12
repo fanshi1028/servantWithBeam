@@ -3,14 +3,10 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness.Marks
   ( Mark,
@@ -23,11 +19,8 @@ module Databases.HitmenBusiness.Marks
 where
 
 import Chronos (Datetime)
-import Control.Applicative (Applicative ((<*>)), (<$>))
-import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, withObject, (.:))
-import Data.Int (Int32)
-import Data.Text (Text)
-import Database.Beam (Generic, Identity, Nullable)
+import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, (.:))
+import Database.Beam (Nullable)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_, (<-.))
@@ -37,10 +30,7 @@ import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (FirstName, LastName, MarkDescription, MarkStatus)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Text.Read (Read (..))
-import Text.Show (Show (..))
 import Typeclass.Base (ToBase (..))
-import Prelude (Maybe (..), ($), (.))
 
 data MarkB f = Mark
   { _listBounty :: C f Int32,
@@ -121,6 +111,7 @@ instance
     ToSample Datetime
   ) =>
   ToSample (MarkT Identity)
+
 instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be (Maybe MarkDescription),

@@ -6,7 +6,7 @@
 
 module Typeclass.Base (ToBase (..)) where
 
-import Database.Beam (Identity, QAssignment, QField)
+import Database.Beam (QAssignment, QField)
 import Database.Beam.Query.Types (QExpr)
 
 class ToBase be a where

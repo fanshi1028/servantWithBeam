@@ -1,7 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Servers.Home
@@ -10,11 +8,17 @@ module Servers.Home
   )
 where
 
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Controllers (SimpleCRUDAPI, simpleCRUDServerForErasedMarks, simpleCRUDServerForHandler, simpleCRUDServerForHitman, simpleCRUDServerForMarks, simpleCRUDServerForPursuingMarks)
+import Controllers
+  ( SimpleCRUDAPI,
+    simpleCRUDServerForErasedMarks,
+    simpleCRUDServerForHandler,
+    simpleCRUDServerForHitman,
+    simpleCRUDServerForMarks,
+    simpleCRUDServerForPursuingMarks,
+  )
 import Database.PostgreSQL.Simple (Connection)
 import Databases.HitmenBusiness (ErasedMarkT, HandlerT, HitmanT, MarkT, PursuingMarkT)
-import Servant (Application, Proxy (Proxy), hoistServer, serve, (:<|>) ((:<|>)))
+import Servant (Application, hoistServer, serve, (:<|>) ((:<|>)))
 import Util.Docs (APIWithDoc, serveDocs)
 
 type HomeAPI =

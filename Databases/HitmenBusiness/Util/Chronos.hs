@@ -1,13 +1,10 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Databases.HitmenBusiness.Util.Chronos where
 
-import Chronos (Datetime, DatetimeFormat (DatetimeFormat), SubsecondPrecision (SubsecondPrecisionFixed), builderUtf8_YmdHMS, decode_YmdHMS_lenient, now, timeToDatetime)
+import Chronos (Datetime, DatetimeFormat (DatetimeFormat), SubsecondPrecision (SubsecondPrecisionFixed), builderUtf8_YmdHMS, decode_YmdHMS_lenient)
 import Data.Aeson (FromJSON (..))
-import Data.Text.Encoding (decodeUtf8)
-import Data.Time (LocalTime, getCurrentTime, getCurrentTimeZone, utcToLocalTime)
+import Data.Time (LocalTime)
 import Database.Beam (FromBackendRow, QGenExpr (..))
 import Database.Beam.AutoMigrate (HasColumnType (..))
 import Database.Beam.Backend (BeamSqlBackend, HasSqlValueSyntax (..), currentTimestampE, timestampType)
@@ -17,7 +14,6 @@ import Database.Beam.Postgres.Syntax (PgValueSyntax, defaultPgValueSyntax)
 import Database.PostgreSQL.Simple.FromField (FromField (..), returnError, typeOid)
 import Database.PostgreSQL.Simple.ToField (Action (Plain), ToField (..), inQuotes)
 import Database.PostgreSQL.Simple.TypeInfo.Static (timestampOid)
-import Servant (Proxy (Proxy))
 
 instance HasDefaultSqlDataType Postgres Datetime where
   defaultSqlDataType _ _ _ = timestampType Nothing False

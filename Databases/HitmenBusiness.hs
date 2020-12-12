@@ -4,15 +4,9 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness
   ( HitmenBusinessDb,
@@ -32,13 +26,10 @@ module Databases.HitmenBusiness
   )
 where
 
-import Data.Bifunctor (Bifunctor (first))
 import Data.Char (isUpper)
 import qualified Data.Char as C
 import Data.Generics.Labels ()
-import Data.List.NonEmpty (last)
-import Data.Text (break, cons, dropWhile, intercalate, null, toLower, uncons)
-import Database.Beam (Generic, dbModification)
+import Database.Beam (dbModification)
 import Database.Beam.AutoMigrate
   ( AnnotatedDatabaseSettings,
     UniqueConstraint (U),
@@ -54,10 +45,6 @@ import Databases.HitmenBusiness.Handlers (HandlerT (..))
 import Databases.HitmenBusiness.Hitmen (HitmanT (..))
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..))
-import Lens.Micro ((^.))
-import Lens.Micro.Extras (view)
-import Servant (Proxy (Proxy))
-import Prelude (Eq ((==)), maybe, mempty, not, otherwise, uncurry, ($), (.))
 
 data HitmenBusinessDb f = HitmenBusinessDb
   { _hitmen :: f (TableEntity HitmanT),
@@ -72,20 +59,15 @@ hitmenBusinessDb :: DatabaseSettings be HitmenBusinessDb
 hitmenBusinessDb =
   defaultDbSettings
     `withDbModification` renamingFields
-      ( intercalate "_" . unCamelCase
-          . dropWhile (== '_')
-          . last
-      )
+      (toText . intercalate "_" . unCamelCase . dropWhile (== '_') . toString . last)
   where
     unCamelCase = \case
       "" -> []
-      s ->
-        if
-            | (comp, next) <- break isUpper s,
-              not (null comp) ->
-              let next' = maybe mempty (uncurry cons . first C.toLower) (uncons next)
-               in toLower comp : unCamelCase next'
-            | otherwise -> []
+      s -> case break isUpper s of
+        (comp, []) -> [comp]
+        (comp, next) ->
+          let next' = maybe mempty (uncurry (:) . first C.toLower) (uncons next)
+           in comp : unCamelCase next'
 
 handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view #_handlerId) handlers
 
@@ -101,10 +83,10 @@ annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings be HitmenBusinessDb
 annotatedHitmenBusinessDb =
   defaultAnnotatedDbSettings hitmenBusinessDb
     `withDbModification` ( dbModification
-                             { _handlers = uniqueConstraintOn [U $ view $ #_base . #_codename],
-                               _hitmen = uniqueConstraintOn [U $ view $ #_base . #_codename],
-                               _hbErasedMarks = uniqueConstraintOn [U $ view $ #_base . #_markId],
-                               _hbPursuingMarks = uniqueConstraintOn [U $ view $ #_base . #_hitmanId, U $ view $ #_base . #_markId]
+                             { _handlers = uniqueConstraintOn [U . view $ #_base . #_codename],
+                               _hitmen = uniqueConstraintOn [U . view $ #_base . #_codename],
+                               _hbErasedMarks = uniqueConstraintOn [U . view $ #_base . #_markId],
+                               _hbPursuingMarks = uniqueConstraintOn [U . view $ #_base . #_hitmanId, U $ view $ #_base . #_markId]
                              }
                              -- NOTE Why doesn't it work?
                              -- & #_handlers .~ uniqueConstraintOn [U (view $ #_base . #_codename)]

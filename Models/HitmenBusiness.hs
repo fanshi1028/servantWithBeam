@@ -2,7 +2,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Models.HitmenBusiness
@@ -25,27 +24,50 @@ module Models.HitmenBusiness
 where
 
 import Chronos (Datetime)
-import Data.Int (Int32)
-import Data.Time.LocalTime (LocalTime)
+import Data.Time (LocalTime)
 import Database.Beam (filter_', pk)
-import Database.Beam.Backend.SQL (BeamSqlBackend)
-import Database.Beam.Query (HasSqlEqualityCheck, HasSqlQuantifiedEqualityCheck, QGroupable (group_), QValueContext, SqlDeconstructMaybe (maybe_), SqlJustable (just_), SqlValable (val_), aggregate_, allOf_, all_, count_, filter_, guard_, join_, leftJoin_, max_, sum_, (/=*.), (==.), (>.), (>=.))
+import Database.Beam.Backend (BeamSqlBackend)
+import Database.Beam.Query
+  ( HasQBuilder,
+    HasSqlEqualityCheck,
+    HasSqlQuantifiedEqualityCheck,
+    Q,
+    QExpr,
+    QGenExpr,
+    QGroupable (group_),
+    QValueContext,
+    SqlDeconstructMaybe (maybe_),
+    SqlJustable (just_),
+    SqlValable (val_),
+    aggregate_,
+    allOf_,
+    all_,
+    count_,
+    filter_,
+    guard_,
+    join_,
+    leftJoin_,
+    max_,
+    sum_,
+    (/=*.),
+    (==.),
+    (>.),
+    (>=.),
+  )
 import Database.Beam.Query.Internal (QNested)
-import Database.Beam.Query.Types (HasQBuilder, Q, QExpr, QGenExpr)
 import Databases.HitmenBusiness
-  ( HitmenBusinessDb,
+  ( ErasedMarkT,
+    HandlerT,
+    HitmanT,
+    HitmenBusinessDb,
+    MarkT,
+    PursuingMarkT,
     erasedMarkOf,
     hitmenBusinessDb,
     markErasedBy,
     markPursuedBy,
   )
-import Databases.HitmenBusiness.ErasedMarks (ErasedMarkT)
-import Databases.HitmenBusiness.Handlers (HandlerT)
-import Databases.HitmenBusiness.Hitmen (HitmanT)
-import Databases.HitmenBusiness.Marks (MarkT, PrimaryKey (MarkId))
-import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT)
-import Lens.Micro ((&), (^.))
-import Lens.Micro.Extras (view)
+import Databases.HitmenBusiness.Marks (PrimaryKey (MarkId))
 
 -- NOTE util
 

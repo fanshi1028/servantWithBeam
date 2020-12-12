@@ -2,12 +2,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness.PursuingMarks
   ( PursuingMarkT (..),
@@ -18,8 +16,7 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
-import Data.Int (Int32)
-import Database.Beam (Generic, Identity, Nullable, default_, val_, (<-.))
+import Database.Beam (Nullable, default_, val_, (<-.))
 import Database.Beam.Backend (BeamSqlBackend, BeamSqlBackendCanSerialize, SqlSerial (SqlSerial))
 import Database.Beam.Schema (Table (..))
 import Database.Beam.Schema.Tables (Beamable, C)
@@ -30,7 +27,6 @@ import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
-import Prelude (Maybe, Show, (.), (<$>))
 
 data PursuingMarkB f = PursuingMark
   { _hitmanId :: PrimaryKey HitmanT f,
@@ -86,6 +82,7 @@ instance
   ToSample (PursuingMarkB f)
 
 instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (PursuingMarkT Identity)
+
 instance Table PursuingMarkT where
   data PrimaryKey PursuingMarkT f = PursuingMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = PursuingMarkId . _pursuingMarkId

@@ -2,8 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -16,9 +14,7 @@ module Controllers.Util
   )
 where
 
-import Control.Monad.Cont (MonadIO)
-import Control.Monad.Reader (Reader, ReaderT (..), lift)
-import Database.Beam (FromBackendRow, Identity, MonadBeam, PrimaryKey, liftIO)
+import Database.Beam (FromBackendRow, MonadBeam, PrimaryKey)
 import Database.Beam.Backend.SQL (BeamSqlBackendCanSerialize)
 import Database.Beam.Postgres (Connection, Pg, runBeamPostgresDebug)
 import Database.Beam.Query (HasSqlEqualityCheck, all_, delete, insert, insertExpressions, lookup_, runDelete, runInsert, runSelectReturningList, runSelectReturningOne, runUpdate, select, update, val_, (==.))
@@ -27,10 +23,8 @@ import Database.Beam.Schema.Tables (Beamable, Database, DatabaseEntity, FieldsFu
 import Database.Beam.Sqlite.Connection (SqliteM, runBeamSqliteDebug)
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
-import Lens.Micro ((&), (<&>), (^.))
 import Servant (Capture, Delete, Get, Handler, HasServer (ServerT), JSON, NoContent (NoContent), Post, Put, ReqBody, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
-import Servant.Server (Server)
 import Servant.Server.Internal.ServerError (err404)
 import Typeclass.Base (ToBase (..))
 
@@ -47,16 +41,14 @@ instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
   toCapture _ = DocCapture "id" "hi"
 
 simpleCRUDServer ::
-  ( Beamable a,
-    MonadBeam be m,
-    FromBackendRow be (a Identity),
+  ( HasQBuilder be,
     Database be db,
-    Table a,
-    HasQBuilder be,
+    With [Beamable, Table, ToBase be] a,
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a,
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey a),
     FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey a),
-    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a,
-    ToBase be a
+    FromBackendRow be (a Identity),
+    MonadBeam be m
   ) =>
   (forall t. (m t -> ReaderT conn Handler t)) ->
   -- (forall t. m t ->  Handler t) ->

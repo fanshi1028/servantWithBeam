@@ -1,18 +1,13 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Main where
 
 import Database.Beam.Postgres (connectPostgreSQL, defaultConnectInfo)
 import Database.PostgreSQL.Simple (postgreSQLConnectionString)
-import Lens.Micro ((&), (.~))
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
 import Servers (homeApp)
 import System.Environment (getEnv)
-import System.IO (hPutStrLn, stderr)
-import Util.Migration (doMigration)
+import Util.Migration (doMigration, showMigration)
 
 connectDb user db =
   connectPostgreSQL
@@ -42,6 +37,6 @@ main =
       defaultSettings
         & setPort port
         & setOnExceptionResponse exceptionResponseForDebug
-        & setBeforeMainLoop (hPutStrLn stderr $ "listening on port: " <> show port)
+        & setBeforeMainLoop (hPutStrLn stderr $ "listening on port: " <> show @Text port)
 
 -- main = connectDb >>= run 6868 . homeApp

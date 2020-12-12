@@ -4,21 +4,16 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.Util.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..))
-import Data.Int (Int32)
-import Data.Text (Text)
-import Database.Beam (FromBackendRow (..), Generic, Typeable)
+import Database.Beam (FromBackendRow (..))
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
-import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..), SqlSerial (..), autoSqlValueSyntax)
+import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..), autoSqlValueSyntax)
 import Servant.Docs (ToSample (..), singleSample)
-import Text.Read (readMaybe)
 
 -- | Codename
 newtype Codename = Codename {unCodename :: Text}
@@ -74,7 +69,7 @@ data MarkStatus = Active | Erased | Cancelled
   deriving (HasColumnType) via (PgEnum MarkStatus)
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatus where
-  fromBackendRow = (readMaybe . show @Text <$> fromBackendRow) >>= maybe (fail "fail to get MarkStatus from backend row") return
+  fromBackendRow = (readEither @Text @MarkStatus <$> fromBackendRow) >>= either (fail . toString) return
 
 instance HasSqlValueSyntax expr String => HasSqlValueSyntax expr MarkStatus where
   sqlValueSyntax = autoSqlValueSyntax
