@@ -9,7 +9,7 @@ import Servers (homeApp)
 import System.Environment (getEnv)
 import Util.Migration (doMigration, showMigration)
 
-connectDb user db =
+connectDb' user db =
   connectPostgreSQL
     ( postgreSQLConnectionString $
         defaultConnectInfo
@@ -18,25 +18,17 @@ connectDb user db =
     )
 
 main :: IO ()
--- showMigration >>=
--- main = connectDb >>= doMigration >>= run 6868 . homeApp
-
--- main = connectDb >>= run 6868 . homeApp
-
-main =
-  join
-    ( connectDb
-        <$> getEnv "PG_USER"
-        <*> getEnv "HITMEN_DB"
-    )
-    >>= doMigration
-    >>= runSettings settings . homeApp
+main = connectDb >>= showMigration >>= runSettings settings . homeApp
   where
+    logTarget = stderr
+    log = hPutStrLn @Text @IO logTarget
+    envVar s = log ("Try get " <> s) >> getEnv (toString s) <* log ("Got " <> s)
+    connectDb = log "Try Connect DB" >> join (connectDb' <$> envVar "PG_USER" <*> envVar "HITMEN_DB") <* log "Connected"
     port = 6868
     settings =
       defaultSettings
         & setPort port
         & setOnExceptionResponse exceptionResponseForDebug
-        & setBeforeMainLoop (hPutStrLn stderr $ "listening on port: " <> show @Text port)
+        & setBeforeMainLoop (log $ "listening on port: " <> show @Text port)
 
 -- main = connectDb >>= run 6868 . homeApp
