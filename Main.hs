@@ -5,12 +5,11 @@
 
 module Main where
 
-import Controllers.Home (homeApp)
 import Database.Beam.Postgres (connectPostgreSQL, defaultConnectInfo)
 import Database.PostgreSQL.Simple (postgreSQLConnectionString)
 import Lens.Micro ((&), (.~))
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
-import Servant (Proxy (Proxy))
+import Servers (homeApp)
 import System.Environment (getEnv)
 import System.IO (hPutStrLn, stderr)
 import Util.Migration (doMigration)

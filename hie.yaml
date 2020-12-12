@@ -3,13 +3,28 @@ cradle:
     - path: "./Main.hs"
       component: "app:exe:app"
 
-    - path: "./Controllers/Home.hs"
+    - path: "./Servers.hs"
+      component: "app:exe:app"
+
+    - path: "./Servers/Home.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers.hs"
       component: "app:exe:app"
 
     - path: "./Controllers/Hitmen.hs"
       component: "app:exe:app"
 
     - path: "./Controllers/Handlers.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/Marks.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/PursuingMarks.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/ErasedMarks.hs"
       component: "app:exe:app"
 
     - path: "./Controllers/Util.hs"
@@ -40,6 +55,9 @@ cradle:
       component: "app:exe:app"
 
     - path: "./Databases/HitmenBusiness/Util/JSON.hs"
+      component: "app:exe:app"
+
+    - path: "./Models.hs"
       component: "app:exe:app"
 
     - path: "./Models/HitmenBusiness.hs"

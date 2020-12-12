@@ -14,9 +14,14 @@ cabal-version:       >= 1.10
 executable app
   main-is:             Main.hs
   other-extensions:    OverloadedStrings
-  other-modules:       Controllers.Home
+  other-modules:       Servers
+                       Servers.Home
+                       Controllers
                        Controllers.Hitmen
                        Controllers.Handlers
+                       Controllers.Marks
+                       Controllers.PursuingMarks
+                       Controllers.ErasedMarks
                        Controllers.Util
                        Databases.HitmenBusiness
                        Databases.HitmenBusiness.Hitmen
@@ -27,6 +32,7 @@ executable app
                        Databases.HitmenBusiness.Util.Chronos
                        Databases.HitmenBusiness.Util.Types
                        Databases.HitmenBusiness.Util.JSON
+                       Models
                        Models.HitmenBusiness
                        Typeclass.Base
                        Util.Client

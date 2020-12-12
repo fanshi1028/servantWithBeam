@@ -24,20 +24,13 @@ module Databases.HitmenBusiness
     handlerIs,
     annotatedHitmenBusinessDb,
     hitmenBusinessDbSchema,
+    ErasedMarkT,
+    HandlerT,
+    HitmanT,
+    MarkT,
+    PursuingMarkT,
   )
 where
-
--- import Chronos (Time (Time), getTime)
--- import Data.Int (Int64)
-
--- import Database.Beam.Backend.SQL (BeamSqlBackend, HasSqlValueSyntax (sqlValueSyntax))
--- import Database.Beam.Backend.SQL.Row (FromBackendRow (fromBackendRow))
-
--- tableModification
-
--- annotateTableFields,
-
--- printMigration,
 
 import Data.Bifunctor (Bifunctor (first))
 import Data.Char (isUpper)

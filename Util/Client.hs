@@ -3,15 +3,14 @@
 
 module Util.Client where
 
-import Controllers.Home (HomeAPI)
 import Data.Data (Proxy (Proxy))
 import Databases.HitmenBusiness.Handlers (HandlerB (Handler))
 import Databases.HitmenBusiness.Hitmen (HitmanB (Hitman))
 import Databases.HitmenBusiness.Util.Types (Codename (Codename))
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Servant ((:<|>) ((:<|>)))
-import Servant.Client (Scheme (Http), client, mkClientEnv, runClientM)
-import Servant.Client.Streaming (BaseUrl (BaseUrl))
+import Servant.Client (BaseUrl (BaseUrl), Scheme (Http), client, mkClientEnv, runClientM)
+import Servers (HomeAPI)
 
 (createHandler :<|> getHandler :<|> getHandlers :<|> updateHandler :<|> deleteHandler)
   :<|> (createHitman :<|> getHitman :<|> getHitmen :<|> updateHitman :<|> deleteHitman)

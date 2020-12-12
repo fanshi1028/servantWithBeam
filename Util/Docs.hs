@@ -16,11 +16,10 @@ import Data.Int (Int32)
 import Data.Text.Lazy (pack)
 import Data.Text.Lazy.Encoding (encodeUtf8)
 import Database.Beam.Backend (SqlSerial (..))
-import Network.HTTP.Types.Status (ok200)
+import Network.HTTP.Types (ok200)
 import Network.Wai (responseLBS)
-import Servant (HasServer (ServerT), Raw, Server, (:<|>) ((:<|>)))
+import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)))
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
-import Servant.Server (Tagged (Tagged))
 
 instance ToSample Datetime where
   toSamples _ = singleSample $ timeToDatetime epoch
