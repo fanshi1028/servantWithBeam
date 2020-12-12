@@ -9,8 +9,10 @@ import Controllers.Home (HomeAPI, homeApp)
 import Database.Beam.Postgres (connectPostgreSQL, defaultConnectInfo)
 import Database.PostgreSQL.Simple (postgreSQLConnectionString)
 import Lens.Micro ((&), (.~))
-import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setOnExceptionResponse, setPort)
+import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
+import Servant (Proxy (Proxy))
 import System.Environment (getEnv)
+import System.IO (hPutStrLn, stderr)
 import Util.Migration (doMigration)
 
 connectDb user db =
@@ -36,7 +38,9 @@ main =
     >>= doMigration
     >>= runSettings settings . homeApp
   where
+    port = 6868
     settings =
       defaultSettings
-        & setPort 6868
+        & setPort port
         & setOnExceptionResponse exceptionResponseForDebug
+        & setBeforeMainLoop (hPutStrLn stderr $ "listening on port: " <> show port)
