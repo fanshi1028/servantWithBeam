@@ -13,7 +13,7 @@ import Chronos (Datetime, epoch, timeToDatetime)
 import Database.Beam.Backend (SqlSerial (..))
 import Network.HTTP.Types (ok200)
 import Network.Wai (responseLBS)
-import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)))
+import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)), (:>))
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
 
 instance ToSample Datetime where
@@ -24,7 +24,7 @@ instance ToSample Int32 where
 
 deriving newtype instance ToSample (SqlSerial Int32)
 
-type DocAPI api = Raw
+type DocAPI api = "docs" :> Raw
 
 type APIWithDoc api = api :<|> DocAPI api
 

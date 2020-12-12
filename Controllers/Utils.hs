@@ -38,7 +38,7 @@ type SimpleCRUDAPI (path :: Symbol) a =
        )
 
 instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
-  toCapture _ = DocCapture "id" "hi"
+  toCapture _ = DocCapture "id" "id"
 
 simpleCRUDServer ::
   ( HasQBuilder be,
