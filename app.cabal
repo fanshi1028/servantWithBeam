@@ -33,12 +33,14 @@ executable app
                        Util.Docs
                        Util.Migration
   build-depends:       base >= 4.9,
+                       bytestring >= 0.10.10,
                        time >= 1.9,
                        unordered-containers >= 0.2.13,
                        servant-server >= 0.18,
                        servant-client >= 0.18,
                        servant-docs >= 0.11,
                        servant-swagger >= 1.1,
+                       http-types >= 0.12,
                        http-client < 0.7,
                        wai >= 3.2.2,
                        warp >= 3.3.10,

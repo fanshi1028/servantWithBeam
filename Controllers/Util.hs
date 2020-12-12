@@ -26,6 +26,7 @@ import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
 import Lens.Micro ((&), (^.))
 import Servant (Capture, Delete, Get, Handler, JSON, NoContent (NoContent), Post, Put, ReqBody, throwError, (:<|>) ((:<|>)), (:>))
+import Servant.Docs (DocCapture (..), ToCapture (..))
 import Servant.Server (Server)
 import Servant.Server.Internal.ServerError (err404)
 import Typeclass.Base (ToBase (..))
@@ -38,6 +39,9 @@ type SimpleCRUDAPI (path :: Symbol) a =
            :<|> (Capture "id" (PrimaryKey a Identity) :> ReqBody '[JSON] (Base a Identity) :> Put '[JSON] NoContent)
            :<|> (Capture "id" (PrimaryKey a Identity) :> Delete '[JSON] NoContent)
        )
+
+instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
+  toCapture _ = DocCapture "id" "hi"
 
 simpleCRUDServer ::
   ( Beamable a,

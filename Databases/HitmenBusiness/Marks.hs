@@ -36,6 +36,7 @@ import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (FirstName, LastName, MarkDescription, MarkStatus)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant.Docs (ToSample)
 import Text.Read (Read (..))
 import Text.Show (Show (..))
 import Typeclass.Base (ToBase (..))
@@ -102,6 +103,24 @@ instance FromJSON (MarkB Identity) where
 
 instance FromJSON (MarkT Identity)
 
+instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey MarkT Identity)
+
+instance
+  ( ToSample (C f (Maybe Datetime)),
+    ToSample (C f Int32),
+    ToSample (C f FirstName),
+    ToSample (C f LastName),
+    ToSample (C f (Maybe MarkDescription)),
+    ToSample (C f MarkStatus)
+  ) =>
+  ToSample (MarkB f)
+
+instance
+  ( ToSample Int32,
+    ToSample (SqlSerial Int32),
+    ToSample Datetime
+  ) =>
+  ToSample (MarkT Identity)
 instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be (Maybe MarkDescription),

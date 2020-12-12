@@ -28,6 +28,7 @@ import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
 import Prelude (Maybe, Show, (.), (<$>))
 
@@ -75,6 +76,16 @@ instance FromJSON (PrimaryKey HitmanT Identity)
 instance FromJSON (PursuingMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
+instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey PursuingMarkT Identity)
+
+instance
+  ( ToSample (C f (Maybe Datetime)),
+    ToSample (PrimaryKey HitmanT f),
+    ToSample (PrimaryKey MarkT f)
+  ) =>
+  ToSample (PursuingMarkB f)
+
+instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (PursuingMarkT Identity)
 instance Table PursuingMarkT where
   data PrimaryKey PursuingMarkT f = PursuingMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = PursuingMarkId . _pursuingMarkId

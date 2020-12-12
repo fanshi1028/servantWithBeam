@@ -34,6 +34,7 @@ import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
 import Prelude (Maybe, Show, ($), (.))
 
@@ -85,6 +86,16 @@ instance FromJSON (HitmanB Identity) where
 
 instance FromJSON (HitmanT Identity)
 
+instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey HitmanT Identity)
+
+instance (ToSample (C f (Maybe Datetime)), ToSample (C f Codename)) => ToSample (HitmanB f)
+
+instance
+  ( ToSample (PrimaryKey HandlerT Identity),
+    ToSample (SqlSerial Int32),
+    ToSample Datetime
+  ) =>
+  ToSample (HitmanT Identity)
 instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be Text,

@@ -1,10 +1,12 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 
 module Databases.HitmenBusiness.ErasedMarks
@@ -26,6 +28,7 @@ import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
 import Prelude (Show, (.), (<$>))
 
@@ -74,6 +77,11 @@ instance FromJSON (ErasedMarkB Identity) where
 
 instance FromJSON (ErasedMarkT Identity)
 
+instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey ErasedMarkT Identity)
+
+instance (ToSample (PrimaryKey HitmanT f), ToSample (PrimaryKey MarkT f)) => ToSample (ErasedMarkB f)
+
+instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (ErasedMarkT Identity)
 instance Table ErasedMarkT where
   data PrimaryKey ErasedMarkT f = ErasedMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = ErasedMarkId . _erasedMarkId

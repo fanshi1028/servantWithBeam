@@ -1,22 +1,38 @@
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Util.Docs where
+module Util.Docs (serveDocs, DocAPI) where
 
-import Controllers.Home (HomeAPI)
-import Data.Data (Proxy (Proxy))
-import Data.Text (Text)
-import Data.Time (LocalTime (LocalTime), midnight)
-import Data.Time.LocalTime (TimeOfDay (TimeOfDay))
-import Database.Beam (Identity)
-import Databases.HitmenBusiness.Handlers (HandlerB)
-import Servant.Docs (ToSample (..), docs, singleSample)
+import Chronos (Datetime, epoch, timeToDatetime)
+import Data.Data (Proxy)
+import Data.Int (Int32)
+import Data.Text.Lazy (pack)
+import Data.Text.Lazy.Encoding (encodeUtf8)
+import Database.Beam.Backend (SqlSerial (..))
+import Network.HTTP.Types.Status (ok200)
+import Network.Wai (responseLBS)
+import Servant (Raw, Server, (:<|>) ((:<|>)))
+import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
+import Servant.Server (Tagged (Tagged))
 
--- instance ToSample LocalTime where
---   toSamples _ = singleSample $ LocalTime _ $ midnight
+instance ToSample Datetime where
+  toSamples _ = singleSample $ timeToDatetime epoch
 
--- instance ToSample Text => ToSample (HandlerB Identity)
+instance ToSample Int32 where
+  toSamples _ = singleSample 1
 
--- temp = docs @HomeAPI Proxy
+deriving newtype instance ToSample (SqlSerial Int32)
+
+type DocAPI api = api :<|> Raw
+
+serveDocs :: (HasDocs api) => Proxy api -> Server api -> Server (DocAPI api)
+serveDocs api server = server :<|> Tagged toDocs
+  where
+    docsBS = encodeUtf8 . pack . markdown . docs $ api
+    toDocs _ res = res $ responseLBS ok200 [("Content-Type", "text/plain")] docsBS

@@ -5,7 +5,7 @@
 
 module Main where
 
-import Controllers.Home (homeApp)
+import Controllers.Home (HomeAPI, homeApp)
 import Database.Beam.Postgres (connectPostgreSQL, defaultConnectInfo)
 import Database.PostgreSQL.Simple (postgreSQLConnectionString)
 import Lens.Micro ((&), (.~))

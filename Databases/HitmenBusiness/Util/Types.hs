@@ -4,17 +4,20 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.Util.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
 
-import Data.Aeson (FromJSON (..), ToJSON (..), decode)
+import Data.Aeson (FromJSON (..), ToJSON (..))
+import Data.Int (Int32)
 import Data.Text (Text)
-import Database.Beam (FromBackendRow (..), Generic, Typeable, val_)
+import Database.Beam (FromBackendRow (..), Generic, Typeable)
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
-import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..), autoSqlValueSyntax)
+import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..), SqlSerial (..), autoSqlValueSyntax)
+import Servant.Docs (ToSample (..), singleSample)
 import Text.Read (readMaybe)
 
 -- | Codename
@@ -26,6 +29,9 @@ deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBacken
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be Codename
 
+instance ToSample Codename where
+  toSamples _ = singleSample $ Codename "codename"
+
 -- | FirstName
 newtype FirstName = FirstName {unFirstName :: Text}
   deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
@@ -34,6 +40,9 @@ newtype FirstName = FirstName {unFirstName :: Text}
 deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be FirstName
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be FirstName
+
+instance ToSample FirstName where
+  toSamples _ = singleSample $ FirstName "Pooh"
 
 -- | LastName
 newtype LastName = LastName {unLastName :: Text}
@@ -44,6 +53,9 @@ deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBacken
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be LastName
 
+instance ToSample LastName where
+  toSamples _ = singleSample $ LastName "Xi"
+
 -- | MarkDescription
 newtype MarkDescription = MarkDescription {unMarkDescription :: Text}
   deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
@@ -53,9 +65,12 @@ deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBacken
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be MarkDescription
 
+instance ToSample MarkDescription where
+  toSamples _ = singleSample $ MarkDescription "He loves honey and killed millions for it"
+
 -- | MarkStatus
 data MarkStatus = Active | Erased | Cancelled
-  deriving (Generic, FromJSON, Enum, Read, Show, Bounded, Typeable)
+  deriving (Generic, FromJSON, Enum, Read, Show, Bounded, Typeable, ToSample)
   deriving (HasColumnType) via (PgEnum MarkStatus)
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatus where

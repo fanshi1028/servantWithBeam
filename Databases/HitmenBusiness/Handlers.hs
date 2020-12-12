@@ -32,7 +32,8 @@ import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Util.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Util.JSON (flattenBase, noCamelOpt)
 import Databases.HitmenBusiness.Util.Types (Codename)
-import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant (Capture, FromHttpApiData (..), ToHttpApiData (..))
+import Servant.Docs (ToCapture, ToSample)
 import Typeclass.Base (ToBase (..))
 import Prelude (Maybe, Show, (.), (<$>))
 
@@ -88,6 +89,11 @@ instance FromJSON (HandlerT Identity)
 
 instance FromJSON (PrimaryKey HandlerT Identity)
 
+instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey HandlerT Identity)
+
+instance (ToSample (C f (Maybe Datetime)), ToSample (C f Codename)) => ToSample (HandlerB f)
+
+instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (HandlerT Identity)
 instance
   ( BeamSqlBackend be,
     BeamSqlBackendCanSerialize be Text,
