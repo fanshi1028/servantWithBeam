@@ -34,7 +34,7 @@ homeApp conn =
     serveDocs @HomeAPI Proxy $
       hoistServer @HomeAPI
         Proxy
-        (`runReaderT` conn)
+        (usingReaderT conn)
         ( simpleCRUDServerForHandler
             :<|> simpleCRUDServerForHitman
             :<|> simpleCRUDServerForMarks

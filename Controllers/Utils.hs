@@ -64,9 +64,7 @@ simpleCRUDServer doQuery db = createOne :<|> readMany :<|> readOne :<|> updateOn
     deleteOne id = delete db ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
 
 doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
-doPgQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamPostgresDebug putStrLn)
-
--- doPgQueryWithDebug conn = liftIO <$> runBeamPostgresDebug putStrLn conn
+doPgQueryWithDebug = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn))
 
 -- doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM a -> ReaderT Connection m a)
 -- doSqliteQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamSqliteDebug putStrLn)

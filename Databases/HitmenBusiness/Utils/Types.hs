@@ -71,8 +71,8 @@ data MarkStatus = Active | Erased | Cancelled
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatus where
   fromBackendRow = (readEither @Text @MarkStatus <$> fromBackendRow) >>= either (fail . toString) return
 
-instance HasSqlValueSyntax expr String => HasSqlValueSyntax expr MarkStatus where
-  sqlValueSyntax = autoSqlValueSyntax
+instance HasSqlValueSyntax expr Text => HasSqlValueSyntax expr MarkStatus where
+  sqlValueSyntax = sqlValueSyntax . show @Text
 
 -- instance Read MarkStatus where
 --   readPrec =
