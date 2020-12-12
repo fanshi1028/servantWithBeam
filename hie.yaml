@@ -1,0 +1,49 @@
+cradle:
+  cabal:
+    - path: "./Main.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/Home.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/Hitmen.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/Handlers.hs"
+      component: "app:exe:app"
+
+    - path: "./Controllers/Util.hs"
+      component: "app:exe:app"
+
+    - path: "./Databases/HitmenBusiness.hs"
+      component: "app:exe:app"
+
+    - path: "./Databases/HitmenBusiness/Hitmen.hs"
+      component: "app:exe:app"
+
+    - path: "./Databases/HitmenBusiness/Handlers.hs"
+      component: "app:exe:app"
+
+    - path: "./Databases/HitmenBusiness/Marks.hs"
+      component: "app:exe:app"
+
+    - path: "./Databases/HitmenBusiness/PursuingMarks.hs"
+      component: "app:exe:app"
+
+    - path: "./Databases/HitmenBusiness/ErasedMarks.hs"
+      component: "app:exe:app"
+
+    - path: "./Models/HitmenBusiness.hs"
+      component: "app:exe:app"
+
+    - path: "./Typeclass/Base.hs"
+      component: "app:exe:app"
+
+    - path: "./Util/Client.hs"
+      component: "app:exe:app"
+
+    - path: "./Util/Docs.hs"
+      component: "app:exe:app"
+
+    - path: "./Util/Migration.hs"
+      component: "app:exe:app"

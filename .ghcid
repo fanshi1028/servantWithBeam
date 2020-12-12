@@ -1,0 +1,4 @@
+-c "cabal new-repl --repl-options="
+--reload=./Main.hs
+-T Main.main
+--restart=./app.cabal

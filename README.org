@@ -1,0 +1,4 @@
+* Toy webserver in haskell
+* Main stacks
+- servant
+- beam
