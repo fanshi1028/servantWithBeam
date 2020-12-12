@@ -30,7 +30,7 @@ cradle:
     - path: "./Controllers/ErasedMarks.hs"
       component: "app:exe:app"
 
-    - path: "./Controllers/Util.hs"
+    - path: "./Controllers/Utils.hs"
       component: "app:exe:app"
 
     - path: "./Databases/HitmenBusiness.hs"
@@ -51,13 +51,13 @@ cradle:
     - path: "./Databases/HitmenBusiness/ErasedMarks.hs"
       component: "app:exe:app"
 
-    - path: "./Databases/HitmenBusiness/Util/Chronos.hs"
+    - path: "./Databases/HitmenBusiness/Utils/Chronos.hs"
       component: "app:exe:app"
 
-    - path: "./Databases/HitmenBusiness/Util/Types.hs"
+    - path: "./Databases/HitmenBusiness/Utils/Types.hs"
       component: "app:exe:app"
 
-    - path: "./Databases/HitmenBusiness/Util/JSON.hs"
+    - path: "./Databases/HitmenBusiness/Utils/JSON.hs"
       component: "app:exe:app"
 
     - path: "./Models.hs"
@@ -69,11 +69,11 @@ cradle:
     - path: "./Typeclass/Base.hs"
       component: "app:exe:app"
 
-    - path: "./Util/Client.hs"
+    - path: "./Utils/Client.hs"
       component: "app:exe:app"
 
-    - path: "./Util/Docs.hs"
+    - path: "./Utils/Docs.hs"
       component: "app:exe:app"
 
-    - path: "./Util/Migration.hs"
+    - path: "./Utils/Migration.hs"
       component: "app:exe:app"

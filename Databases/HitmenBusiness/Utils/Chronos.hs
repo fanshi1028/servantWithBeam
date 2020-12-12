@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Databases.HitmenBusiness.Util.Chronos where
+module Databases.HitmenBusiness.Utils.Chronos where
 
 import Chronos (Datetime, DatetimeFormat (DatetimeFormat), SubsecondPrecision (SubsecondPrecisionFixed), builderUtf8_YmdHMS, decode_YmdHMS_lenient)
 import Data.Aeson (FromJSON (..))

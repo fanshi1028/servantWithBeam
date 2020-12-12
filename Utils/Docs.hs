@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Util.Docs (serveDocs, DocAPI, APIWithDoc) where
+module Utils.Docs (serveDocs, DocAPI, APIWithDoc) where
 
 import Chronos (Datetime, epoch, timeToDatetime)
 import Database.Beam.Backend (SqlSerial (..))

@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Controllers.Util
+module Controllers.Utils
   ( simpleCRUDServer,
     SimpleCRUDAPI,
     doPgQueryWithDebug,

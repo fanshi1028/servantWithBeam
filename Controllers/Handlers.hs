@@ -5,6 +5,6 @@ module Controllers.Handlers
   )
 where
 
-import Controllers.Util (simpleCRUDServerForHitmenBusiness)
+import Controllers.Utils (simpleCRUDServerForHitmenBusiness)
 
 simpleCRUDServerForHandler = simpleCRUDServerForHitmenBusiness #_handlers

@@ -1,4 +1,4 @@
-module Util.Migration
+module Utils.Migration
   ( showAndDoMigration,
     doMigration,
     showMigration1,

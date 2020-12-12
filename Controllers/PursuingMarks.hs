@@ -5,6 +5,6 @@ module Controllers.PursuingMarks
   )
 where
 
-import Controllers.Util (simpleCRUDServerForHitmenBusiness)
+import Controllers.Utils (simpleCRUDServerForHitmenBusiness)
 
 simpleCRUDServerForPursuingMarks = simpleCRUDServerForHitmenBusiness #_hbPursuingMarks

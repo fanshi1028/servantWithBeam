@@ -13,4 +13,4 @@ import Controllers.Handlers
 import Controllers.Hitmen
 import Controllers.Marks
 import Controllers.PursuingMarks
-import Controllers.Util (SimpleCRUDAPI)
+import Controllers.Utils (SimpleCRUDAPI)

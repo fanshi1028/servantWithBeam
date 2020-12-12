@@ -7,7 +7,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Databases.HitmenBusiness.Util.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
+module Databases.HitmenBusiness.Utils.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import Database.Beam (FromBackendRow (..))

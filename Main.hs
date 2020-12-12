@@ -7,7 +7,7 @@ import Database.PostgreSQL.Simple (postgreSQLConnectionString)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
 import Servers (homeApp)
 import System.Environment (getEnv)
-import Util.Migration (doMigration, showMigration)
+import Utils.Migration (doMigration, showMigration)
 
 connectDb' user db =
   connectPostgreSQL

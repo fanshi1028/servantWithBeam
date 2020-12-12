@@ -22,22 +22,22 @@ executable app
                        Controllers.Marks
                        Controllers.PursuingMarks
                        Controllers.ErasedMarks
-                       Controllers.Util
+                       Controllers.Utils
                        Databases.HitmenBusiness
                        Databases.HitmenBusiness.Hitmen
                        Databases.HitmenBusiness.Handlers
                        Databases.HitmenBusiness.Marks
                        Databases.HitmenBusiness.PursuingMarks
                        Databases.HitmenBusiness.ErasedMarks
-                       Databases.HitmenBusiness.Util.Chronos
-                       Databases.HitmenBusiness.Util.Types
-                       Databases.HitmenBusiness.Util.JSON
+                       Databases.HitmenBusiness.Utils.Chronos
+                       Databases.HitmenBusiness.Utils.Types
+                       Databases.HitmenBusiness.Utils.JSON
                        Models
                        Models.HitmenBusiness
                        Typeclass.Base
-                       Util.Client
-                       Util.Docs
-                       Util.Migration
+                       Utils.Client
+                       Utils.Docs
+                       Utils.Migration
   build-depends:       base-noprelude >= 4.9,
                        universum >= 1.7,
                        bytestring >= 0.10.10,
