@@ -60,6 +60,9 @@ cradle:
     - path: "./Databases/HitmenBusiness/Utils/JSON.hs"
       component: "app:exe:app"
 
+    - path: "./Databases/HitmenBusiness/Utils/Email.hs"
+      component: "app:exe:app"
+
     - path: "./Models.hs"
       component: "app:exe:app"
 
