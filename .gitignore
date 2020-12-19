@@ -4,3 +4,4 @@
 /dist-newstyle/
 *.a
 /.envrc
+dblog
