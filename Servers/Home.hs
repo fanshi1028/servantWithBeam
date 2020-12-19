@@ -11,8 +11,8 @@ where
 import Controllers
   ( SimpleCRUDAPI,
     simpleCRUDServerForErasedMarks,
-    simpleCRUDServerForHandler,
-    simpleCRUDServerForHitman,
+    simpleCRUDServerForHandlers,
+    simpleCRUDServerForHitmen,
     simpleCRUDServerForMarks,
     simpleCRUDServerForPursuingMarks,
   )
@@ -35,8 +35,8 @@ homeApp conn =
       hoistServer @HomeAPI
         Proxy
         (usingReaderT conn)
-        ( simpleCRUDServerForHandler
-            :<|> simpleCRUDServerForHitman
+        ( simpleCRUDServerForHandlers
+            :<|> simpleCRUDServerForHitmen
             :<|> simpleCRUDServerForMarks
             :<|> simpleCRUDServerForErasedMarks
             :<|> simpleCRUDServerForPursuingMarks
@@ -47,8 +47,8 @@ homeApp conn =
 --   serve @(APIWithDoc HomeAPI)
 --     Proxy
 --     . serveDocs @HomeAPI Proxy
---     <$> simpleCRUDServerForHandler
---       |:<|> simpleCRUDServerForHitman
+--     <$> simpleCRUDServerForHandlers
+--       |:<|> simpleCRUDServerForHitmen
 --       |:<|> simpleCRUDServerForMarks
 --       |:<|> simpleCRUDServerForErasedMarks
 --       |:<|> simpleCRUDServerForPursuingMarks

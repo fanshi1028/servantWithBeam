@@ -1,10 +1,16 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedLabels #-}
 
 module Controllers.Handlers
-  ( simpleCRUDServerForHandler,
+  ( simpleCRUDServerForHandlers,
   )
 where
 
-import Controllers.Utils (simpleCRUDServerForHitmenBusiness)
+import Control.Monad.Except (MonadError)
+import Controllers.Utils (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
+import Database.Beam.Postgres (Connection)
+import Databases.HitmenBusiness (HandlerT)
+import Servant (ServerError, ServerT)
 
-simpleCRUDServerForHandler = simpleCRUDServerForHitmenBusiness #_handlers
+simpleCRUDServerForHandlers :: (MonadIO m, MonadError ServerError m) => ServerT (SimpleCRUDAPI path HandlerT) (ReaderT Connection m)
+simpleCRUDServerForHandlers = simpleCRUDServerForHitmenBusiness #_handlers

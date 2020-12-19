@@ -14,6 +14,7 @@ module Controllers.Utils
   )
 where
 
+import Control.Monad.Except (MonadError)
 import Database.Beam (FromBackendRow, MonadBeam, PrimaryKey)
 import Database.Beam.Backend.SQL (BeamSqlBackendCanSerialize)
 import Database.Beam.Postgres (Connection, Pg, runBeamPostgresDebug)
@@ -23,7 +24,7 @@ import Database.Beam.Schema.Tables (Beamable, Database, DatabaseEntity, FieldsFu
 import Database.Beam.Sqlite.Connection (SqliteM, runBeamSqliteDebug)
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
-import Servant (Capture, Delete, Get, Handler, HasServer (ServerT), JSON, NoContent (NoContent), Post, Put, ReqBody, throwError, (:<|>) ((:<|>)), (:>))
+import Servant (Capture, Delete, Get, Handler, HasServer (ServerT), JSON, NoContent (NoContent), Post, Put, ReqBody, ServerError, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Servant.Server.Internal.ServerError (err404)
 import Typeclass.Base (ToBase (..))
@@ -48,12 +49,14 @@ simpleCRUDServer ::
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey a),
     FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey a),
     FromBackendRow be (a Identity),
-    MonadBeam be m
+    MonadBeam be m,
+    With [MonadIO, MonadError ServerError] n
   ) =>
-  (forall t. (m t -> ReaderT conn Handler t)) ->
-  -- (forall t. m t ->  Handler t) ->
+  -- (forall t. (m t -> ReaderT conn Handler t)) ->
+  (forall t. m t -> n t) ->
   DatabaseEntity be db (TableEntity a) ->
-  ServerT (SimpleCRUDAPI path a) (ReaderT conn Handler)
+  -- ServerT (SimpleCRUDAPI path a) (ReaderT conn Handler)
+  ServerT (SimpleCRUDAPI path a) n
 -- Server (SimpleCRUDAPI path a)
 simpleCRUDServer doQuery db = createOne :<|> readMany :<|> readOne :<|> updateOne :<|> deleteOne
   where
