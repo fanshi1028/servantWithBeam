@@ -49,6 +49,7 @@ executable app
                        bytestring >= 0.10.10,
                        password >= 2.1,
                        validation-selective >= 0.1,
+                       zxcvbn-hs >= 0.3,
                        time >= 1.9,
                        addy >= 0.1,
                        unordered-containers >= 0.2.13,

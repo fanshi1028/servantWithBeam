@@ -5,7 +5,7 @@
 module Utils.Account.SignUp where
 
 import Data.Aeson (FromJSON (..))
-import Databases.HitmenBusiness.Utils.Password (NewPassword (..), WithNewPassword (WithNewPass), validatePassword)
+import Databases.HitmenBusiness.Utils.Password (NewPassword (..), WithNewPassword (WithNewPass), validatePassword, zxcvbnStrength)
 import Typeclass.Base (ToBase (Base))
 import Universum
 import Utils.Account.Login (LoginId)
@@ -22,7 +22,10 @@ type SignUp userT = WithNewPassword $ Payload userT
 
 class Validatable a where
   valiatePayload :: Payload a -> Validation e $ Payload a
-  -- valiatePayload = Success -- FIXME
+
+-- valiatePayload = Success -- FIXME
 
 validateSignUp :: Validatable userT => SignUp userT -> Validation (NonEmpty Text) $ Payload userT
-validateSignUp (WithNewPass (NewPassword npw) payload) = const <$> valiatePayload payload <*> validatePassword npw
+validateSignUp (WithNewPass (NewPassword npw) payload) =
+  const <$> valiatePayload payload
+    <*> (validatePassword npw <> zxcvbnStrength npw)

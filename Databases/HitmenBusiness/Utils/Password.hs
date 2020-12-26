@@ -15,12 +15,15 @@ import Data.Password.Argon2 (Argon2, Password, PasswordHash (..), Salt (..), def
 import qualified Data.Password.Argon2 as Argon2 (checkPassword, hashPassword)
 import Data.Password.Validate (ValidationResult (..), defaultPasswordPolicy_)
 import qualified Data.Password.Validate as PV (validatePassword)
+import Data.Time.Calendar.OrdinalDate (fromOrdinalDateValid)
 import Database.Beam.AutoMigrate (HasColumnType)
 import Database.Beam.Backend (BeamBackend, FromBackendRow, HasSqlValueSyntax (..))
 import Servant.Docs (ToSample (..), singleSample)
+import Text.Password.Strength (Strength (Safe, Strong), en_US, score, strength)
 import qualified Text.Read as TR (get, prec, readPrec)
 import Universum
 import Validation (Validation (Failure, Success))
+import Data.Password (unsafeShowPassword)
 
 -- | Password
 newtype NewPassword = NewPassword {unNewPassword :: Password} deriving (Show)
@@ -39,21 +42,36 @@ instance FromJSON NewPassword where
       cp | cp == np -> return $ NewPassword $ mkPassword np
       _ -> fail "New password doesn't match with the confirm password"
 
-validatePassword :: Password -> Validation (NonEmpty Text) Password
+validatePassword :: Password -> Validation (NonEmpty Text) ()
 validatePassword =
   PV.validatePassword defaultPasswordPolicy_ >>= \case
-    ValidPassword -> return $ Success $ mkPassword ""
-    InvalidPassword reasons -> return $ Failure $ fromMaybe ("Impossible, password is invalid with unknown reasons" :| []) $ nonEmpty $ map show reasons
+    ValidPassword -> return $ Success ()
+    InvalidPassword reasons ->
+      return $
+        Failure $
+          fromMaybe ("Impossible, password is invalid with unknown reasons" :| []) $ nonEmpty $ map show reasons
+
+-- >>> zxcvbnStrength "fewhfiewfjowjfowwj"
+-- Failure ("Object (fromList [(\"strength\",String \"Risky\"),(\"score\",Number 10.0)])" :| [])
+zxcvbnStrength :: Password -> Validation (NonEmpty Text) ()
+zxcvbnStrength pw =
+  maybe
+    (Failure $ "Impossible, the zxcvbn checker got wrong ref day input!" :| [])
+    ( \day ->
+        let sc = score en_US day $ unsafeShowPassword pw
+         in case strength sc of
+              Strong -> pure ()
+              Safe -> pure ()
+              _ -> Failure $ show (toJSON sc) :| []
+    )
+    $ fromOrdinalDateValid 2020 360
 
 -- >>> readEither @Text @Password "fwefewfwfw1efe"
--- Left "Prelude.read: no parse"
+-- Right **PASSWORD**
 instance Read Password where
   readPrec = TR.prec 0 $ do
     s <- many TR.get
-    let pw = mkPassword $ toText s
-    case PV.validatePassword defaultPasswordPolicy_ pw of
-      ValidPassword -> return pw
-      InvalidPassword (e : es) -> fail $ show e
+    return $ mkPassword $ toText s
 
 instance ToSample Password where
   toSamples _ = singleSample $ mkPassword "123456789"
