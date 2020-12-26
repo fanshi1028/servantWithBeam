@@ -21,7 +21,6 @@ executable app
                        Controllers.Marks
                        Controllers.PursuingMarks
                        Controllers.ErasedMarks
-                       Controllers.Utils
                        Databases.HitmenBusiness
                        Databases.HitmenBusiness.Hitmen
                        Databases.HitmenBusiness.Handlers

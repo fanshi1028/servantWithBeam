@@ -27,9 +27,6 @@ cradle:
     - path: "./Controllers/ErasedMarks.hs"
       component: "app:exe:app"
 
-    - path: "./Controllers/Utils.hs"
-      component: "app:exe:app"
-
     - path: "./Databases/HitmenBusiness.hs"
       component: "app:exe:app"
 
@@ -77,3 +74,7 @@ cradle:
 
     - path: "./Utils/Migration.hs"
       component: "app:exe:app"
+
+    - path: "./Utils/CRUD.hs"
+      component: "app:exe:app"
+
