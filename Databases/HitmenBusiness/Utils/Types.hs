@@ -12,7 +12,7 @@ module Databases.HitmenBusiness.Utils.Types (FirstName (..), LastName (..), Code
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import Database.Beam (FromBackendRow (..))
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
-import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..), autoSqlValueSyntax)
+import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..))
 import Servant.Docs (ToSample (..), singleSample)
 import Universum
 
@@ -74,25 +74,3 @@ instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatu
 
 instance HasSqlValueSyntax expr Text => HasSqlValueSyntax expr MarkStatus where
   sqlValueSyntax = sqlValueSyntax . show @Text
-
--- instance Read MarkStatus where
---   readPrec =
---     parens $
---       prec 10 $
---         lexP
---           >>= ( \case
---                   (Ident "active") -> return Active
---                   (Ident "erased") -> return Erased
---                   (Ident "cancelled") -> return Cancelled
---                   (Number n) -> maybe pfail (return . ReplacedBy . MarkId . fromIntegral) $ numberToInteger n
---                   _ -> pfail
---               )
-
--- instance Show MarkStatus where
---   showsPrec d = \case
---     Active -> showParen (d > app_prec) $ showString "active"
---     Erased -> showParen (d > app_prec) $ showString "erased"
---     ReplacedBy (MarkId i) -> showsPrec (app_prec + 1) i
---     Cancelled -> showParen (d > app_prec) $ showString "cancelled"
---     where
---       app_prec = 10
