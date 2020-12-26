@@ -39,6 +39,7 @@ executable app
                        Utils.Docs
                        Utils.Migration
                        Utils.CRUD
+                       Utils.Account.Login
   build-depends:       base >= 4.14.1.0,
                        universum >= 1.7,
                        bytestring >= 0.10.10,

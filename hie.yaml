@@ -81,3 +81,6 @@ cradle:
     - path: "./Utils/CRUD.hs"
       component: "app:exe:app"
 
+    - path: "./Utils/Account/Login.hs"
+      component: "app:exe:app"
+
