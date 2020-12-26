@@ -19,6 +19,7 @@ in hsPkgs.shellFor {
     ghcid = "0.8.7";
     implicit-hie = "0.1.2.3";
     retrie = "0.1.1.1";
+    doctest = "0.17";
   };
   # See overlays/tools.nix for more details
 
