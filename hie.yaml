@@ -60,6 +60,9 @@ cradle:
     - path: "./Databases/HitmenBusiness/Utils/Password.hs"
       component: "app:exe:app"
 
+    - path: "./Databases/HitmenBusiness/Utils/Auth.hs"
+      component: "app:exe:app"
+
     - path: "./Models.hs"
       component: "app:exe:app"
 
@@ -84,6 +87,8 @@ cradle:
     - path: "./Utils/Account/Login.hs"
       component: "app:exe:app"
 
+    - path: "./Utils/Account/Auth.hs"
+      component: "app:exe:app"
 
     - path: "./Utils/Account/SignUp.hs"
       component: "app:exe:app"
