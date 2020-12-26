@@ -31,6 +31,7 @@ executable app
                        Databases.HitmenBusiness.Utils.Types
                        Databases.HitmenBusiness.Utils.JSON
                        Databases.HitmenBusiness.Utils.Email
+                       Databases.HitmenBusiness.Utils.Password
                        Models
                        Models.HitmenBusiness
                        Typeclass.Base
@@ -41,6 +42,8 @@ executable app
   build-depends:       base >= 4.14.1.0,
                        universum >= 1.7,
                        bytestring >= 0.10.10,
+                       password >= 2.1,
+                       validation-selective >= 0.1,
                        time >= 1.9,
                        addy >= 0.1,
                        unordered-containers >= 0.2.13,
