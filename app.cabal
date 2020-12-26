@@ -39,6 +39,7 @@ executable app
                        Utils.Client
                        Utils.Docs
                        Utils.Migration
+                       Utils.Account
                        Utils.CRUD
                        Utils.Account.Login
                        Utils.Account.Auth
