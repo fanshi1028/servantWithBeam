@@ -8,6 +8,7 @@ module Typeclass.Base (ToBase (..)) where
 
 import Database.Beam (QAssignment, QField)
 import Database.Beam.Query.Types (QExpr)
+import Universum
 
 class ToBase be a where
   type Base a :: (* -> *) -> *

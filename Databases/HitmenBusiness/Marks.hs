@@ -31,6 +31,7 @@ import Databases.HitmenBusiness.Utils.Types (FirstName, LastName, MarkDescriptio
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
+import Universum
 
 data MarkB f = Mark
   { _listBounty :: C f Int32,

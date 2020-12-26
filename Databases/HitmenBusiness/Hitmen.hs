@@ -31,6 +31,7 @@ import Databases.HitmenBusiness.Utils.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
+import Universum
 
 data HitmanB f = Hitman
   { _codename :: C f Codename,

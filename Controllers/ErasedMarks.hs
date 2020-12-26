@@ -11,6 +11,7 @@ import Controllers.Utils (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
 import Database.Beam.Postgres (Connection)
 import Databases.HitmenBusiness (ErasedMarkT)
 import Servant (ServerError, ServerT)
+import Universum
 
 simpleCRUDServerForErasedMarks :: (MonadIO m, MonadError ServerError m) => ServerT (SimpleCRUDAPI path ErasedMarkT) (ReaderT Connection m)
 simpleCRUDServerForErasedMarks = simpleCRUDServerForHitmenBusiness #_hbErasedMarks

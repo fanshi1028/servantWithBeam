@@ -14,6 +14,7 @@ import Database.Beam (FromBackendRow (..))
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
 import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..), autoSqlValueSyntax)
 import Servant.Docs (ToSample (..), singleSample)
+import Universum
 
 -- | Codename
 newtype Codename = Codename {unCodename :: Text}

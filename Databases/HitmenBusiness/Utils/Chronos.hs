@@ -14,6 +14,7 @@ import Database.Beam.Postgres.Syntax (PgValueSyntax, defaultPgValueSyntax)
 import Database.PostgreSQL.Simple.FromField (FromField (..), returnError, typeOid)
 import Database.PostgreSQL.Simple.ToField (Action (Plain), ToField (..), inQuotes)
 import Database.PostgreSQL.Simple.TypeInfo.Static (timestampOid)
+import Universum
 
 instance HasDefaultSqlDataType Postgres Datetime where
   defaultSqlDataType _ _ _ = timestampType Nothing False

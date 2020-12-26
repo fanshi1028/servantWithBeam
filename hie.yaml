@@ -3,9 +3,6 @@ cradle:
     - path: "./Main.hs"
       component: "app:exe:app"
 
-    - path: "./Prelude.hs"
-      component: "app:exe:app"
-
     - path: "./Servers.hs"
       component: "app:exe:app"
 

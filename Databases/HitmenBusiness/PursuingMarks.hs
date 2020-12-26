@@ -27,6 +27,7 @@ import Databases.HitmenBusiness.Utils.JSON (flattenBase, noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Typeclass.Base (ToBase (..))
+import Universum
 
 data PursuingMarkB f = PursuingMark
   { _hitmanId :: PrimaryKey HitmanT f,

@@ -15,6 +15,7 @@ import Network.HTTP.Types (ok200)
 import Network.Wai (responseLBS)
 import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)), (:>))
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
+import Universum
 
 instance ToSample Datetime where
   toSamples _ = singleSample $ timeToDatetime epoch

@@ -45,6 +45,7 @@ import Databases.HitmenBusiness.Handlers (HandlerT (..))
 import Databases.HitmenBusiness.Hitmen (HitmanT (..))
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..))
+import Universum
 
 data HitmenBusinessDb f = HitmenBusinessDb
   { _hitmen :: f (TableEntity HitmanT),

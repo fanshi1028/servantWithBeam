@@ -19,6 +19,7 @@ import Controllers
 import Database.PostgreSQL.Simple (Connection)
 import Databases.HitmenBusiness (ErasedMarkT, HandlerT, HitmanT, MarkT, PursuingMarkT)
 import Servant (Application, hoistServer, serve, (:<|>) ((:<|>)))
+import Universum
 import Utils.Docs (APIWithDoc, serveDocs)
 
 type HomeAPI =

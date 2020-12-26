@@ -11,6 +11,7 @@ import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Servant ((:<|>) ((:<|>)))
 import Servant.Client (BaseUrl (BaseUrl), Scheme (Http), client, mkClientEnv, runClientM)
 import Servers (HomeAPI)
+import Universum
 
 (createHandler :<|> getHandler :<|> getHandlers :<|> updateHandler :<|> deleteHandler)
   :<|> (createHitman :<|> getHitman :<|> getHitmen :<|> updateHitman :<|> deleteHitman)

@@ -17,6 +17,7 @@ import qualified Text.ParserCombinators.ReadP as RP (get)
 import qualified Text.ParserCombinators.ReadPrec as RP (lift)
 import qualified Text.Read as TR (parens, prec, readPrec)
 import qualified Text.Show as TS (showString, showsPrec)
+import Universum
 
 -- | Email
 newtype Email = Email {unEmail :: EmailAddr}

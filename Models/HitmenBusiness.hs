@@ -68,6 +68,7 @@ import Databases.HitmenBusiness
     markPursuedBy,
   )
 import Databases.HitmenBusiness.Marks (PrimaryKey (MarkId))
+import Universum
 
 -- NOTE util
 

@@ -8,6 +8,7 @@ import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, run
 import Servers (homeApp)
 import System.Environment (getEnv)
 import Utils.Migration (doMigration, showMigration)
+import Universum
 
 connectDb' user db =
   connectPostgreSQL

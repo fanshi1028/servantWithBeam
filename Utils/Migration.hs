@@ -11,6 +11,7 @@ import Database.Beam.AutoMigrate.Postgres (getSchema)
 import Database.Beam.Postgres (runBeamPostgresDebug)
 import Database.PostgreSQL.Simple (withTransaction)
 import Databases.HitmenBusiness (annotatedHitmenBusinessDb, hitmenBusinessDbSchema)
+import Universum
 
 showMigration conn = do
   withTransaction conn $

@@ -11,7 +11,7 @@ pkgs.haskell-nix.project {
   src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
 
   # For `cabal.project` based projects specify the GHC version to use.
-  compiler-nix-name = "ghc884"; # Not used for `stack.yaml` based projects.
+  compiler-nix-name = "ghc8102"; # Not used for `stack.yaml` based projects.
   # modules = [{
   #   # packages.scotty-starter.components.app.depends = with pkgs; [
   #   #   beam-core
@@ -20,5 +20,5 @@ pkgs.haskell-nix.project {
   #   # ];
   #   reinstallableLibGhc = true;
   # }];
-  index-state = "2020-12-02T00:00:00Z";
+  index-state = "2020-12-25T00:00:00Z";
 }
