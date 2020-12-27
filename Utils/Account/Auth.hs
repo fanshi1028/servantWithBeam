@@ -18,11 +18,11 @@ import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), PasswordAlgorithm (..), WithNewPassword (WithNewPass), WithPassword (WithPass))
 import Servant (Delete, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, ToJWT (..), acceptLogin, clearSession)
-import Typeclass.Base (ToBase, fromBase)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
 import Utils.Account.SignUp (Validatable, SignUp, WithUserName (..), validateSignUp)
 import Validation (Validation (Failure, Success))
+import Typeclass.Meta (WithMetaInfo, addMetaInfo, Meta)
 
 type Login userT = WithPassword $ LoginId userT
 
@@ -36,18 +36,21 @@ type AuthApi userT auths =
 authServer ::
   ( Database be db,
     HasQBuilder be,
-    With '[Table, ToBase be, Validatable] userT,
+    With '[Typeable, Meta be, Validatable] userT,
+    With '[Table] (WithMetaInfo userT) ,
     With '[HasSqlEqualityCheck be, BeamSqlBackendCanSerialize be] (LoginId userT),
-    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey userT),
-    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey userT),
-    With '[ToJWT, Generic, FromBackendRow be] (userT Identity),
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey $ WithMetaInfo userT),
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey $ WithMetaInfo userT),
+    -- With '[ToJWT, Generic, FromBackendRow be] (userT Identity),
+    With '[Generic] (userT Identity),
+    With '[ToJWT, FromBackendRow be] (WithMetaInfo userT Identity),
     With '[FromBackendRow be, BeamSqlBackendCanSerialize be] Text,
     With '[MonadBeamInsertReturning be] m,
     With '[MonadIO, MonadError ServerError] n,
     With '[Typeable, PasswordAlgorithm] crypto
   ) =>
   DatabaseEntity be db $ TableEntity $ LoginT crypto userT ->
-  DatabaseEntity be db $ TableEntity $ userT ->
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo userT ->
   (forall a. m a -> n a) ->
   CookieSettings ->
   JWTSettings ->
@@ -68,7 +71,7 @@ authServer loginTable userInfoTable doQuery cs jwts = signUp :<|> login :<|> log
       Failure e -> throwError err400 {errBody = show e}
       Success (WithUserName name base) -> do
         hpw <- liftIO $ hashPassword pw
-        let insertUserTable = runInsertReturningList $ insert userInfoTable $ insertExpressions [fromBase base]
+        let insertUserTable = runInsertReturningList $ insert userInfoTable $ insertExpressions [addMetaInfo base]
             mkLoginExpression user =
               LoginAccount
                 { _accountId = default_,

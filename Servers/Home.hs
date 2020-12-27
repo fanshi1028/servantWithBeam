@@ -17,17 +17,18 @@ import Controllers
     simpleCRUDServerForPursuingMarks,
   )
 import Database.PostgreSQL.Simple (Connection)
-import Databases.HitmenBusiness (ErasedMarkT, HandlerT, HitmanT, MarkT, PursuingMarkT)
 import Servant (Application, hoistServer, serve, (:<|>) ((:<|>)))
+import Databases.HitmenBusiness (ErasedMarkB, HandlerB, HitmanB, MarkB, PursuingMarkB)
 import Universum
 import Utils.Docs (APIWithDoc, serveDocs)
 
 type HomeAPI =
-  SimpleCRUDAPI "handlers" HandlerT
-    :<|> SimpleCRUDAPI "hitmen" HitmanT
-    :<|> SimpleCRUDAPI "marks" MarkT
-    :<|> SimpleCRUDAPI "erased_marks" ErasedMarkT
-    :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkT
+  SimpleCRUDAPI "handlers" HandlerB
+    :<|> SimpleCRUDAPI "hitmen" HitmanB
+    :<|> SimpleCRUDAPI "marks" MarkB
+    :<|> SimpleCRUDAPI "erased_marks" ErasedMarkB
+    :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkB
+
 
 homeApp :: Connection -> Application
 homeApp conn =

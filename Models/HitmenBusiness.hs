@@ -20,6 +20,7 @@ module Models.HitmenBusiness
     getLatestKills,
     getBountiesAwardedTo,
     getBountiesAwarded,
+    myJoin,
   )
 where
 
@@ -135,7 +136,7 @@ getAllHitmenPursuingActiveMarks ::
 getAllHitmenPursuingActiveMarks = getAllHitmen >>= myJoin getActiveMarks
 
 --  Get all the marks that have been erased since a given date by a given hitman
-getAllErasedMarksSinceBy date hitmen = filter_ ((>=. date) <$> view #_createdAt) $ markErasedBy hitmen
+getAllErasedMarksSinceBy date hitmen = filter_ ((>=. date) <$> view (#_metaInfo . #_createdAt)) $ markErasedBy hitmen
 
 -- Get all the marks that have been erased since a given date
 getAllErasedMarksSince date = getAllHitmen >>= getAllErasedMarksSinceBy date
@@ -143,7 +144,7 @@ getAllErasedMarksSince date = getAllHitmen >>= getAllErasedMarksSinceBy date
 -- Get all the active marks that have only a single pursuer
 getActiveMarkWithSinglePurserFrom hitmen = do
   myJoin getActiveMarks hitmen
-    & aggregate_ (\(h, pm) -> (group_ pm, count_ $ h ^. #_hitmanId))
+    & aggregate_ (\(h, pm) -> (group_ pm, count_ $ h ^. #_metaInfo . #_hitmanId))
     & filter_ (\(_, count) -> count ==. 1)
 
 getActiveMarkWithSinglePurser ::
@@ -159,7 +160,7 @@ getActiveMarkWithSinglePurser = getActiveMarkWithSinglePurserFrom <$> getAllHitm
 getMarkOfOpportunityIn marks = do
   (m, em) <- myJoin erasedMarkOf marks
   mpm <- leftJoin_ getAllPursuingMarks $ (==. pk m) <$> view (#_base . #_markId)
-  guard_ $ maybe_ (val_ True) ((>. em ^. #_createdAt) <$> view #_createdAt) mpm
+  guard_ $ maybe_ (val_ True) ((>. em ^. #_metaInfo . #_createdAt) <$> view (#_metaInfo . #_createdAt)) mpm
   return (m, em)
 
 getMarkOfOpportunity ::
@@ -169,8 +170,8 @@ getMarkOfOpportunity = getAllMarks >>= getMarkOfOpportunityIn
 
 -- Latest kill by specific hitmen
 getLatestKillsBy hitmen = do
-  (h, mlatest) <- aggregate_ (\(h, em) -> (group_ h, max_ $ em ^. #_createdAt)) $ myJoin markErasedBy hitmen
-  filter_ ((==. mlatest) . just_ <$> (view #_createdAt . snd)) $ myJoin markErasedBy h
+  (h, mlatest) <- aggregate_ (\(h, em) -> (group_ h, max_ $ em ^. #_metaInfo . #_createdAt)) $ myJoin markErasedBy hitmen
+  filter_ ((==. mlatest) . just_ <$> (view (#_metaInfo . #_createdAt) . snd)) $ myJoin markErasedBy h
 
 -- Latest kills
 getLatestKills ::

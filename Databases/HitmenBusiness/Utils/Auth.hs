@@ -13,32 +13,35 @@ import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Models.HitmenBusiness (myJoin)
 import Universum
 import Utils.Account.Login (LoginId, LoginT)
+import Typeclass.Meta (WithMetaInfo)
 
 joinAuth ::
   ( BeamSqlBackend be,
     Database be db,
-    Table userT,
-    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey userT),
+    Table $ WithMetaInfo userT,
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey $ WithMetaInfo userT),
+    Typeable userT,
     Typeable crypto
   ) =>
   DatabaseEntity be db $ TableEntity $ LoginT crypto userT ->
-  userT $ QExpr be s ->
+  WithMetaInfo userT $ QExpr be s ->
   Q be db s $ LoginT crypto userT $ QExpr be s
 joinAuth loginTable = oneToOne_ loginTable (view #_account)
 
 getUserInfoWithPasswordHash ::
   ( BeamSqlBackend be,
     Database be db,
-    Table userT,
+    Table $ WithMetaInfo userT,
     With '[BeamSqlBackendCanSerialize be, HasSqlEqualityCheck be] (LoginId userT),
-    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey userT),
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey $ WithMetaInfo userT),
     Generic $ userT Identity,
+    Typeable userT,
     Typeable crypto
   ) =>
   DatabaseEntity be db $ TableEntity $ LoginT crypto userT ->
-  DatabaseEntity be db $ TableEntity $ userT ->
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo userT  ->
   LoginId userT ->
-  Q be db s (userT $ QExpr be s, QExpr be s $ PasswordHash crypto)
+  Q be db s (WithMetaInfo userT $ QExpr be s, QExpr be s $ PasswordHash crypto)
 getUserInfoWithPasswordHash loginTable userTable userName =
   -- bimap (view #_base) (view #_passwordHash) FIXME generic lens can't be derived for #_base
     second (view #_passwordHash)

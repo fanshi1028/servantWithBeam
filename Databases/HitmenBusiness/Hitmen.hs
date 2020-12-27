@@ -11,26 +11,24 @@
 module Databases.HitmenBusiness.Hitmen
   ( HitmanT (..),
     HitmanB (..),
-    Hitman,
-    HitmanAll,
     HitmanId,
     PrimaryKey (HitmanId),
   )
 where
 
 import Chronos (Datetime)
-import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON, (.:))
-import Database.Beam (Nullable, default_, val_, (<-.))
+import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
+import Database.Beam (Nullable, default_, val_)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Handlers (HandlerT, PrimaryKey (HandlerId))
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
-import Databases.HitmenBusiness.Utils.JSON (flattenBase, noCamelOpt)
+import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Typeclass.Base (ToBase (..))
+import Typeclass.Meta (Meta (..), WithMetaInfo (..))
 import Universum
 
 data HitmanB f = Hitman
@@ -39,24 +37,40 @@ data HitmanB f = Hitman
   }
   deriving (Generic, Beamable)
 
-data HitmanT f = HitmanAll
-  { _hitmanId :: C f (SqlSerial Int32),
-    _handlerId :: PrimaryKey HandlerT f,
-    _base :: HitmanB f,
-    _createdAt :: C f Datetime
-  }
-  deriving (Generic, Beamable)
+instance
+  ( BeamSqlBackend be,
+    BeamSqlBackendCanSerialize be Text,
+    BeamSqlBackendCanSerialize be (Maybe Datetime)
+  ) =>
+  Meta be HitmanB
+  where
+  data MetaInfo HitmanB f = HitmanMetaInfo
+    { _hitmanId :: C f (SqlSerial Int32),
+      _handlerId :: PrimaryKey HandlerT f,
+      _createdAt :: C f Datetime
+    }
+    deriving (Generic, Beamable)
+  addMetaInfo b =
+    WithMetaInfo
+      { _base = val_ b,
+        _metaInfo =
+          HitmanMetaInfo
+            { _hitmanId = default_,
+              _createdAt = currentTimestamp_',
+              -- _handlerId = val_ hid
+              _handlerId = val_ (HandlerId 1) --  TEMP TEMP
+            }
+      }
 
-type Hitman = HitmanB Identity
-
-type HitmanAll = HitmanT Identity
+type HitmanT = WithMetaInfo HitmanB
 
 instance ToJSON (HitmanB Identity) where
   toJSON = genericToJSON noCamelOpt
   toEncoding = genericToEncoding noCamelOpt
 
-instance ToJSON (HitmanT Identity) where
-  toJSON = flattenBase <$> genericToJSON noCamelOpt
+instance ToJSON (MetaInfo HitmanB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
 
 instance FromHttpApiData HitmanId where
   parseUrlPiece = (HitmanId . SqlSerial <$>) . parseUrlPiece
@@ -66,20 +80,19 @@ instance ToHttpApiData HitmanId where
 
 type HitmanId = PrimaryKey HitmanT Identity
 
-deriving instance Show Hitman
-
-deriving instance Show HitmanAll
+deriving instance Show (HitmanB Identity)
 
 deriving instance Show HitmanId
 
 instance Table HitmanT where
   data PrimaryKey HitmanT f = HitmanId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = HitmanId . _hitmanId
+  primaryKey = HitmanId . _hitmanId . _metaInfo
 
 instance FromJSON (HitmanB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
-instance FromJSON (HitmanT Identity)
+instance FromJSON (MetaInfo HitmanB Identity) where
+  parseJSON = genericParseJSON noCamelOpt
 
 instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey HitmanT Identity)
 
@@ -90,22 +103,4 @@ instance
     ToSample (SqlSerial Int32),
     ToSample Datetime
   ) =>
-  ToSample (HitmanT Identity)
-
-instance
-  ( BeamSqlBackend be,
-    BeamSqlBackendCanSerialize be Text,
-    BeamSqlBackendCanSerialize be (Maybe Datetime)
-  ) =>
-  ToBase be HitmanT
-  where
-  type Base HitmanT = HitmanB
-  fromBase b =
-    HitmanAll
-      { _hitmanId = default_,
-        _base = val_ b,
-        _createdAt = currentTimestamp_',
-        -- _handlerId = val_ hid
-        _handlerId = val_ (HandlerId 1) --  TEMP TEMP
-      }
-  baseAsUpdate body = (<-. val_ body) . _base
+  ToSample (MetaInfo HitmanB Identity)

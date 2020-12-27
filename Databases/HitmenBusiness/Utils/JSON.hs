@@ -1,16 +1,18 @@
-module Databases.HitmenBusiness.Utils.JSON (noCamelOpt, flattenBase) where
+module Databases.HitmenBusiness.Utils.JSON (noCamelOpt, flattenBaseMeta) where
 
 import Data.Aeson (Options (fieldLabelModifier), Value (Object), camelTo2, defaultOptions)
-import Data.HashMap.Strict (delete, lookup)
+import Data.HashMap.Strict (lookup)
 import Universum
 
 noCamelOpt = defaultOptions {fieldLabelModifier = maybe "Impossible! Empty field label" (camelTo2 '_' . tail) . nonEmpty}
 
-flattenBase obj@(Object v) =
-  maybe
-    obj
-    ( \case
-        (Object base) -> Object $ delete "base" v <> base
-        _ -> obj
-    )
-    (lookup "base" v)
+flattenBaseMeta = \case
+  (Object v) -> do
+    base <- lookup "base" v >>= getHaspMap
+    meta <- lookup "meta_info" v >>= getHaspMap
+    return $ Object $ base <> meta
+    where
+      getHaspMap = \case
+        (Object hm) -> Just hm
+        _ -> Nothing
+  _ -> Nothing

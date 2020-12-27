@@ -1,3 +1,4 @@
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -12,20 +13,21 @@ import Data.Password (PasswordHash (..))
 import Database.Beam (Beamable, C, PrimaryKey, Table (..))
 import Database.Beam.Backend (SqlSerial (..))
 import Universum
+import Typeclass.Meta (WithMetaInfo)
 
 type family LoginId (userT :: (* -> *) -> *)
 
 data LoginT crypto userT f = LoginAccount
   { _accountId :: C f (SqlSerial Int32),
-    _account :: PrimaryKey userT f,
+    _account :: PrimaryKey (WithMetaInfo userT) f,
     _accountName :: C f (LoginId userT),
     _passwordHash :: C f (PasswordHash crypto),
     _createdAt :: C f Datetime
   }
   deriving (Generic)
 
-deriving instance Beamable $ PrimaryKey userT => Beamable (LoginT crypto userT)
+deriving instance Beamable $ PrimaryKey $ WithMetaInfo userT => Beamable (LoginT crypto userT)
 
-instance (Typeable crypto, Typeable userT, Beamable $ PrimaryKey userT) => Table (LoginT crypto userT) where
+instance (Typeable crypto, Typeable userT, Beamable $ PrimaryKey $ WithMetaInfo userT) => Table (LoginT crypto userT) where
   data PrimaryKey (LoginT crypto userT) f = UserId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = UserId . _accountId

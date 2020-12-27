@@ -28,16 +28,16 @@ import GHC.TypeLits (Symbol)
 import Servant (Capture, Delete, Get, HasServer (ServerT), JSON, NoContent (NoContent), Post, Put, ReqBody, ServerError, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Servant.Server.Internal.ServerError (err404)
-import Typeclass.Base (ToBase (..))
+import Typeclass.Meta (WithMetaInfo, Meta (..))
 import Universum
 
 type SimpleCRUDAPI (path :: Symbol) a =
   path
-    :> ( (ReqBody '[JSON] (Base a Identity) :> Post '[JSON] NoContent)
-           :<|> Get '[JSON] [a Identity]
-           :<|> (Capture "id" (PrimaryKey a Identity) :> Get '[JSON] (a Identity))
-           :<|> (Capture "id" (PrimaryKey a Identity) :> ReqBody '[JSON] (Base a Identity) :> Put '[JSON] NoContent)
-           :<|> (Capture "id" (PrimaryKey a Identity) :> Delete '[JSON] NoContent)
+    :> ( (ReqBody '[JSON] (a Identity) :> Post '[JSON] NoContent)
+           :<|> Get '[JSON] [WithMetaInfo a Identity]
+           :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '[JSON] (WithMetaInfo a Identity))
+           :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> ReqBody '[JSON] (a Identity) :> Put '[JSON] NoContent)
+           :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent)
        )
 
 instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
@@ -46,23 +46,25 @@ instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
 simpleCRUDServer ::
   ( HasQBuilder be,
     Database be db,
-    With [Beamable, Table, ToBase be] a,
+    With '[Beamable, Meta be] a,
+    With '[Table] (WithMetaInfo a),
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a,
-    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey a),
-    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey a),
-    FromBackendRow be (a Identity),
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (WithMetaInfo a),
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
+    FromBackendRow be (WithMetaInfo a Identity),
     MonadBeam be m,
     With [MonadIO, MonadError ServerError] n
   ) =>
   (forall t. m t -> n t) ->
-  DatabaseEntity be db (TableEntity a) ->
+  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
   ServerT (SimpleCRUDAPI path a) n
 simpleCRUDServer doQuery table = createOne :<|> readMany :<|> readOne :<|> updateOne :<|> deleteOne
   where
-    createOne body = insertExpressions [fromBase body] & insert table & runInsert & doQuery >> return NoContent
+    createOne body = insertExpressions [addMetaInfo body] & insert table & runInsert & doQuery >> return NoContent
     readMany = doQuery $ runSelectReturningList $ select $ all_ table
     readOne id = lookup_ table id & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
-    updateOne id body = update table (baseAsUpdate body) ((==. val_ id) . pk) & runUpdate & doQuery >> return NoContent
+    updateOne id body = update table (updateWithMetaInfo body) ((==. val_ id) . pk) & runUpdate & doQuery >> return NoContent
     deleteOne id = delete table ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
 
 doPgQueryWithDebug' :: (MonadIO m) => (env -> Connection) -> (Pg a -> ReaderT env m a)

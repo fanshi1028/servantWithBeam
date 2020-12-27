@@ -8,10 +8,10 @@ where
 
 import Control.Monad.Except (MonadError)
 import Database.Beam.Postgres (Connection)
-import Databases.HitmenBusiness (PursuingMarkT)
+import Databases.HitmenBusiness (PursuingMarkB)
 import Servant (ServerError, ServerT)
 import Universum
 import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
 
-simpleCRUDServerForPursuingMarks :: (MonadIO m, MonadError ServerError m) => ServerT (SimpleCRUDAPI path PursuingMarkT) (ReaderT Connection m)
+simpleCRUDServerForPursuingMarks :: (MonadIO m, MonadError ServerError m) => ServerT (SimpleCRUDAPI path PursuingMarkB) (ReaderT Connection m)
 simpleCRUDServerForPursuingMarks = simpleCRUDServerForHitmenBusiness #_hbPursuingMarks

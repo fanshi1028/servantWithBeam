@@ -9,6 +9,7 @@
 
 module Databases.HitmenBusiness.PursuingMarks
   ( PursuingMarkT (..),
+    PursuingMarkB (..),
     PursuingMark,
     PrimaryKey (PursuingMarkId),
   )
@@ -16,17 +17,17 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
-import Database.Beam (Nullable, default_, val_, (<-.))
+import Database.Beam (Nullable, default_, val_)
 import Database.Beam.Backend (BeamSqlBackend, BeamSqlBackendCanSerialize, SqlSerial (SqlSerial))
 import Database.Beam.Schema (Table (..))
 import Database.Beam.Schema.Tables (Beamable, C)
 import Databases.HitmenBusiness.Hitmen (HitmanT)
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
-import Databases.HitmenBusiness.Utils.JSON (flattenBase, noCamelOpt)
+import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Typeclass.Base (ToBase (..))
+import Typeclass.Meta (Meta (..), WithMetaInfo (..))
 import Universum
 
 data PursuingMarkB f = PursuingMark
@@ -36,18 +37,32 @@ data PursuingMarkB f = PursuingMark
   }
   deriving (Generic, Beamable)
 
-data PursuingMarkT f = PursuingMarkAll
-  { _pursuingMarkId :: C f (SqlSerial Int32),
-    _createdAt :: C f Datetime,
-    _base :: PursuingMarkB f
-  }
-  deriving (Generic, Beamable)
+instance
+  ( BeamSqlBackend be,
+    BeamSqlBackendCanSerialize be (Maybe Datetime)
+  ) =>
+  Meta be PursuingMarkB
+  where
+  data MetaInfo PursuingMarkB f = PursuingMarkMetaInfo
+    { _pursuingMarkId :: C f (SqlSerial Int32),
+      _createdAt :: C f Datetime
+    }
+    deriving (Generic, Beamable)
+  addMetaInfo b =
+    WithMetaInfo
+      { _base = val_ b,
+        _metaInfo =
+          PursuingMarkMetaInfo
+            { _pursuingMarkId = default_,
+              _createdAt = currentTimestamp_'
+            }
+      }
+
+type PursuingMarkT = WithMetaInfo PursuingMarkB
 
 type PursuingMark = PursuingMarkT Identity
 
 deriving instance Show (PursuingMarkB Identity)
-
-deriving instance Show (PursuingMarkT Identity)
 
 deriving instance Show (PrimaryKey PursuingMarkT Identity)
 
@@ -63,14 +78,16 @@ instance ToJSON (PursuingMarkB Identity) where
   toJSON = genericToJSON noCamelOpt
   toEncoding = genericToEncoding noCamelOpt
 
-instance ToJSON (PursuingMarkT Identity) where
-  toJSON = flattenBase <$> genericToJSON noCamelOpt
-
-instance FromJSON (PursuingMarkT Identity)
+instance ToJSON (MetaInfo PursuingMarkB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
 
 instance FromJSON (PrimaryKey HitmanT Identity)
 
 instance FromJSON (PursuingMarkB Identity) where
+  parseJSON = genericParseJSON noCamelOpt
+
+instance FromJSON (MetaInfo PursuingMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
 instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey PursuingMarkT Identity)
@@ -82,23 +99,8 @@ instance
   ) =>
   ToSample (PursuingMarkB f)
 
-instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (PursuingMarkT Identity)
+instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (MetaInfo PursuingMarkB Identity)
 
 instance Table PursuingMarkT where
   data PrimaryKey PursuingMarkT f = PursuingMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = PursuingMarkId . _pursuingMarkId
-
-instance
-  ( BeamSqlBackend be,
-    BeamSqlBackendCanSerialize be (Maybe Datetime)
-  ) =>
-  ToBase be PursuingMarkT
-  where
-  type Base PursuingMarkT = PursuingMarkB
-  fromBase b =
-    PursuingMarkAll
-      { _pursuingMarkId = default_,
-        _base = val_ b,
-        _createdAt = currentTimestamp_'
-      }
-  baseAsUpdate body = (<-. val_ body) . _base
+  primaryKey = PursuingMarkId . _pursuingMarkId . _metaInfo

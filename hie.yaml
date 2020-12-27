@@ -69,7 +69,7 @@ cradle:
     - path: "./Models/HitmenBusiness.hs"
       component: "app:exe:app"
 
-    - path: "./Typeclass/Base.hs"
+    - path: "./Typeclass/Meta.hs"
       component: "app:exe:app"
 
     - path: "./Utils/Client.hs"

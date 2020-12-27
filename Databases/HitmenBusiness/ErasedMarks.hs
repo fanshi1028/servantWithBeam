@@ -8,8 +8,8 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.ErasedMarks
-  ( ErasedMark,
-    ErasedMarkT (..),
+  ( ErasedMarkT (..),
+    ErasedMarkB (..),
     ErasedMarkId,
     PrimaryKey (ErasedMarkId),
   )
@@ -17,16 +17,16 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
-import Database.Beam (default_, val_, (<-.))
+import Database.Beam (default_, val_)
 import Database.Beam.Backend (BeamSqlBackend, SqlSerial (SqlSerial))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Hitmen (HitmanT)
 import Databases.HitmenBusiness.Marks (MarkT)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
-import Databases.HitmenBusiness.Utils.JSON (flattenBase, noCamelOpt)
+import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Typeclass.Base (ToBase (..))
+import Typeclass.Meta (Meta (..), WithMetaInfo (..))
 import Universum
 
 data ErasedMarkB f = ErasedMark
@@ -35,20 +35,30 @@ data ErasedMarkB f = ErasedMark
   }
   deriving (Generic, Beamable)
 
-data ErasedMarkT f = ErasedMarkAll
-  { _erasedMarkId :: C f (SqlSerial Int32),
-    _createdAt :: C f Datetime,
-    _base :: ErasedMarkB f
-  }
-  deriving (Generic, Beamable)
+instance
+  (BeamSqlBackend be) =>
+  Meta be ErasedMarkB
+  where
+  data MetaInfo ErasedMarkB f = ErasedMarkMetaInfo
+    { _erasedMarkId :: C f (SqlSerial Int32),
+      _createdAt :: C f Datetime
+    }
+    deriving (Generic, Beamable)
+  addMetaInfo b =
+    WithMetaInfo
+      { _base = val_ b,
+        _metaInfo =
+          ErasedMarkMetaInfo
+            { _erasedMarkId = default_,
+              _createdAt = currentTimestamp_'
+            }
+      }
 
-type ErasedMark = ErasedMarkT Identity
+type ErasedMarkT = WithMetaInfo ErasedMarkB
 
 type ErasedMarkId = PrimaryKey ErasedMarkT Identity
 
 deriving instance Show (ErasedMarkB Identity)
-
-deriving instance Show (ErasedMarkT Identity)
 
 deriving instance Show (PrimaryKey ErasedMarkT Identity)
 
@@ -64,32 +74,24 @@ instance ToJSON (ErasedMarkB Identity) where
   toJSON = genericToJSON noCamelOpt
   toEncoding = genericToEncoding noCamelOpt
 
-instance ToJSON (ErasedMarkT Identity) where
-  toJSON = flattenBase <$> genericToJSON noCamelOpt
+instance ToJSON (MetaInfo ErasedMarkB Identity) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
 
 instance FromJSON (PrimaryKey HitmanT Identity)
 
 instance FromJSON (ErasedMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
-instance FromJSON (ErasedMarkT Identity)
+instance FromJSON (MetaInfo ErasedMarkB Identity) where
+  parseJSON = genericParseJSON noCamelOpt
 
 instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey ErasedMarkT Identity)
 
 instance (ToSample (PrimaryKey HitmanT f), ToSample (PrimaryKey MarkT f)) => ToSample (ErasedMarkB f)
 
-instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (ErasedMarkT Identity)
+instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (MetaInfo ErasedMarkB Identity)
 
 instance Table ErasedMarkT where
   data PrimaryKey ErasedMarkT f = ErasedMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
-  primaryKey = ErasedMarkId . _erasedMarkId
-
-instance (BeamSqlBackend be) => ToBase be ErasedMarkT where
-  type Base ErasedMarkT = ErasedMarkB
-  fromBase b =
-    ErasedMarkAll
-      { _erasedMarkId = default_,
-        _base = val_ b,
-        _createdAt = currentTimestamp_'
-      }
-  baseAsUpdate body = (<-. val_ body) . _base
+  primaryKey = ErasedMarkId . _erasedMarkId . _metaInfo

@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -18,6 +19,11 @@ module Databases.HitmenBusiness
     handlerIs,
     annotatedHitmenBusinessDb,
     hitmenBusinessDbSchema,
+    ErasedMarkB,
+    HandlerB,
+    HitmanB,
+    MarkB,
+    PursuingMarkB,
     ErasedMarkT,
     HandlerT,
     HitmanT,
@@ -40,11 +46,11 @@ import Database.Beam.AutoMigrate
 import Database.Beam.Query (oneToMany_, oneToOne_)
 import Database.Beam.Schema (Database)
 import Database.Beam.Schema.Tables (DatabaseSettings, TableEntity, defaultDbSettings, renamingFields, withDbModification)
-import Databases.HitmenBusiness.ErasedMarks (ErasedMarkT (..))
-import Databases.HitmenBusiness.Handlers (HandlerT (..))
-import Databases.HitmenBusiness.Hitmen (HitmanT (..))
-import Databases.HitmenBusiness.Marks (MarkT)
-import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..))
+import Databases.HitmenBusiness.ErasedMarks (ErasedMarkT (..), ErasedMarkB)
+import Databases.HitmenBusiness.Handlers (HandlerT (..), HandlerB)
+import Databases.HitmenBusiness.Hitmen (HitmanT (..), HitmanB)
+import Databases.HitmenBusiness.Marks (MarkT(..), MarkB)
+import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..), PursuingMarkB)
 import Universum
 
 data HitmenBusinessDb f = HitmenBusinessDb
@@ -70,7 +76,7 @@ hitmenBusinessDb =
           let next' = maybe mempty (uncurry (:) . first C.toLower) (uncons next)
            in comp : unCamelCase next'
 
-handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view #_handlerId) handlers
+handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view $ #_metaInfo . #_handlerId) handlers
 
 markPursuedBy hitmen = oneToMany_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_hitmanId) hitmen
 
@@ -94,3 +100,4 @@ annotatedHitmenBusinessDb =
                          )
 
 hitmenBusinessDbSchema = fromAnnotatedDbSettings annotatedHitmenBusinessDb (Proxy @'[])
+
