@@ -1,0 +1,8 @@
+#
+POST http://localhost:6868/handlers
+Content-Type: application/json
+{}
+#
+{"codename":"testing","die_at":null}
+#
+GET http://localhost:6868/docs
