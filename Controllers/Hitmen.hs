@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedLabels #-}
 
@@ -11,7 +12,19 @@ import Database.Beam.Postgres (Connection)
 import Databases.HitmenBusiness (HitmanB)
 import Servant (ServerError, ServerT)
 import Universum
-import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
+import Utils.CRUD (CreateRoute, DeleteRoute, ReadRoute, SimpleCRUDAPI, UpdateRoute, simpleCRUDServerForHitmenBusiness)
 
-simpleCRUDServerForHitmen :: (MonadIO m, MonadError ServerError m) => ServerT (SimpleCRUDAPI path HitmanB) (ReaderT Connection m)
+instance CreateRoute HitmanB
+
+instance ReadRoute HitmanB
+
+instance UpdateRoute HitmanB
+
+instance DeleteRoute HitmanB
+
+simpleCRUDServerForHitmen ::
+  ( With '[MonadIO, MonadError ServerError] m,
+    With '[CreateRoute, ReadRoute, UpdateRoute, DeleteRoute] HitmanB
+  ) =>
+  ServerT (SimpleCRUDAPI path HitmanB) (ReaderT Connection m)
 simpleCRUDServerForHitmen = simpleCRUDServerForHitmenBusiness #_hitmen

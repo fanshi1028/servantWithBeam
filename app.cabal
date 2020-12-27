@@ -41,6 +41,10 @@ executable app
                        Utils.Migration
                        Utils.Account
                        Utils.CRUD
+                       Utils.CRUD.CreateRoute
+                       Utils.CRUD.ReadRoute
+                       Utils.CRUD.UpdateRoute
+                       Utils.CRUD.DeleteRoute
                        Utils.Account.Login
                        Utils.Account.Auth
                        Utils.Account.SignUp

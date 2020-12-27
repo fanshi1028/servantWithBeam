@@ -87,6 +87,18 @@ cradle:
     - path: "./Utils/CRUD.hs"
       component: "app:exe:app"
 
+    - path: "./Utils/CRUD/CreateRoute.hs"
+      component: "app:exe:app"
+
+    - path: "./Utils/CRUD/ReadRoute.hs"
+      component: "app:exe:app"
+
+    - path: "./Utils/CRUD/UpdateRoute.hs"
+      component: "app:exe:app"
+
+    - path: "./Utils/CRUD/DeleteRoute.hs"
+      component: "app:exe:app"
+
     - path: "./Utils/Account/Login.hs"
       component: "app:exe:app"
 

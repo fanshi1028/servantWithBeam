@@ -24,10 +24,7 @@ class Meta be a where
   data MetaInfo a :: (* -> *) -> *
   addMetaInfo :: a Identity -> WithMetaInfo a (QExpr be s)
   updateWithMetaInfo ::
-    ( BeamSqlBackend be,
-      Beamable a,
-      FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a
-    ) =>
+    (Beamable a, BeamSqlBackend be, FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a) =>
     a Identity ->
     WithMetaInfo a (QField s) ->
     QAssignment be s
