@@ -13,11 +13,11 @@ import Servant.Client (BaseUrl (BaseUrl), Scheme (Http), client, mkClientEnv, ru
 import Servers (HomeAPI)
 import Universum
 
-(createHandler :<|> getHandler :<|> getHandlers :<|> updateHandler :<|> deleteHandler)
-  :<|> (createHitman :<|> getHitman :<|> getHitmen :<|> updateHitman :<|> deleteHitman)
-  :<|> (createMark :<|> getMark :<|> getMarks :<|> updateMark :<|> deleteMark)
-  :<|> (createErasedMark :<|> getErasedMark :<|> getErasedMarks :<|> updateErasedMark :<|> deleteErasedMark)
-  :<|> (createPursuingMark :<|> getPursuingMark :<|> getPursuingMarks :<|> updatePursuingMark :<|> deletePursuingMark) = client @HomeAPI Proxy
+(createHandler :<|> getHandlers :<|> getHandler :<|> updateHandler :<|> deleteHandler)
+  :<|> (createHitman :<|> getHitmen :<|> getHitman :<|> updateHitman :<|> deleteHitman)
+  :<|> (createMark :<|> getMarks :<|> getMark :<|> updateMark :<|> deleteMark)
+  :<|> (createErasedMark :<|> getErasedMarks :<|> getErasedMark :<|> updateErasedMark :<|> deleteErasedMark)
+  :<|> (createPursuingMark :<|> getPursuingMarks :<|> getPursuingMark :<|> updatePursuingMark :<|> deletePursuingMark) = client @HomeAPI Proxy
 
 temp name = do
   manager' <- newManager defaultManagerSettings
