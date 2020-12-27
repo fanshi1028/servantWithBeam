@@ -89,6 +89,7 @@ executable app
                       TypeApplications
                       LambdaCase
                       NoImplicitPrelude
+                      StrictData
 
 source-repository head
    type: git
