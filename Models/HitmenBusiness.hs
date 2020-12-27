@@ -28,46 +28,9 @@ import Chronos (Datetime)
 import Data.Time (LocalTime)
 import Database.Beam (filter_', pk)
 import Database.Beam.Backend (BeamSqlBackend)
-import Database.Beam.Query
-  ( HasQBuilder,
-    HasSqlEqualityCheck,
-    HasSqlQuantifiedEqualityCheck,
-    Q,
-    QExpr,
-    QGenExpr,
-    QGroupable (group_),
-    QValueContext,
-    SqlDeconstructMaybe (maybe_),
-    SqlJustable (just_),
-    SqlValable (val_),
-    aggregate_,
-    allOf_,
-    all_,
-    count_,
-    filter_,
-    guard_,
-    join_,
-    leftJoin_,
-    max_,
-    sum_,
-    (/=*.),
-    (==.),
-    (>.),
-    (>=.),
-  )
+import Database.Beam.Query (HasQBuilder, HasSqlEqualityCheck, HasSqlQuantifiedEqualityCheck, Q, QExpr, QGenExpr, QGroupable (group_), QValueContext, SqlDeconstructMaybe (maybe_), SqlJustable (just_), SqlValable (val_), aggregate_, allOf_, all_, count_, filter_, guard_, join_, leftJoin_, max_, sum_, (/=*.), (==.), (>.), (>=.))
 import Database.Beam.Query.Internal (QNested)
-import Databases.HitmenBusiness
-  ( ErasedMarkT,
-    HandlerT,
-    HitmanT,
-    HitmenBusinessDb,
-    MarkT,
-    PursuingMarkT,
-    erasedMarkOf,
-    hitmenBusinessDb,
-    markErasedBy,
-    markPursuedBy,
-  )
+import Databases.HitmenBusiness (ErasedMarkT, HandlerT, HitmanT, HitmenBusinessDb, MarkT, PursuingMarkT, erasedMarkOf, hitmenBusinessDb, markErasedBy, markPursuedBy)
 import Databases.HitmenBusiness.Marks (PrimaryKey (MarkId))
 import Universum
 
