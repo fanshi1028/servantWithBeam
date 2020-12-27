@@ -9,6 +9,7 @@ import Servers (homeApp)
 import System.Environment (getEnv)
 import Utils.Migration (doMigration, showMigration)
 import Universum
+import Chronos (stopwatch)
 
 connectDb' user db =
   connectPostgreSQL
@@ -19,12 +20,17 @@ connectDb' user db =
     )
 
 main :: IO ()
-main = connectDb >>= showMigration >>= runSettings settings . homeApp
+main = connectDb
+  -- >>= tLog "show Migration: " . showMigration
+  >>= runSettings settings . homeApp
   where
     logTarget = stderr
     log = hPutStrLn @Text @IO logTarget
-    envVar s = log ("Try get " <> s) >> getEnv (toString s) <* log ("Got " <> s)
-    connectDb = log "Try Connect DB" >> join (connectDb' <$> envVar "PG_USER" <*> envVar "HITMEN_DB") <* log "Connected"
+    tLog context io = stopwatch io >>= \(t, a) -> log (context <> show t) >> return a
+    envVar' s = log ("Try get " <> s) >> getEnv (toString s) <* log ("Got " <> s)
+    envVar s = tLog ("envVar " <> s <> ": ") $ envVar' s
+    connectDb'' = tLog "Connect DB: " <<$>> connectDb'
+    connectDb = log "Try Connect DB" >>  join (connectDb'' <$> envVar "PG_USER" <*> envVar "HITMEN_DB") <* log "Connected"
     port = 6868
     settings =
       defaultSettings
