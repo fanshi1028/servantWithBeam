@@ -1,5 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -12,8 +12,8 @@ import Database.Beam.Query (insert, insertExpressions, runInsert)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (DatabaseEntity, Table, TableEntity)
 import Servant (JSON, NoContent (NoContent), Post, ReqBody, (:>))
-import Utils.Meta (Meta (..), WithMetaInfo)
 import Universum
+import Utils.Meta (Meta (..), WithMetaInfo)
 
 class CreateRoute a where
   type CreateApi a :: *

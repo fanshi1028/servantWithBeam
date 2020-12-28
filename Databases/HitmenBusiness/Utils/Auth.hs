@@ -39,12 +39,12 @@ getUserInfoWithPasswordHash ::
     Typeable crypto
   ) =>
   DatabaseEntity be db $ TableEntity $ LoginT crypto userT ->
-  DatabaseEntity be db $ TableEntity $ WithMetaInfo userT  ->
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo userT ->
   LoginId userT ->
   Q be db s (WithMetaInfo userT $ QExpr be s, QExpr be s $ PasswordHash crypto)
 getUserInfoWithPasswordHash loginTable userTable userName =
   -- bimap (view #_base) (view #_passwordHash) FIXME generic lens can't be derived for #_base
-    second (view #_passwordHash)
+  second (view #_passwordHash)
     <$> filter_
       ((==. val_ userName) . view #_accountName . snd)
       (all_ userTable >>= myJoin (joinAuth loginTable))

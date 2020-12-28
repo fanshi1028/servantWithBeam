@@ -26,8 +26,8 @@ import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Utils.Meta (Meta (..), WithMetaInfo (..))
 import Universum
+import Utils.Meta (Meta (..), WithMetaInfo (..))
 
 data ErasedMarkB f = ErasedMark
   { _hitmanId :: PrimaryKey HitmanT f,

@@ -20,9 +20,9 @@ import Servant (Delete, Header, Headers, JSON, NoContent (..), Post, ReqBody, Se
 import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, ToJWT (..), acceptLogin, clearSession)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
-import Utils.Account.SignUp (Validatable, SignUp, WithUserName (..), validateSignUp)
+import Utils.Account.SignUp (SignUp, Validatable, WithUserName (..), validateSignUp)
+import Utils.Meta (Meta, WithMetaInfo, addMetaInfo)
 import Validation (Validation (Failure, Success))
-import Utils.Meta (WithMetaInfo, addMetaInfo, Meta)
 
 type Login userT = WithPassword $ LoginId userT
 
@@ -37,7 +37,7 @@ authServer ::
   ( Database be db,
     HasQBuilder be,
     With '[Typeable, Meta be, Validatable] userT,
-    With '[Table] (WithMetaInfo userT) ,
+    With '[Table] (WithMetaInfo userT),
     With '[HasSqlEqualityCheck be, BeamSqlBackendCanSerialize be] (LoginId userT),
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey $ WithMetaInfo userT),
     FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey $ WithMetaInfo userT),

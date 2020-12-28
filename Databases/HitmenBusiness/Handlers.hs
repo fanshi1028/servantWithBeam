@@ -29,8 +29,8 @@ import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Utils.Meta (Meta (..), WithMetaInfo (..))
 import Universum
+import Utils.Meta (Meta (..), WithMetaInfo (..))
 
 data HandlerB f = Handler
   { _codename :: C f Codename,

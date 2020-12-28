@@ -10,7 +10,7 @@ module Databases.HitmenBusiness.Utils.Password where
 
 import Data.Aeson (FromJSON (..), ToJSON (..), Value (..), withObject, (.:))
 import Data.Aeson.Types (typeMismatch)
-import Data.Password (PasswordCheck)
+import Data.Password (PasswordCheck, unsafeShowPassword)
 import Data.Password.Argon2 (Argon2, Password, PasswordHash (..), Salt (..), defaultParams, hashPasswordWithSalt, mkPassword)
 import qualified Data.Password.Argon2 as Argon2 (checkPassword, hashPassword)
 import Data.Password.Validate (ValidationResult (..), defaultPasswordPolicy_)
@@ -23,7 +23,6 @@ import Text.Password.Strength (Strength (Safe, Strong), en_US, score, strength)
 import qualified Text.Read as TR (get, prec, readPrec)
 import Universum
 import Validation (Validation (Failure, Success))
-import Data.Password (unsafeShowPassword)
 
 -- | Password
 newtype NewPassword = NewPassword {unNewPassword :: Password} deriving (Show)
@@ -110,7 +109,6 @@ instance (FromJSON a) => FromJSON (WithPassword a) where
 instance (FromJSON a) => FromJSON (WithNewPassword a) where
   parseJSON ob = WithNewPass <$> parseJSON ob <*> parseJSON ob
 
--- class (Typeable crypto) => PasswordAlgorithm crypto where
 class PasswordAlgorithm crypto where
   checkPassword :: Password -> PasswordHash crypto -> PasswordCheck
   hashPassword :: Password -> IO $ PasswordHash crypto

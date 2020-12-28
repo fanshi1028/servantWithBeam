@@ -30,12 +30,12 @@ import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
 import Servant (Capture, Delete, Get, HasServer (ServerT), JSON, NoContent, Post, Put, ReqBody, ServerError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
-import Utils.Meta (Meta (..), WithMetaInfo)
 import Universum
 import Utils.CRUD.CreateRoute (CreateRoute (createOne))
 import Utils.CRUD.DeleteRoute (DeleteRoute (deleteOne))
 import Utils.CRUD.ReadRoute (ReadRoute (readMany), readOne)
 import Utils.CRUD.UpdateRoute (UpdateRoute (updateOne))
+import Utils.Meta (Meta (..), WithMetaInfo)
 
 type SimpleCRUDAPI (path :: Symbol) a =
   path

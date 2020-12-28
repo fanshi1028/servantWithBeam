@@ -12,8 +12,8 @@ import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (DatabaseEntity, FieldsFulfillConstraint, Table, TableEntity)
 import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
-import Utils.Meta (WithMetaInfo)
 import Universum
+import Utils.Meta (WithMetaInfo)
 
 class DeleteRoute a where
   type DeleteApi a :: *

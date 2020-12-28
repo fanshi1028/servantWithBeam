@@ -28,8 +28,8 @@ import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Types (FirstName, LastName, MarkDescription, MarkStatus)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Utils.Meta (Meta (..), WithMetaInfo (..))
 import Universum
+import Utils.Meta (Meta (..), WithMetaInfo (..))
 
 data MarkB f = Mark
   { _listBounty :: C f Int32,
