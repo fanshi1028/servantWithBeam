@@ -12,7 +12,7 @@ import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (DatabaseEntity, FieldsFulfillConstraint, Table, TableEntity)
 import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
-import Typeclass.Meta (WithMetaInfo)
+import Utils.Meta (WithMetaInfo)
 import Universum
 
 class DeleteRoute a where

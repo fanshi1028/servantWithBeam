@@ -12,7 +12,7 @@ import Database.Beam (Database, DatabaseEntity, FromBackendRow, HasQBuilder, Has
 import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Servant (Capture, Get, JSON, ServerError, err404, throwError, (:<|>), (:>))
-import Typeclass.Meta (WithMetaInfo (..))
+import Utils.Meta (WithMetaInfo (..))
 import Universum
 
 class ReadRoute a where

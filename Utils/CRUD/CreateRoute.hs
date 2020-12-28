@@ -12,7 +12,7 @@ import Database.Beam.Query (insert, insertExpressions, runInsert)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (DatabaseEntity, Table, TableEntity)
 import Servant (JSON, NoContent (NoContent), Post, ReqBody, (:>))
-import Typeclass.Meta (Meta (..), WithMetaInfo)
+import Utils.Meta (Meta (..), WithMetaInfo)
 import Universum
 
 class CreateRoute a where

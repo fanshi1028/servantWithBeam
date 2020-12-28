@@ -22,7 +22,7 @@ import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
 import Utils.Account.SignUp (Validatable, SignUp, WithUserName (..), validateSignUp)
 import Validation (Validation (Failure, Success))
-import Typeclass.Meta (WithMetaInfo, addMetaInfo, Meta)
+import Utils.Meta (WithMetaInfo, addMetaInfo, Meta)
 
 type Login userT = WithPassword $ LoginId userT
 

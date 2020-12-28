@@ -17,7 +17,7 @@ import Databases.HitmenBusiness.Utils.Password (PasswordAlgorithm (..))
 import Servant (Delete, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, Verb, err401, (:<|>) ((:<|>)), (:>))
 import Servant.Auth (Auth)
 import Servant.Auth.Server (AuthResult (Authenticated), CookieSettings, JWTSettings, SetCookie, ThrowAll, ToJWT, throwAll)
-import Typeclass.Meta (Meta, WithMetaInfo)
+import Utils.Meta (Meta, WithMetaInfo)
 import Universum
 import Utils.Account.Auth (Login, authServer)
 import Utils.Account.Login (LoginId, LoginT (..))

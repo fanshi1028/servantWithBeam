@@ -26,7 +26,7 @@ import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Typeclass.Meta (Meta (..), WithMetaInfo (..))
+import Utils.Meta (Meta (..), WithMetaInfo (..))
 import Universum
 
 data ErasedMarkB f = ErasedMark

@@ -13,7 +13,7 @@ import Data.Password (PasswordHash (..))
 import Database.Beam (Beamable, C, PrimaryKey, Table (..))
 import Database.Beam.Backend (SqlSerial (..))
 import Universum
-import Typeclass.Meta (WithMetaInfo)
+import Utils.Meta (WithMetaInfo)
 
 type family LoginId (userT :: (* -> *) -> *)
 

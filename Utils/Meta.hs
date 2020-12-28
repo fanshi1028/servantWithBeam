@@ -9,7 +9,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Typeclass.Meta (Meta (..), WithMetaInfo (..)) where
+module Utils.Meta (Meta (..), WithMetaInfo (..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..), Value (String), genericToJSON)
 import Database.Beam (Beamable, QAssignment, QField, val_, (<-.))

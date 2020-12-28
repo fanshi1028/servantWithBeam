@@ -35,7 +35,7 @@ executable app
                        Databases.HitmenBusiness.Utils.Auth
                        Models
                        Models.HitmenBusiness
-                       Typeclass.Meta
+                       Utils.Meta
                        Utils.Client
                        Utils.Docs
                        Utils.Migration

@@ -12,7 +12,7 @@ import Database.Beam (Beamable, Database, DatabaseEntity, HasQBuilder, HasSqlEqu
 import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Servant (Capture, JSON, NoContent (..), Put, ReqBody, (:>))
-import Typeclass.Meta (Meta, WithMetaInfo (..), updateWithMetaInfo)
+import Utils.Meta (Meta, WithMetaInfo (..), updateWithMetaInfo)
 import Universum
 
 class UpdateRoute a where

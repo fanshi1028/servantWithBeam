@@ -13,7 +13,7 @@ import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Models.HitmenBusiness (myJoin)
 import Universum
 import Utils.Account.Login (LoginId, LoginT)
-import Typeclass.Meta (WithMetaInfo)
+import Utils.Meta (WithMetaInfo)
 
 joinAuth ::
   ( BeamSqlBackend be,

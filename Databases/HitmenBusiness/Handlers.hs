@@ -29,7 +29,7 @@ import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
-import Typeclass.Meta (Meta (..), WithMetaInfo (..))
+import Utils.Meta (Meta (..), WithMetaInfo (..))
 import Universum
 
 data HandlerB f = Handler

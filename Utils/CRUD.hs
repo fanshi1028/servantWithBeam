@@ -30,7 +30,7 @@ import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
 import Servant (Capture, Delete, Get, HasServer (ServerT), JSON, NoContent, Post, Put, ReqBody, ServerError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
-import Typeclass.Meta (Meta (..), WithMetaInfo)
+import Utils.Meta (Meta (..), WithMetaInfo)
 import Universum
 import Utils.CRUD.CreateRoute (CreateRoute (createOne))
 import Utils.CRUD.DeleteRoute (DeleteRoute (deleteOne))
