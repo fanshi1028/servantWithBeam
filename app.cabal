@@ -36,6 +36,7 @@ executable app
                        Models
                        Models.HitmenBusiness
                        Utils.Meta
+                       Utils.QueryRunner
                        Utils.Client
                        Utils.Docs
                        Utils.Migration

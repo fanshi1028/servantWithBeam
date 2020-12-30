@@ -72,6 +72,9 @@ cradle:
     - path: "./Utils/Meta.hs"
       component: "app:exe:app"
 
+    - path: "./Utils/QueryRunner.hs"
+      component: "app:exe:app"
+
     - path: "./Utils/Client.hs"
       component: "app:exe:app"
 

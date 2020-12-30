@@ -8,21 +8,19 @@
 module Utils.CRUD
   ( simpleCRUDServer,
     SimpleCRUDAPI,
-    doPgQueryWithDebug,
-    doPgQueryWithDebug',
     simpleCRUDServerForHitmenBusiness,
-    -- doSqliteQueryWithDebug,
-    CreateRoute (..),
-    ReadRoute (..),
-    UpdateRoute (..),
-    DeleteRoute (..),
+    simpleCRUDServerForHitmenBusinessLite,
+    createOne,
+    readOne,
+    readMany,
+    updateOne,
+    deleteOne,
   )
 where
 
 import Control.Monad.Except (MonadError)
 import Database.Beam (FromBackendRow, MonadBeam, PrimaryKey)
 import Database.Beam.Backend.SQL (BeamSqlBackendCanSerialize)
-import Database.Beam.Postgres (Connection, Pg, runBeamPostgresDebug)
 import Database.Beam.Query (HasSqlEqualityCheck)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (Beamable, Database, DatabaseEntity, FieldsFulfillConstraint, Table, TableEntity)
@@ -31,11 +29,12 @@ import GHC.TypeLits (Symbol)
 import Servant (Capture, Delete, Get, HasServer (ServerT), JSON, NoContent, Post, Put, ReqBody, ServerError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Universum
-import Utils.CRUD.CreateRoute (CreateRoute (createOne))
-import Utils.CRUD.DeleteRoute (DeleteRoute (deleteOne))
-import Utils.CRUD.ReadRoute (ReadRoute (readMany), readOne)
-import Utils.CRUD.UpdateRoute (UpdateRoute (updateOne))
+import Utils.CRUD.CreateRoute (createOne)
+import Utils.CRUD.DeleteRoute (deleteOne)
+import Utils.CRUD.ReadRoute (readMany, readOne)
+import Utils.CRUD.UpdateRoute (updateOne)
 import Utils.Meta (Meta (..), WithMetaInfo)
+import Utils.QueryRunner (doPgQueryWithDebug, doSqliteQueryWithDebug)
 
 type SimpleCRUDAPI (path :: Symbol) a =
   path
@@ -54,7 +53,6 @@ simpleCRUDServer ::
     Database be db,
     With '[Beamable, Meta be] a,
     Table (WithMetaInfo a),
-    With '[CreateRoute, ReadRoute, UpdateRoute, DeleteRoute] a,
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a,
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (WithMetaInfo a),
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
@@ -68,20 +66,6 @@ simpleCRUDServer ::
   ServerT (SimpleCRUDAPI path a) n
 simpleCRUDServer q t = createOne q t :<|> readMany q t :<|> readOne q t :<|> updateOne q t :<|> deleteOne q t
 
-doPgQueryWithDebug' :: (MonadIO m) => (env -> Connection) -> (Pg a -> ReaderT env m a)
-doPgQueryWithDebug' extractFromEnv = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn . extractFromEnv))
-
--- doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
--- doPgQueryWithDebug = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn))
-
-doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
-doPgQueryWithDebug = doPgQueryWithDebug' id
-
--- doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM a -> ReaderT Connection m a)
--- doSqliteQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamSqliteDebug putStrLn)
-
--- doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn
-
 simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (hitmenBusinessDb ^. dbGetter)
 
--- simpleCRUDServerForHitmenBusiness dbGetter conn = simpleCRUDServer (doPgQueryWithDebug conn) (hitmenBusinessDb ^. dbGetter)
+simpleCRUDServerForHitmenBusinessLite dbGetter = simpleCRUDServer doSqliteQueryWithDebug (hitmenBusinessDb ^. dbGetter)

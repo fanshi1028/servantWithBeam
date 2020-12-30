@@ -12,19 +12,10 @@ import Database.Beam.Postgres (Connection)
 import Databases.HitmenBusiness (HitmanB)
 import Servant (ServerError, ServerT)
 import Universum
-import Utils.CRUD (CreateRoute, DeleteRoute, ReadRoute, SimpleCRUDAPI, UpdateRoute, simpleCRUDServerForHitmenBusiness)
-
-instance CreateRoute HitmanB
-
-instance ReadRoute HitmanB
-
-instance UpdateRoute HitmanB
-
-instance DeleteRoute HitmanB
+import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
 
 simpleCRUDServerForHitmen ::
-  ( With '[MonadIO, MonadError ServerError] m,
-    With '[CreateRoute, ReadRoute, UpdateRoute, DeleteRoute] HitmanB
+  ( With '[MonadIO, MonadError ServerError] m
   ) =>
   ServerT (SimpleCRUDAPI path HitmanB) (ReaderT Connection m)
 simpleCRUDServerForHitmen = simpleCRUDServerForHitmenBusiness #_hitmen

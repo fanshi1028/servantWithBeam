@@ -20,5 +20,5 @@ pkgs.haskell-nix.project {
   #   # ];
   #   reinstallableLibGhc = true;
   # }];
-  index-state = "2020-12-25T00:00:00Z";
+  index-state = "2020-12-26T00:00:00Z";
 }

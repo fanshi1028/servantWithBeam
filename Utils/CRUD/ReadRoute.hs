@@ -15,35 +15,34 @@ import Servant (Capture, Get, JSON, ServerError, err404, throwError, (:<|>), (:>
 import Universum
 import Utils.Meta (WithMetaInfo (..))
 
-class ReadRoute a where
-  type ReadApi a :: *
-  type
-    ReadApi a =
-      Get '[JSON] [WithMetaInfo a Identity]
-        :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '[JSON] (WithMetaInfo a Identity))
-  readOne ::
-    ( HasQBuilder be,
-      Database be db,
-      With '[Table] (WithMetaInfo a),
-      FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
-      FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
-      FromBackendRow be (WithMetaInfo a Identity),
-      MonadBeam be m,
-      MonadError ServerError n
-    ) =>
-    (forall t. m t -> n t) ->
-    DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
-    PrimaryKey (WithMetaInfo a) Identity ->
-    n (WithMetaInfo a Identity)
-  readOne doQuery table id = lookup_ table id & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
-  readMany ::
-    ( HasQBuilder be,
-      Database be db,
-      With '[Table] (WithMetaInfo a),
-      FromBackendRow be (WithMetaInfo a Identity),
-      MonadBeam be m
-    ) =>
-    (forall t. m t -> n t) ->
-    DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
-    n [WithMetaInfo a Identity]
-  readMany doQuery table = doQuery $ runSelectReturningList $ select $ all_ table
+type ReadApi a =
+  Get '[JSON] [WithMetaInfo a Identity]
+    :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '[JSON] (WithMetaInfo a Identity))
+
+readOne ::
+  ( HasQBuilder be,
+    Database be db,
+    With '[Table] (WithMetaInfo a),
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
+    FromBackendRow be (WithMetaInfo a Identity),
+    MonadBeam be m,
+    MonadError ServerError n
+  ) =>
+  (forall t. m t -> n t) ->
+  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
+  PrimaryKey (WithMetaInfo a) Identity ->
+  n (WithMetaInfo a Identity)
+readOne doQuery table id = lookup_ table id & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
+
+readMany ::
+  ( HasQBuilder be,
+    Database be db,
+    With '[Table] (WithMetaInfo a),
+    FromBackendRow be (WithMetaInfo a Identity),
+    MonadBeam be m
+  ) =>
+  (forall t. m t -> n t) ->
+  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
+  n [WithMetaInfo a Identity]
+readMany doQuery table = doQuery $ runSelectReturningList $ select $ all_ table

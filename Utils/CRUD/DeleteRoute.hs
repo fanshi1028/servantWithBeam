@@ -15,19 +15,18 @@ import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
 import Universum
 import Utils.Meta (WithMetaInfo)
 
-class DeleteRoute a where
-  type DeleteApi a :: *
-  type DeleteApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent
-  deleteOne ::
-    ( HasQBuilder be,
-      Table (WithMetaInfo a),
-      FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
-      FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
-      MonadBeam be m,
-      Monad n
-    ) =>
-    (forall t. m t -> n t) ->
-    DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
-    PrimaryKey (WithMetaInfo a) Identity ->
-    n NoContent
-  deleteOne doQuery table id = delete table ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
+type DeleteApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent
+
+deleteOne ::
+  ( HasQBuilder be,
+    Table (WithMetaInfo a),
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
+    MonadBeam be m,
+    Monad n
+  ) =>
+  (forall t. m t -> n t) ->
+  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
+  PrimaryKey (WithMetaInfo a) Identity ->
+  n NoContent
+deleteOne doQuery table id = delete table ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
