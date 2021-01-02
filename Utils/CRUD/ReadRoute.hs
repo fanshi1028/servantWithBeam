@@ -8,16 +8,18 @@
 module Utils.CRUD.ReadRoute where
 
 import Control.Monad.Except (MonadError)
-import Database.Beam (Database, DatabaseEntity, FromBackendRow, HasQBuilder, HasSqlEqualityCheck, MonadBeam, PrimaryKey, Table, TableEntity, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
+import Database.Beam (Database, DatabaseEntity, FromBackendRow, HasQBuilder, HasSqlEqualityCheck, MonadBeam, PrimaryKey, SqlSelect, Table, TableEntity, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
 import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Servant (Capture, Get, JSON, ServerError, err404, throwError, (:<|>), (:>))
 import Universum
 import Utils.Meta (WithMetaInfo (..))
 
-type ReadApi a =
-  Get '[JSON] [WithMetaInfo a Identity]
-    :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '[JSON] (WithMetaInfo a Identity))
+type ReadManyApi a = Get '[JSON] [WithMetaInfo a Identity]
+
+type ReadOneApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '[JSON] (WithMetaInfo a Identity)
+
+type ReadApi a = ReadManyApi a :<|> ReadOneApi a
 
 readOne ::
   ( HasQBuilder be,

@@ -29,21 +29,14 @@ import GHC.TypeLits (Symbol)
 import Servant (Capture, Delete, Get, HasServer (ServerT), JSON, NoContent, Post, Put, ReqBody, ServerError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Universum
-import Utils.CRUD.CreateRoute (createOne)
-import Utils.CRUD.DeleteRoute (deleteOne)
-import Utils.CRUD.ReadRoute (readMany, readOne)
-import Utils.CRUD.UpdateRoute (updateOne)
+import Utils.CRUD.CreateRoute (CreateApi, createOne, createOneSql)
+import Utils.CRUD.DeleteRoute (DeleteApi, deleteOne)
+import Utils.CRUD.ReadRoute (ReadApi, ReadManyApi, ReadOneApi, readMany, readOne)
+import Utils.CRUD.UpdateRoute (UpdateApi, updateOne)
 import Utils.Meta (Meta (..), WithMetaInfo)
 import Utils.QueryRunner (doPgQueryWithDebug, doSqliteQueryWithDebug)
 
-type SimpleCRUDAPI (path :: Symbol) a =
-  path
-    :> ( (ReqBody '[JSON] (a Identity) :> Post '[JSON] NoContent)
-           :<|> Get '[JSON] [WithMetaInfo a Identity]
-           :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '[JSON] (WithMetaInfo a Identity))
-           :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> ReqBody '[JSON] (a Identity) :> Put '[JSON] NoContent)
-           :<|> (Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent)
-       )
+type SimpleCRUDAPI (path :: Symbol) a = path :> (CreateApi a :<|> ReadManyApi a :<|> ReadOneApi a :<|> UpdateApi a :<|> DeleteApi a)
 
 instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
   toCapture _ = DocCapture "id" "id"
@@ -64,7 +57,12 @@ simpleCRUDServer ::
   (forall t. m t -> n t) ->
   DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
   ServerT (SimpleCRUDAPI path a) n
-simpleCRUDServer q t = createOne q t :<|> readMany q t :<|> readOne q t :<|> updateOne q t :<|> deleteOne q t
+simpleCRUDServer doQuery table =
+  createOne doQuery table
+    :<|> readMany doQuery table
+    :<|> readOne doQuery table
+    :<|> updateOne doQuery table
+    :<|> deleteOne doQuery table
 
 simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (hitmenBusinessDb ^. dbGetter)
 

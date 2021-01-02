@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -7,7 +10,7 @@
 
 module Utils.CRUD.DeleteRoute where
 
-import Database.Beam (HasSqlEqualityCheck, MonadBeam, PrimaryKey, SqlValable (val_), delete, pk, runDelete, (==.))
+import Database.Beam (HasSqlEqualityCheck, MonadBeam, PrimaryKey, SqlDelete, SqlValable (val_), delete, pk, runDelete, (==.))
 import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (DatabaseEntity, FieldsFulfillConstraint, Table, TableEntity)
@@ -15,7 +18,18 @@ import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
 import Universum
 import Utils.Meta (WithMetaInfo)
 
-type DeleteApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent
+type DeleteApi (a :: (* -> *) -> *) = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent
+
+deleteOneSql ::
+  ( HasQBuilder be,
+    Table (WithMetaInfo a),
+    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
+    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a))
+  ) =>
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
+  PrimaryKey (WithMetaInfo a) Identity ->
+  SqlDelete be $ WithMetaInfo a
+deleteOneSql table id = delete table $ (==. val_ id) . pk
 
 deleteOne ::
   ( HasQBuilder be,
@@ -26,7 +40,7 @@ deleteOne ::
     Monad n
   ) =>
   (forall t. m t -> n t) ->
-  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   PrimaryKey (WithMetaInfo a) Identity ->
   n NoContent
-deleteOne doQuery table id = delete table ((==. val_ id) . pk) & runDelete & doQuery >> return NoContent
+deleteOne doQuery table = (>> return NoContent) . doQuery . runDelete . deleteOneSql table

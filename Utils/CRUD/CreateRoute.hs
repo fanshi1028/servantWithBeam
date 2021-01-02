@@ -8,15 +8,26 @@
 
 module Utils.CRUD.CreateRoute where
 
-import Database.Beam (MonadBeam)
+import Database.Beam (MonadBeam, SqlInsert)
 import Database.Beam.Query (insert, insertExpressions, runInsert)
 import Database.Beam.Query.Types (HasQBuilder)
 import Database.Beam.Schema.Tables (DatabaseEntity, Table, TableEntity)
-import Servant (JSON, NoContent (NoContent), Post, ReqBody, ServerT, (:>))
+import Servant (JSON, NoContent (NoContent), Post, ReqBody, (:>))
 import Universum
+import Utils.FromAccount (FromAccount (Base, fromAccount))
 import Utils.Meta (Meta (..), WithMetaInfo)
 
 type CreateApi a = ReqBody '[JSON] (a Identity) :> Post '[JSON] NoContent
+
+createOneSql ::
+  ( HasQBuilder be,
+    Meta be a,
+    Table (WithMetaInfo a)
+  ) =>
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
+  a Identity ->
+  SqlInsert be $ WithMetaInfo a
+createOneSql table body = insertExpressions [addMetaInfo body] & insert table
 
 createOne ::
   ( HasQBuilder be,
@@ -26,10 +37,22 @@ createOne ::
     Monad n
   ) =>
   (forall t. m t -> n t) ->
-  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   a Identity ->
   n NoContent
-createOne doQuery table body = insertExpressions [addMetaInfo body] & insert table & runInsert & doQuery >> return NoContent
+createOne doQuery table = (>> return NoContent) . doQuery . runInsert . createOneSql table
 
--- instance CreateRoute (ReqBody '[JSON] (a Identity) :> Post '[JSON] NoContent) a where
---   createOne doQuery table body = insertExpressions [addMetaInfo body] & insert table & runInsert & doQuery >> return NoContent
+createOne' ::
+  ( HasQBuilder be,
+    Meta be a,
+    Table (WithMetaInfo a),
+    MonadBeam be m,
+    FromAccount userInfo a,
+    Monad n
+  ) =>
+  (forall t. m t -> n t) ->
+  DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
+  WithMetaInfo userInfo Identity ->
+  Base a Identity ->
+  n NoContent
+createOne' doQuery table authInfo = (>> return NoContent) . doQuery . runInsert . createOneSql table . fromAccount authInfo
