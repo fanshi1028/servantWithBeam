@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -9,14 +10,17 @@ import Databases.HitmenBusiness.Utils.Types (Codename (Codename))
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import Servant ((:<|>) ((:<|>)))
 import Servant.Client (BaseUrl (BaseUrl), Scheme (Http), client, mkClientEnv, runClientM)
-import Servers (HomeAPI)
+import Servers (HomeAPI')
 import Universum
+import Servant.Auth.Client ()
+import Servant.Auth (JWT)
+import Servant.Auth (Cookie)
 
 (createHandler :<|> getHandlers :<|> getHandler :<|> updateHandler :<|> deleteHandler)
   :<|> (createHitman :<|> getHitmen :<|> getHitman :<|> updateHitman :<|> deleteHitman)
   :<|> (createMark :<|> getMarks :<|> getMark :<|> updateMark :<|> deleteMark)
   :<|> (createErasedMark :<|> getErasedMarks :<|> getErasedMark :<|> updateErasedMark :<|> deleteErasedMark)
-  :<|> (createPursuingMark :<|> getPursuingMarks :<|> getPursuingMark :<|> updatePursuingMark :<|> deletePursuingMark) = client @HomeAPI Proxy
+  :<|> (createPursuingMark :<|> getPursuingMarks :<|> getPursuingMark :<|> updatePursuingMark :<|> deletePursuingMark) = client @(HomeAPI' '[JWT, Cookie]) Proxy
 
 temp name = do
   manager' <- newManager defaultManagerSettings

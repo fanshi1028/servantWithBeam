@@ -10,9 +10,11 @@
 module Databases.HitmenBusiness.Utils.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..))
-import Database.Beam (FromBackendRow (..))
+import Data.Password.Argon2 (Argon2, PasswordHash (..))
+import Database.Beam (FromBackendRow (..), HasSqlEqualityCheck)
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
-import Database.Beam.Backend (BeamBackend, HasSqlValueSyntax (..))
+import Database.Beam.Backend (BeamSqlBackend, BeamBackend, HasSqlValueSyntax (..))
+import Servant.Auth.Server (SetCookie, def)
 import Servant.Docs (ToSample (..), singleSample)
 import Universum
 
@@ -24,6 +26,8 @@ newtype Codename = Codename {unCodename :: Text}
 deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be Codename
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be Codename
+
+deriving newtype instance (BeamSqlBackend be, HasSqlEqualityCheck be Text) => HasSqlEqualityCheck be Codename
 
 instance ToSample Codename where
   toSamples _ = singleSample $ Codename "codename"
@@ -74,3 +78,10 @@ instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatu
 
 instance HasSqlValueSyntax expr Text => HasSqlValueSyntax expr MarkStatus where
   sqlValueSyntax = sqlValueSyntax . show @Text
+
+-- | SetCookie
+instance ToSample SetCookie where
+  toSamples _ = singleSample def
+
+-- | PasswordHash
+deriving newtype instance HasColumnType (PasswordHash Argon2)

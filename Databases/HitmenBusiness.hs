@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
@@ -35,6 +36,7 @@ where
 import Data.Char (isUpper)
 import qualified Data.Char as C
 import Data.Generics.Labels ()
+import Data.Password.Argon2 (Argon2)
 import Database.Beam (dbModification)
 import Database.Beam.AutoMigrate
   ( AnnotatedDatabaseSettings,
@@ -52,13 +54,15 @@ import Databases.HitmenBusiness.Hitmen (HitmanT (..), HitmanB)
 import Databases.HitmenBusiness.Marks (MarkT(..), MarkB)
 import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..), PursuingMarkB)
 import Universum
+import Utils.Account.Login (LoginT)
 
 data HitmenBusinessDb f = HitmenBusinessDb
   { _hitmen :: f (TableEntity HitmanT),
     _handlers :: f (TableEntity HandlerT),
     _marks :: f (TableEntity MarkT),
     _hbPursuingMarks :: f (TableEntity PursuingMarkT),
-    _hbErasedMarks :: f (TableEntity ErasedMarkT)
+    _hbErasedMarks :: f (TableEntity ErasedMarkT),
+    _handlersAccount :: f (TableEntity $ LoginT Argon2 HandlerB)
   }
   deriving (Generic, Database be)
 
@@ -76,7 +80,7 @@ hitmenBusinessDb =
           let next' = maybe mempty (uncurry (:) . first C.toLower) (uncons next)
            in comp : unCamelCase next'
 
-handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view $ #_metaInfo . #_handlerId) handlers
+handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view $ #_base . #_handlerId) handlers
 
 markPursuedBy hitmen = oneToMany_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_hitmanId) hitmen
 

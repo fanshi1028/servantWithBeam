@@ -8,8 +8,11 @@ import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, run
 import Servers (homeApp)
 import System.Environment (getEnv)
 import Utils.Migration (doMigration, showMigration)
+import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
+import Servant (Context(EmptyContext), Context((:.)))
 import Universum
 import Chronos (stopwatch)
+import Utils.Account.Auth (authServer)
 
 connectDb' user db =
   connectPostgreSQL
@@ -20,9 +23,16 @@ connectDb' user db =
     )
 
 main :: IO ()
-main = connectDb
+main = do
+  -- connectDb
   -- >>= tLog "show Migration: " . showMigration
-  >>= runSettings settings . homeApp
+  -- >>= runSettings settings . homeApp
+  key <- generateKey
+  let jwtCfg = defaultJWTSettings key
+      cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
+  connectDb
+  -- >>= tLog "show Migration: " . showMigration
+   >>= runSettings settings . homeApp cfg def jwtCfg
   where
     logTarget = stderr
     log = hPutStrLn @Text @IO logTarget

@@ -1,11 +1,14 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.Hitmen
@@ -18,13 +21,13 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
-import Database.Beam (Nullable, default_, val_)
+import Database.Beam (Nullable, default_, pk, val_)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
-import Databases.HitmenBusiness.Handlers (HandlerT, PrimaryKey (HandlerId))
+import Databases.HitmenBusiness.Handlers (HandlerB, HandlerT)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
-import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
+import Databases.HitmenBusiness.Utils.JSON (noCamelOpt, noCamelOpt')
 import Databases.HitmenBusiness.Utils.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
@@ -126,3 +129,10 @@ instance
     ToSample (C f Datetime)
   ) =>
   ToSample (MetaInfo HitmanB f)
+
+instance FromJSON (Base HitmanB Identity) where
+  parseJSON = genericParseJSON noCamelOpt'
+
+instance ToJSON (Base HitmanB Identity) where
+  toJSON = genericToJSON noCamelOpt'
+  toEncoding = genericToEncoding noCamelOpt'

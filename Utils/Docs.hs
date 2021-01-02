@@ -16,6 +16,7 @@ import Network.Wai (responseLBS)
 import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)), (:>))
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
 import Universum
+import Servant.Auth (Cookie)
 
 instance ToSample Datetime where
   toSamples _ = singleSample $ timeToDatetime epoch
@@ -34,3 +35,5 @@ serveDocs api server = server :<|> Tagged toDocs
   where
     docsBS = encodeUtf8 . markdown . docs $ api
     toDocs _ res = res $ responseLBS ok200 [("Content-Type", "text/plain")] docsBS
+
+-- instance ToCapture

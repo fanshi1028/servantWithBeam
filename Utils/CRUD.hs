@@ -9,7 +9,7 @@ module Utils.CRUD
   ( simpleCRUDServer,
     SimpleCRUDAPI,
     simpleCRUDServerForHitmenBusiness,
-    simpleCRUDServerForHitmenBusinessLite,
+    -- simpleCRUDServerForHitmenBusinessLite,
     createOne,
     readOne,
     readMany,
@@ -27,7 +27,7 @@ import Database.Beam.Schema.Tables (Beamable, Database, DatabaseEntity, FieldsFu
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
 import Servant (Capture, Delete, Get, HasServer (ServerT), JSON, NoContent, Post, Put, ReqBody, ServerError, (:<|>) ((:<|>)), (:>))
-import Servant.Docs (DocCapture (..), ToCapture (..))
+import Servant.Docs (HasDocs, DocCapture (..), ToCapture (..))
 import Universum
 import Utils.CRUD.CreateRoute (CreateApi, createOne, createOneSql)
 import Utils.CRUD.DeleteRoute (DeleteApi, deleteOne)
@@ -35,10 +35,11 @@ import Utils.CRUD.ReadRoute (ReadApi, ReadManyApi, ReadOneApi, readMany, readOne
 import Utils.CRUD.UpdateRoute (UpdateApi, updateOne)
 import Utils.Meta (Meta (..), WithMetaInfo)
 import Utils.QueryRunner (doPgQueryWithDebug, doSqliteQueryWithDebug)
+import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
 
 type SimpleCRUDAPI (path :: Symbol) a = path :> (CreateApi a :<|> ReadManyApi a :<|> ReadOneApi a :<|> UpdateApi a :<|> DeleteApi a)
 
-instance ToCapture (Capture "id" (PrimaryKey f Identity)) where
+instance ToCapture (Capture "id" $ PrimaryKey f Identity) where
   toCapture _ = DocCapture "id" "id"
 
 simpleCRUDServer ::
@@ -51,7 +52,7 @@ simpleCRUDServer ::
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
     FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
     FromBackendRow be (WithMetaInfo a Identity),
-    MonadBeam be m,
+    MonadBeamUpdateReturning be m,
     With '[MonadIO, MonadError ServerError] n
   ) =>
   (forall t. m t -> n t) ->
@@ -66,4 +67,4 @@ simpleCRUDServer doQuery table =
 
 simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (hitmenBusinessDb ^. dbGetter)
 
-simpleCRUDServerForHitmenBusinessLite dbGetter = simpleCRUDServer doSqliteQueryWithDebug (hitmenBusinessDb ^. dbGetter)
+-- simpleCRUDServerForHitmenBusinessLite dbGetter = simpleCRUDServer doSqliteQueryWithDebug (hitmenBusinessDb ^. dbGetter)

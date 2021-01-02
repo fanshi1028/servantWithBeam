@@ -1,48 +1,69 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Servers.Home
   ( HomeAPI,
+    HomeAPI',
     homeApp,
   )
 where
 
-import Controllers
-  ( SimpleCRUDAPI,
-    simpleCRUDServerForErasedMarks,
-    simpleCRUDServerForHandlers,
-    simpleCRUDServerForHitmen,
-    simpleCRUDServerForMarks,
-    simpleCRUDServerForPursuingMarks,
-  )
+import Controllers (SimpleCRUDAPI, SimpleCRUDHitmanAPI, simpleCRUDServerForHitmen')
 import Database.PostgreSQL.Simple (Connection)
-import Servant (Application, hoistServer, serve, (:<|>) ((:<|>)))
-import Databases.HitmenBusiness (ErasedMarkB, HandlerB, HitmanB, MarkB, PursuingMarkB)
+import Databases.HitmenBusiness (ErasedMarkB, HandlerB, MarkB, PursuingMarkB, hitmenBusinessDb)
+import Servant (Application, Context, ErrorFormatters, HasContextEntry, HasServer (hoistServerWithContext), serveWithContext, (:<|>) ((:<|>)), type (.++))
+import Servant.Auth.Docs ()
+import Servant.Auth.Server (Cookie, CookieSettings, JWT, JWTSettings)
+import Servant.Server (DefaultErrorFormatters)
 import Universum
+import Utils.Account.Auth (AuthApi, authServer)
+import Utils.CRUD (simpleCRUDServerForHitmenBusiness)
 import Utils.Docs (APIWithDoc, serveDocs)
+import Utils.QueryRunner (doPgQueryWithDebug)
 
-type HomeAPI =
-  SimpleCRUDAPI "handlers" HandlerB
-    :<|> SimpleCRUDAPI "hitmen" HitmanB
-    :<|> SimpleCRUDAPI "marks" MarkB
-    :<|> SimpleCRUDAPI "erased_marks" ErasedMarkB
-    :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkB
+type HomeAPI' auths =
+  ( SimpleCRUDAPI "handlers" HandlerB
+      :<|> SimpleCRUDHitmanAPI auths
+      :<|> SimpleCRUDAPI "marks" MarkB
+      :<|> SimpleCRUDAPI "erased_marks" ErasedMarkB
+      :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkB
+  )
 
+type HomeAPI = HomeAPI' '[JWT, Cookie] :<|> AuthApi HandlerB
 
-homeApp :: Connection -> Application
-homeApp conn =
-  serve @(APIWithDoc HomeAPI) Proxy $
+homeApp ::
+  ( HasContextEntry context JWTSettings,
+    HasContextEntry context CookieSettings,
+    HasContextEntry (context .++ DefaultErrorFormatters) ErrorFormatters
+  ) =>
+  Context context ->
+  CookieSettings ->
+  JWTSettings ->
+  Connection ->
+  Application
+homeApp cfg cs jwts conn = do
+  -- serve @(APIWithDoc HomeAPI) Proxy $
+  serveWithContext @(APIWithDoc HomeAPI) Proxy cfg $
     serveDocs @HomeAPI Proxy $
-      hoistServer @HomeAPI
+      -- hoistServer @(HomeAPI '[Cookie])
+      hoistServerWithContext @HomeAPI @'[CookieSettings, JWTSettings]
+        Proxy
         Proxy
         (usingReaderT conn)
-        ( simpleCRUDServerForHandlers
-            :<|> simpleCRUDServerForHitmen
-            :<|> simpleCRUDServerForMarks
-            :<|> simpleCRUDServerForErasedMarks
-            :<|> simpleCRUDServerForPursuingMarks
+        -- (crud #_handlers :<|> crud #_hitmen :<|> crud #_marks :<|> crud #_hbErasedMarks :<|> crud #_hbPursuingMarks)
+        ( ( crud #_handlers
+              :<|> simpleCRUDServerForHitmen' doPgQueryWithDebug
+              :<|> crud #_marks
+              :<|> crud #_hbErasedMarks
+              :<|> crud #_hbPursuingMarks
+          )
+            :<|> authServer (hitmenBusinessDb ^. #_handlersAccount) (hitmenBusinessDb ^. #_handlers) doPgQueryWithDebug cs jwts
         )
+  where
+    crud getter = simpleCRUDServerForHitmenBusiness getter
 
 -- homeApp :: Connection -> Application
 -- homeApp =

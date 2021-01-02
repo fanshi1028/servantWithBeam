@@ -1,7 +1,9 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -20,6 +22,7 @@ import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Generics.Labels ()
 import Database.Beam (Nullable)
+import Database.Beam.AutoMigrate (HasColumnType)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_)
@@ -27,10 +30,17 @@ import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Types (Codename)
-import Servant (FromHttpApiData (..), ToHttpApiData (..))
+import Servant (FromHttpApiData (..), JSON, ToHttpApiData (..))
+import Servant.Auth.JWT (FromJWT, ToJWT)
+import Servant.Auth.Server.Internal.Class (IsAuth)
 import Servant.Docs (ToSample)
 import Universum
+import Utils.Account.Login (LoginId)
+import Utils.Account.SignUp (Payload, Validatable (..))
 import Utils.Meta (Meta (..), WithMetaInfo (..))
+import Validation (Validation (Success))
+import Database.Beam.Backend (HasSqlValueSyntax)
+import Database.Beam (HasSqlEqualityCheck)
 
 data HandlerB f = Handler
   { _codename :: C f Codename,
@@ -103,3 +113,15 @@ instance ToSample (C f (SqlSerial Int32)) => ToSample (PrimaryKey HandlerT f)
 instance (ToSample (C f (Maybe Datetime)), ToSample (C f Codename)) => ToSample (HandlerB f)
 
 instance (ToSample (C f (SqlSerial Int32)), ToSample (C f Datetime)) => ToSample (MetaInfo HandlerB f)
+
+instance FromJWT (WithMetaInfo HandlerB Identity)
+
+instance ToJWT (WithMetaInfo HandlerB Identity)
+
+newtype instance LoginId HandlerB = HandlerLoginId {unHandlerLoginId :: Codename} deriving newtype (ToSample, FromJSON, ToJSON, HasColumnType )
+
+deriving newtype instance (HasSqlValueSyntax syntax Text) => HasSqlValueSyntax syntax (LoginId HandlerB)
+
+deriving newtype instance (BeamSqlBackend be, HasSqlEqualityCheck be Codename) => HasSqlEqualityCheck be (LoginId HandlerB)
+
+instance Validatable HandlerB

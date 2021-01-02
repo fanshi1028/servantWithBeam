@@ -2,10 +2,11 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Utils.Account.Auth (Login, authServer) where
+module Utils.Account.Auth (Login, authServer, AuthApi) where
 
 import Control.Monad.Except (MonadError)
 import Data.Password (PasswordCheck (PasswordCheckFail, PasswordCheckSuccess))
@@ -16,7 +17,7 @@ import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Databases.HitmenBusiness.Utils.Auth (getUserInfoWithPasswordHash)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), PasswordAlgorithm (..), WithNewPassword (WithNewPass), WithPassword (WithPass))
-import Servant (Delete, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
+import Servant (Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, StdMethod (DELETE, POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, ToJWT (..), acceptLogin, clearSession)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
@@ -28,10 +29,10 @@ type Login userT = WithPassword $ LoginId userT
 
 type AuthCookiesContent = Headers '[Header "Set-Cookie" SetCookie, Header "Set-Cookie" SetCookie] NoContent
 
-type AuthApi userT auths =
+type AuthApi userT =
   ("signup" :> ReqBody '[JSON] (SignUp userT) :> Post '[JSON] NoContent)
-    :<|> ("login" :> ReqBody '[JSON] (Login userT) :> Verb Post 204 '[JSON] AuthCookiesContent)
-    :<|> ("logout" :> Verb Delete 204 '[JSON] AuthCookiesContent)
+    :<|> ("login" :> ReqBody '[JSON] (Login userT) :> Verb 'POST 204 '[JSON] AuthCookiesContent)
+    :<|> ("logout" :> Verb 'DELETE 204 '[JSON] AuthCookiesContent) -- FIXME logout route, not DELTE right?
 
 authServer ::
   ( Database be db,
@@ -41,7 +42,6 @@ authServer ::
     With '[HasSqlEqualityCheck be, BeamSqlBackendCanSerialize be] (LoginId userT),
     FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey $ WithMetaInfo userT),
     FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey $ WithMetaInfo userT),
-    -- With '[ToJWT, Generic, FromBackendRow be] (userT Identity),
     With '[Generic] (userT Identity),
     With '[ToJWT, FromBackendRow be] (WithMetaInfo userT Identity),
     With '[FromBackendRow be, BeamSqlBackendCanSerialize be] Text,
@@ -54,7 +54,7 @@ authServer ::
   (forall a. m a -> n a) ->
   CookieSettings ->
   JWTSettings ->
-  ServerT (AuthApi userT auths) n
+  ServerT (AuthApi userT) n
 authServer loginTable userInfoTable doQuery cs jwts = signUp :<|> login :<|> logout
   where
     authCheck (WithPass pw userName) =

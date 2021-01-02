@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -8,7 +9,7 @@
 
 module Databases.HitmenBusiness.Utils.Password where
 
-import Data.Aeson (FromJSON (..), ToJSON (..), Value (..), withObject, (.:))
+import Data.Aeson (FromJSON (..), ToJSON (..), Value (..), genericToEncoding, genericToJSON, object, withObject, (.:))
 import Data.Aeson.Types (typeMismatch)
 import Data.Password (PasswordCheck, unsafeShowPassword)
 import Data.Password.Argon2 (Argon2, Password, PasswordHash (..), Salt (..), defaultParams, hashPasswordWithSalt, mkPassword)
@@ -18,15 +19,15 @@ import qualified Data.Password.Validate as PV (validatePassword)
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDateValid)
 import Database.Beam.AutoMigrate (HasColumnType)
 import Database.Beam.Backend (BeamBackend, FromBackendRow, HasSqlValueSyntax (..))
-import Servant.Docs (ToSample (..), singleSample)
 import Databases.HitmenBusiness.Utils.JSON (flatten, noCamelOpt)
+import Servant.Docs (ToSample (..), noSamples, singleSample, toSample)
 import Text.Password.Strength (Strength (Safe, Strong), en_US, score, strength)
 import qualified Text.Read as TR (get, prec, readPrec)
 import Universum
 import Validation (Validation (Failure, Success))
 
 -- | Password
-newtype NewPassword = NewPassword {unNewPassword :: Password} deriving (Show)
+newtype NewPassword = NewPassword {unNewPassword :: Password} deriving newtype (ToSample, Show, ToJSON)
 
 -- >>> import qualified Data.Aeson as A
 -- >>> A.eitherDecode @NewPassword "{ \"new_password\": \"jfwoiefjwef\", \"confirm_password\":\"fweew\"}"
@@ -93,16 +94,34 @@ deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBacken
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be (PasswordHash a)
 
-deriving newtype instance HasColumnType (PasswordHash a)
+-- instance HasColumnType (PasswordHash a)
 
 -- >>> toSamples @(PasswordHash Argon2) Proxy
 -- [("",PasswordHash {unPasswordHash = "$argon2id$v=19$m=65536,t=2,p=1$ZndlZ3dncmdnZ2dyd2V3a2s4MzQ3$tBE4ORs4fF4F7rfsUsY8kkyEi7uurt5cy3bTaHw83GM="})]
 instance ToSample (PasswordHash Argon2) where
   toSamples _ = singleSample $ hashPasswordWithSalt defaultParams (Salt "fwegwgrggggrwewkk8347") $ mkPassword "jfwehfgwef"
 
-data WithPassword a = WithPass Password a
+data WithPassword a = WithPass
+  { _password :: Password,
+    _login :: a
+  }
+  deriving (Generic)
 
-data WithNewPassword a = WithNewPass NewPassword a
+instance (ToSample a) => ToSample (WithPassword a) where
+  toSamples _ = maybe noSamples singleSample $ WithPass <$> toSample Proxy <*> toSample Proxy
+
+instance ToJSON a => ToJSON (WithPassword a) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
+
+data WithNewPassword a = WithNewPass
+  { _newPassword :: NewPassword,
+    _newLogin :: a
+  }
+  deriving (Generic)
+
+instance (ToSample a, ToSample NewPassword) => ToSample (WithNewPassword a) where
+  toSamples _ = maybe noSamples singleSample $ WithNewPass <$> toSample Proxy <*> toSample Proxy
 
 instance (FromJSON a) => FromJSON (WithPassword a) where
   parseJSON ob@(Object o) = WithPass <$> o .: "password" <*> parseJSON ob

@@ -65,6 +65,8 @@ executable app
                        servant-swagger >= 1.1,
                        servant-auth >= 0.4,
                        servant-auth-server >= 0.4.6.0,
+                       servant-auth-docs >= 0.2.10.0,
+                       servant-auth-client >= 0.4,
                        http-types >= 0.12,
                        http-client < 0.7,
                        wai >= 3.2.2,
