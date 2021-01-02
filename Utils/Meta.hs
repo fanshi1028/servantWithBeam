@@ -16,7 +16,7 @@ import Database.Beam (Beamable, QAssignment, QField, val_, (<-.))
 import Database.Beam.Backend (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query.Types (QExpr)
 import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
-import Databases.HitmenBusiness.Utils.JSON (flattenBaseMeta, noCamelOpt)
+import Databases.HitmenBusiness.Utils.JSON (flatten, noCamelOpt)
 import Servant.Docs (ToSample)
 import Universum
 

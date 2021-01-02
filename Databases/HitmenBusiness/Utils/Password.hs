@@ -19,6 +19,7 @@ import Data.Time.Calendar.OrdinalDate (fromOrdinalDateValid)
 import Database.Beam.AutoMigrate (HasColumnType)
 import Database.Beam.Backend (BeamBackend, FromBackendRow, HasSqlValueSyntax (..))
 import Servant.Docs (ToSample (..), singleSample)
+import Databases.HitmenBusiness.Utils.JSON (flatten, noCamelOpt)
 import Text.Password.Strength (Strength (Safe, Strong), en_US, score, strength)
 import qualified Text.Read as TR (get, prec, readPrec)
 import Universum
@@ -108,6 +109,9 @@ instance (FromJSON a) => FromJSON (WithPassword a) where
 
 instance (FromJSON a) => FromJSON (WithNewPassword a) where
   parseJSON ob = WithNewPass <$> parseJSON ob <*> parseJSON ob
+
+instance (ToJSON a) => ToJSON (WithNewPassword a) where
+  toJSON = fromMaybe (String "JSON encode fail") . flatten "new_password" "new_login" <$> genericToJSON noCamelOpt
 
 class PasswordAlgorithm crypto where
   checkPassword :: Password -> PasswordHash crypto -> PasswordCheck
