@@ -29,10 +29,12 @@ import Databases.HitmenBusiness.Utils.Types (Codename)
 import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Docs (ToSample)
 import Universum
+import Utils.FromAccount (FromAccount (..))
 import Utils.Meta (Meta (..), WithMetaInfo (..))
 
 data HitmanB f = Hitman
   { _codename :: C f Codename,
+    _handlerId :: PrimaryKey HandlerT f,
     _dieAt :: C (Nullable f) Datetime
   }
   deriving (Generic, Beamable)
@@ -46,7 +48,6 @@ instance
   where
   data MetaInfo HitmanB f = HitmanMetaInfo
     { _hitmanId :: C f (SqlSerial Int32),
-      _handlerId :: PrimaryKey HandlerT f,
       _createdAt :: C f Datetime
     }
     deriving (Generic, Beamable)
@@ -56,10 +57,21 @@ instance
         _metaInfo =
           HitmanMetaInfo
             { _hitmanId = default_,
-              _createdAt = currentTimestamp_',
-              -- _handlerId = val_ hid
-              _handlerId = val_ (HandlerId 1) --  TEMP TEMP
+              _createdAt = currentTimestamp_'
             }
+      }
+
+instance FromAccount HandlerB HitmanB where
+  data Base HitmanB f = HitmanBase
+    { _codename' :: C f Codename,
+      _dieAt' :: C (Nullable f) Datetime
+    }
+    deriving (Generic, Beamable)
+  fromAccount userInfo base =
+    Hitman
+      { _codename = _codename' base,
+        _dieAt = _dieAt' base,
+        _handlerId = pk userInfo
       }
 
 type HitmanT = WithMetaInfo HitmanB

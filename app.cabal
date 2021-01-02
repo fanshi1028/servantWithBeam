@@ -41,6 +41,7 @@ executable app
                        Utils.Docs
                        Utils.Migration
                        Utils.Account
+                       Utils.FromAccount
                        Utils.CRUD
                        Utils.CRUD.CreateRoute
                        Utils.CRUD.ReadRoute

@@ -87,6 +87,9 @@ cradle:
     - path: "./Utils/Account.hs"
       component: "app:exe:app"
 
+    - path: "./Utils/FromAccount.hs"
+      component: "app:exe:app"
+
     - path: "./Utils/CRUD.hs"
       component: "app:exe:app"
 
