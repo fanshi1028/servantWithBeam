@@ -2,17 +2,16 @@
 
 module Main where
 
+import Chronos (stopwatch)
 import Database.Beam.Postgres (connectPostgreSQL, defaultConnectInfo)
 import Database.PostgreSQL.Simple (postgreSQLConnectionString)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
+import Servant (Context (EmptyContext, (:.)))
+import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
 import Servers (homeApp)
 import System.Environment (getEnv)
-import Utils.Migration (doMigration, showMigration)
-import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
-import Servant (Context(EmptyContext), Context((:.)))
 import Universum
-import Chronos (stopwatch)
-import Utils.Account.Auth (authServer)
+import Utils.Migration (doMigration, showMigration)
 
 connectDb' user db =
   connectPostgreSQL
@@ -31,8 +30,8 @@ main = do
   let jwtCfg = defaultJWTSettings key
       cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
   connectDb
-  -- >>= tLog "show Migration: " . showMigration
-   >>= runSettings settings . homeApp cfg def jwtCfg
+    >>= tLog "show Migration: " . showMigration
+    >>= runSettings settings . homeApp cfg def jwtCfg
   where
     logTarget = stderr
     log = hPutStrLn @Text @IO logTarget
@@ -40,7 +39,7 @@ main = do
     envVar' s = log ("Try get " <> s) >> getEnv (toString s) <* log ("Got " <> s)
     envVar s = tLog ("envVar " <> s <> ": ") $ envVar' s
     connectDb'' = tLog "Connect DB: " <<$>> connectDb'
-    connectDb = log "Try Connect DB" >>  join (connectDb'' <$> envVar "PG_USER" <*> envVar "HITMEN_DB") <* log "Connected"
+    connectDb = log "Try Connect DB" >> join (connectDb'' <$> envVar "PG_USER" <*> envVar "HITMEN_DB") <* log "Connected"
     port = 6868
     settings =
       defaultSettings

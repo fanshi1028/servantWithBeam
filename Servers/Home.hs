@@ -60,7 +60,7 @@ homeApp cfg cs jwts conn = do
               :<|> crud #_hbErasedMarks
               :<|> crud #_hbPursuingMarks
           )
-            :<|> authServer (hitmenBusinessDb ^. #_handlersAccount) (hitmenBusinessDb ^. #_handlers) doPgQueryWithDebug cs jwts
+            :<|> authServer (hitmenBusinessDb ^. #_hbHandlersAccount) (hitmenBusinessDb ^. #_handlers) doPgQueryWithDebug cs jwts
         )
   where
     crud getter = simpleCRUDServerForHitmenBusiness getter

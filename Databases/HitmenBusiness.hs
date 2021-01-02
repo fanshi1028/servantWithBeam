@@ -62,7 +62,7 @@ data HitmenBusinessDb f = HitmenBusinessDb
     _marks :: f (TableEntity MarkT),
     _hbPursuingMarks :: f (TableEntity PursuingMarkT),
     _hbErasedMarks :: f (TableEntity ErasedMarkT),
-    _handlersAccount :: f (TableEntity $ LoginT Argon2 HandlerB)
+    _hbHandlersAccount :: f (TableEntity $ LoginT Argon2 HandlerB)
   }
   deriving (Generic, Database be)
 

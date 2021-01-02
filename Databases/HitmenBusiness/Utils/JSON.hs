@@ -8,7 +8,7 @@ noCamelOptInternal strip = defaultOptions {fieldLabelModifier = maybe "Impossibl
 
 noCamelOpt = noCamelOptInternal tail
 
-noCamelOpt' = noCamelOptInternal init
+noCamelOpt' = noCamelOptInternal $ maybe "Impossible! Empty field label"  init . nonEmpty . tail
 
 flatten1 :: Text -> Value -> Maybe Object
 flatten1 key = \case

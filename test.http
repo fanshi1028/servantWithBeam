@@ -6,3 +6,7 @@ Content-Type: application/json
 {"codename":"testing","die_at":null}
 #
 GET http://localhost:6868/docs
+#
+POST http://localhost:6868/hitman
+Content-Type: application/json
+{ "codename" : "fewew"}
