@@ -98,8 +98,8 @@ instance FromJSON (MetaInfo HandlerB Identity) where
 
 instance FromJSON (PrimaryKey HandlerT Identity)
 
-instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey HandlerT Identity)
+instance ToSample (C f (SqlSerial Int32)) => ToSample (PrimaryKey HandlerT f)
 
 instance (ToSample (C f (Maybe Datetime)), ToSample (C f Codename)) => ToSample (HandlerB f)
 
-instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (MetaInfo HandlerB Identity)
+instance (ToSample (C f (SqlSerial Int32)), ToSample (C f Datetime)) => ToSample (MetaInfo HandlerB f)

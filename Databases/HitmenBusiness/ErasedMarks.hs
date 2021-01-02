@@ -86,11 +86,11 @@ instance FromJSON (ErasedMarkB Identity) where
 instance FromJSON (MetaInfo ErasedMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
-instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey ErasedMarkT Identity)
+instance ToSample (C f (SqlSerial Int32)) => ToSample (PrimaryKey ErasedMarkT f)
 
 instance (ToSample (PrimaryKey HitmanT f), ToSample (PrimaryKey MarkT f)) => ToSample (ErasedMarkB f)
 
-instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (MetaInfo ErasedMarkB Identity)
+instance (ToSample (C f (SqlSerial Int32)), ToSample (C f Datetime)) => ToSample (MetaInfo ErasedMarkB f)
 
 instance Table ErasedMarkT where
   data PrimaryKey ErasedMarkT f = ErasedMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)

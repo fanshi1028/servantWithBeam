@@ -99,7 +99,7 @@ instance
   ) =>
   ToSample (PursuingMarkB f)
 
-instance (ToSample (SqlSerial Int32), ToSample Datetime) => ToSample (MetaInfo PursuingMarkB Identity)
+instance (ToSample (C f (SqlSerial Int32)), ToSample (C f Datetime)) => ToSample (MetaInfo PursuingMarkB f)
 
 instance Table PursuingMarkT where
   data PrimaryKey PursuingMarkT f = PursuingMarkId (C f (SqlSerial Int32)) deriving (Generic, Beamable)

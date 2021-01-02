@@ -32,17 +32,17 @@ class Meta be a where
 
 data WithMetaInfo a f = WithMetaInfo {_base :: a f, _metaInfo :: MetaInfo a f} deriving (Generic)
 
-instance (ToJSON $ a Identity, ToJSON $ MetaInfo a Identity) => ToJSON (WithMetaInfo a Identity) where
-  toJSON = fromMaybe (String "JSON encode fail") . flattenBaseMeta <$> genericToJSON noCamelOpt
+instance (ToJSON $ a f, ToJSON $ MetaInfo a f) => ToJSON (WithMetaInfo a f) where
+  toJSON = fromMaybe (String "JSON encode fail") . flatten "base" "meta_info" <$> genericToJSON noCamelOpt
 
 -- NOTE toEncoding seems harder to write as the builders are not very composable when amending the JSON structure
 -- toEncoding = genericToEncoding noCamelOpt
 
-instance (FromJSON $ a Identity, FromJSON $ MetaInfo a Identity) => FromJSON (WithMetaInfo a Identity) where
+instance (FromJSON $ a f, FromJSON $ MetaInfo a f) => FromJSON (WithMetaInfo a f) where
   parseJSON o = WithMetaInfo <$> parseJSON o <*> parseJSON o
 
-deriving instance (Show (a Identity), Show (MetaInfo a Identity)) => Show (WithMetaInfo a Identity)
+deriving instance (Show (a f), Show (MetaInfo a f)) => Show (WithMetaInfo a f)
 
 deriving instance (Beamable a, Beamable (MetaInfo a)) => Beamable (WithMetaInfo a)
 
-deriving instance (ToSample (a Identity), ToSample (MetaInfo a Identity)) => ToSample (WithMetaInfo a Identity)
+deriving instance (ToSample (a f), ToSample (MetaInfo a f)) => ToSample (WithMetaInfo a f)

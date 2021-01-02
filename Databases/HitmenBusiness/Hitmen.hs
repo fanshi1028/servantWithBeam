@@ -94,13 +94,23 @@ instance FromJSON (HitmanB Identity) where
 instance FromJSON (MetaInfo HitmanB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
-instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey HitmanT Identity)
-
-instance (ToSample (C f (Maybe Datetime)), ToSample (C f Codename)) => ToSample (HitmanB f)
+instance ToSample (C f (SqlSerial Int32)) => ToSample (PrimaryKey HitmanT f)
 
 instance
-  ( ToSample (PrimaryKey HandlerT Identity),
-    ToSample (SqlSerial Int32),
-    ToSample Datetime
+  ( ToSample (C f (Maybe Datetime)),
+    ToSample (C f Codename)
   ) =>
-  ToSample (MetaInfo HitmanB Identity)
+  ToSample (Base HitmanB f)
+
+instance
+  ( ToSample (C f (Maybe Datetime)),
+    ToSample (C f Codename),
+    ToSample (PrimaryKey HandlerT f)
+  ) =>
+  ToSample (HitmanB f)
+
+instance
+  ( ToSample (C f (SqlSerial Int32)),
+    ToSample (C f Datetime)
+  ) =>
+  ToSample (MetaInfo HitmanB f)

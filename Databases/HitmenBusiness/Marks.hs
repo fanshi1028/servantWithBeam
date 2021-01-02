@@ -105,7 +105,7 @@ instance FromJSON (MarkB Identity) where
 instance FromJSON (MetaInfo MarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
-instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey MarkT Identity)
+instance ToSample (C f (SqlSerial Int32)) => ToSample (PrimaryKey MarkT f)
 
 instance
   ( ToSample (C f (Maybe Datetime)),
@@ -118,8 +118,8 @@ instance
   ToSample (MarkB f)
 
 instance
-  ( ToSample Int32,
-    ToSample (SqlSerial Int32),
-    ToSample Datetime
+  ( ToSample (C f Int32),
+    ToSample (C f(SqlSerial Int32)),
+    ToSample (C f Datetime)
   ) =>
-  ToSample (MetaInfo MarkB Identity)
+  ToSample (MetaInfo MarkB f)
