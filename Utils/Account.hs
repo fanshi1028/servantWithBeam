@@ -10,16 +10,14 @@ module Utils.Account (ProtectApi, LoginT, protected) where
 
 import Servant (err401, (:>))
 import Servant.Auth (Auth)
-import Servant.Auth.Server (ThrowAll(..), AuthResult (Authenticated))
+import Servant.Auth.Server (AuthResult (Authenticated), ThrowAll (..))
 import Universum
 import Utils.Account.Login (LoginT (..))
 import Utils.Meta (WithMetaInfo)
 
 type ProtectApi (auths :: [*]) userT api = Auth auths (WithMetaInfo userT Identity) :> api
 
--- protected :: ThrowAll server => (userInfo -> server) -> AuthResult userInfo -> server
-protected :: (userInfo -> server) -> AuthResult userInfo -> server
--- protected :: (userInfo -> ServerT api m) -> AuthResult userInfo -> ServerT api m
+protected :: ThrowAll server => (userInfo -> server) -> AuthResult userInfo -> server
 protected toServer = \case
   Authenticated userInfo -> toServer userInfo
-  -- _ -> throwAll err401
+  _ -> throwAll err401

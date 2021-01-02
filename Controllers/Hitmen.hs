@@ -18,7 +18,7 @@ import Database.Beam.Backend (BeamSqlBackendCanSerialize, SqlNull)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
 import Database.Beam.Postgres (Connection)
 import Databases.HitmenBusiness (hitmenBusinessDb, HandlerB, HitmanB)
-import Servant (ServerError, ServerT, (:<|>) ((:<|>)), (:>))
+import Servant (NoContent, ServerError, ServerT, (:<|>) ((:<|>)), (:>))
 import Universum
 import Utils.Account (ProtectApi, protected)
 import Utils.CRUD (SimpleCRUDAPI, deleteOne, readMany, readOne, simpleCRUDServerForHitmenBusiness, updateOne)
@@ -27,6 +27,8 @@ import Utils.CRUD.DeleteRoute (DeleteApi)
 import Utils.CRUD.ReadRoute (ReadManyApi, ReadOneApi)
 import Utils.CRUD.UpdateRoute (UpdateApi)
 import Utils.FromAccount (FromAccount (Base))
+import Servant.Auth.Server (ThrowAll)
+import Utils.Meta (WithMetaInfo)
 
 simpleCRUDServerForHitmen ::
   ( With '[MonadIO, MonadError ServerError] m
@@ -53,7 +55,9 @@ simpleCRUDServerForHitmen' ::
     FromBackendRow be Datetime,
     FromBackendRow be SqlNull,
     MonadBeamUpdateReturning be m,
-    With '[MonadIO, MonadError ServerError] n
+    With '[MonadIO, MonadError ServerError] n,
+    ThrowAll $ n NoContent,
+    ThrowAll $ n [WithMetaInfo HitmanB Identity]
   ) =>
   (forall t. m t -> n t) ->
   ServerT (SimpleCRUDHitmanAPI auths) n
