@@ -90,6 +90,8 @@ markErasedBy hitmen = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_
 
 erasedMarkOf marks = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . #_markId) marks
 
+acountOf handlers = oneToOne_ (hitmenBusinessDb ^. #_hbHandlersAccount) (view $ #_account) handlers
+
 annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings be HitmenBusinessDb
 annotatedHitmenBusinessDb =
   defaultAnnotatedDbSettings hitmenBusinessDb
