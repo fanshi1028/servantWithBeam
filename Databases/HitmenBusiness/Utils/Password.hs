@@ -9,7 +9,8 @@
 
 module Databases.HitmenBusiness.Utils.Password where
 
-import Data.Aeson (FromJSON (..), ToJSON (..), Value (..), genericToEncoding, genericToJSON, object, withObject, (.:))
+import Data.Aeson (FromJSON (..), ToJSON (..), Value (..), genericToJSON, withObject, (.:))
+import Data.Aeson.Text (encodeToLazyText)
 import Data.Aeson.Types (typeMismatch)
 import Data.Password (PasswordCheck, unsafeShowPassword)
 import Data.Password.Argon2 (Argon2, Password, PasswordHash (..), Salt (..), defaultParams, hashPasswordWithSalt, mkPassword)
@@ -17,7 +18,6 @@ import qualified Data.Password.Argon2 as Argon2 (checkPassword, hashPassword)
 import Data.Password.Validate (ValidationResult (..), defaultPasswordPolicy_)
 import qualified Data.Password.Validate as PV (validatePassword)
 import Data.Time.Calendar.OrdinalDate (fromOrdinalDateValid)
-import Database.Beam.AutoMigrate (HasColumnType)
 import Database.Beam.Backend (BeamBackend, FromBackendRow, HasSqlValueSyntax (..))
 import Databases.HitmenBusiness.Utils.JSON (flatten, noCamelOpt)
 import Servant.Docs (ToSample (..), noSamples, singleSample, toSample)
@@ -41,9 +41,11 @@ instance FromJSON NewPassword where
     np <- o .: "new_password"
     o .: "confirm_password" >>= \case
       cp | cp == np -> return $ NewPassword $ mkPassword np
-      _ -> fail "New password doesn't match with the confirm password"
+      _ -> fail "The new_password doesn't match with the confirm_password"
 
-validatePassword :: Password -> Validation (NonEmpty Text) ()
+-- >>> validatePassword "fewh"
+-- Failure ("PasswordTooShort 8 4" :| ["NotEnoughReqChars Uppercase 1 0","NotEnoughReqChars Digit 1 0"])
+validatePassword :: (IsString s) => Password -> Validation (NonEmpty s) ()
 validatePassword =
   PV.validatePassword defaultPasswordPolicy_ >>= \case
     ValidPassword -> return $ Success ()
@@ -52,9 +54,10 @@ validatePassword =
         Failure $
           fromMaybe ("Impossible, password is invalid with unknown reasons" :| []) $ nonEmpty $ map show reasons
 
--- >>> zxcvbnStrength "fewhfiewfjowjfowwj"
--- Failure ("Object (fromList [(\"strength\",String \"Risky\"),(\"score\",Number 10.0)])" :| [])
-zxcvbnStrength :: Password -> Validation (NonEmpty Text) ()
+-- >>> zxcvbnStrength "fewh"
+-- Failure ("{\"strength\":\"Weak\",\"score\":3600}" :| [])
+-- zxcvbnStrength :: Password -> Validation (NonEmpty LByteString) ()
+zxcvbnStrength :: Password -> Validation (NonEmpty LText) ()
 zxcvbnStrength pw =
   maybe
     (Failure $ "Impossible, the zxcvbn checker got wrong ref day input!" :| [])
@@ -63,7 +66,7 @@ zxcvbnStrength pw =
          in case strength sc of
               Strong -> pure ()
               Safe -> pure ()
-              _ -> Failure $ show (toJSON sc) :| []
+              _ -> Failure $ encodeToLazyText sc :| []
     )
     $ fromOrdinalDateValid 2020 360
 
@@ -110,10 +113,6 @@ data WithPassword a = WithPass
 instance (ToSample a) => ToSample (WithPassword a) where
   toSamples _ = maybe noSamples singleSample $ WithPass <$> toSample Proxy <*> toSample Proxy
 
-instance ToJSON a => ToJSON (WithPassword a) where
-  toJSON = genericToJSON noCamelOpt
-  toEncoding = genericToEncoding noCamelOpt
-
 data WithNewPassword a = WithNewPass
   { _newPassword :: NewPassword,
     _newLogin :: a
@@ -123,14 +122,12 @@ data WithNewPassword a = WithNewPass
 instance (ToSample a, ToSample NewPassword) => ToSample (WithNewPassword a) where
   toSamples _ = maybe noSamples singleSample $ WithNewPass <$> toSample Proxy <*> toSample Proxy
 
-instance (FromJSON a) => FromJSON (WithPassword a) where
-  parseJSON ob@(Object o) = WithPass <$> o .: "password" <*> parseJSON ob
-
 instance (FromJSON a) => FromJSON (WithNewPassword a) where
-  parseJSON ob = WithNewPass <$> parseJSON ob <*> parseJSON ob
+  parseJSON = withObject "Object with new_password and confirm_password" $
+    \o -> WithNewPass <$> parseJSON (Object o) <*> parseJSON (Object o)
 
 instance (ToJSON a) => ToJSON (WithNewPassword a) where
-  toJSON = fromMaybe (String "JSON encode fail") . flatten "new_password" "new_login" <$> genericToJSON noCamelOpt
+  toJSON = fromMaybe (String "Impossible! JSON encode WithNewPassword fail") . flatten "new_password" "new_login" <$> genericToJSON noCamelOpt
 
 class PasswordAlgorithm crypto where
   checkPassword :: Password -> PasswordHash crypto -> PasswordCheck

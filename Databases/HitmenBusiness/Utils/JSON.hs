@@ -4,11 +4,11 @@ import Data.Aeson (Object, Options (fieldLabelModifier), Value (Object), camelTo
 import Data.HashMap.Strict (fromList, lookup)
 import Universum
 
-noCamelOptInternal strip = defaultOptions {fieldLabelModifier = maybe "Impossible! Empty field label" (camelTo2 '_' . strip) . nonEmpty}
+noCamelOptInternal strip = defaultOptions {fieldLabelModifier = maybe "Impossible! Empty field label from using noCamelOpt" (camelTo2 '_' . strip) . nonEmpty}
 
 noCamelOpt = noCamelOptInternal tail
 
-noCamelOpt' = noCamelOptInternal $ maybe "Impossible! Empty field label"  init . nonEmpty . tail
+noCamelOpt' = noCamelOptInternal $ maybe "Impossible! Empty field label from using noCamelOpt'"  init . nonEmpty . tail
 
 flatten1 :: Text -> Value -> Maybe Object
 flatten1 key = \case

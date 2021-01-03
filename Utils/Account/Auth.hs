@@ -24,8 +24,17 @@ import Utils.Account.Login (LoginId, LoginT (..))
 import Utils.Account.SignUp (SignUp, Validatable, WithUserName (..), validateSignUp)
 import Utils.Meta (Meta, WithMetaInfo, addMetaInfo)
 import Validation (Validation (Failure, Success))
+import Data.Aeson (genericToEncoding, genericToJSON, ToJSON(..), genericParseJSON, FromJSON(..))
+import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 
 type Login userT = WithPassword $ LoginId userT
+
+instance (FromJSON $ LoginId userT) => FromJSON (WithPassword $ LoginId userT) where
+  parseJSON = genericParseJSON noCamelOpt
+
+instance (ToJSON $ LoginId userT) => ToJSON (WithPassword $ LoginId userT) where
+  toJSON = genericToJSON noCamelOpt
+  toEncoding = genericToEncoding noCamelOpt
 
 type AuthCookiesContent = Headers '[Header "Set-Cookie" SetCookie, Header "Set-Cookie" SetCookie] NoContent
 
@@ -68,7 +77,7 @@ authServer loginTable userInfoTable doQuery cs jwts = signUp :<|> login :<|> log
         >>= liftIO . acceptLogin cs jwts
         >>= maybe (throwError err401) (return . ($ NoContent))
     signUp su@(WithNewPass (NewPassword pw) _) = case validateSignUp su of
-      Failure e -> throwError err400 {errBody = show e}
+      Failure e -> throwError err400 {errBody = encodeUtf8 $ "Password Invliad: \n" <> foldr1 (\a b -> a <> "\n" <> b) e}
       Success (WithUserName name base) -> do
         hpw <- liftIO $ hashPassword pw
         let insertUserTable = runInsertReturningList $ insert userInfoTable $ insertExpressions [addMetaInfo base]
