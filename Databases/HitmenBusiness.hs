@@ -94,13 +94,12 @@ annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings be HitmenBusinessDb
 annotatedHitmenBusinessDb =
   defaultAnnotatedDbSettings hitmenBusinessDb
     `withDbModification` ( dbModification
-                             { _handlers = uniqueConstraintOn [U . view $ #_base . #_codename],
-                               _hitmen = uniqueConstraintOn [U . view $ #_base . #_codename],
-                               _hbErasedMarks = uniqueConstraintOn [U . view $ #_base . #_markId],
-                               _hbPursuingMarks = uniqueConstraintOn [U . view $ #_base . #_hitmanId, U $ view $ #_base . #_markId]
+                             { _handlers = uniqueConstraintOn [U $ view $ #_base . #_codename],
+                               _hitmen = uniqueConstraintOn [U $ view $ #_base . #_codename],
+                               _hbErasedMarks = uniqueConstraintOn [U $ view $ #_base . #_markId],
+                               _hbPursuingMarks = uniqueConstraintOn [U $ view $ #_base . #_hitmanId, U $ view $ #_base . #_markId],
+                               _hbHandlersAccount = uniqueConstraintOn [U $ view #_accountName] <> uniqueConstraintOn [U $ view #_account]
                              }
-                             -- NOTE Why doesn't it work?
-                             -- & #_handlers .~ uniqueConstraintOn [U (view $ #_base . #_codename)]
                          )
 
 hitmenBusinessDbSchema = fromAnnotatedDbSettings annotatedHitmenBusinessDb (Proxy @'[])
