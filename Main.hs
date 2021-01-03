@@ -30,7 +30,8 @@ main = do
   let jwtCfg = defaultJWTSettings key
       cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
   connectDb
-    >>= tLog "show Migration: " . showMigration
+    -- >>= tLog "show Migration: " . showMigration
+    -- >>= tLog "show Migration: " . doMigration
     >>= runSettings settings . homeApp cfg def jwtCfg
   where
     logTarget = stderr

@@ -1,12 +1,27 @@
+:root = http://localhost:6868
 #
-POST http://localhost:6868/handlers
+POST :root/handlers
 Content-Type: application/json
 {}
 #
-{"codename":"testing","die_at":null}
+GET :root/docs
 #
-GET http://localhost:6868/docs
-#
-POST http://localhost:6868/hitman
+POST :root/hitman
 Content-Type: application/json
 { "codename" : "fewew"}
+# FIXME User Valiation? so that what was missing wil be clear
+POST :root/signup
+Content-Type: application/json
+{ "new_password" : "34", "confirm_password": "34", "user_name": "Hans", "payload": {"codename": "EX"}}
+# { "new_password" : "1T34a320j", "confirm_password": "1T34a320j", "user_name": "Hans", "payload": {"codename": "EX"}}
+#
+POST :root/login
+Content-Type: application/json
+{ "password" : "1T34a320j", "login": "Hans"}
+#
+POST :root/hitman
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJkYXQiOnsiY29kZW5hbWUiOiJFWCIsImRpZV9hdCI6bnVsbCwiY3JlYXRlZF9hdCI6IjIwMjEtMDEtMDMgMTQ6NDI6MTQuMTQwNDA5IiwiaGFuZGxlcl9pZCI6Mn19.AcdrS7biP6_W3zyUYLlomACNm4QMbLJPv7cyiZuMxK9bf7widWQtklcBXuGTrqxEF2-qywr6m6Io6yh3-2AGIA
+Content-Type: application/json
+{ "codename" : "Gary Staring Sky" }
+#
+GET :root/hitman
