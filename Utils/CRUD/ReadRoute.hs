@@ -1,18 +1,16 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE MonoLocalBinds #-}
 {-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Utils.CRUD.ReadRoute where
 
 import Control.Monad.Except (MonadError)
-import Database.Beam (Database, DatabaseEntity, FromBackendRow, HasQBuilder, HasSqlEqualityCheck, MonadBeam, PrimaryKey, SqlSelect, Table, TableEntity, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
-import Database.Beam.Backend (BeamSqlBackendCanSerialize)
-import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
+import Database.Beam (Database, DatabaseEntity, MonadBeam, PrimaryKey, TableEntity, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
 import Servant (Capture, Get, JSON, ServerError, err404, throwError, (:<|>), (:>))
 import Universum
+import Utils.Constraints (ReadAllConstraint, ReadOneConstraint)
 import Utils.Meta (WithMetaInfo (..))
 
 type ReadManyApi a = Get '[JSON] [WithMetaInfo a Identity]
@@ -22,12 +20,8 @@ type ReadOneApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Get '
 type ReadApi a = ReadManyApi a :<|> ReadOneApi a
 
 readOne ::
-  ( HasQBuilder be,
-    Database be db,
-    With '[Table] (WithMetaInfo a),
-    FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) (PrimaryKey (WithMetaInfo a)),
-    FieldsFulfillConstraint (HasSqlEqualityCheck be) (PrimaryKey (WithMetaInfo a)),
-    FromBackendRow be (WithMetaInfo a Identity),
+  ( Database be db,
+    ReadOneConstraint be a,
     MonadBeam be m,
     MonadError ServerError n
   ) =>
@@ -38,10 +32,8 @@ readOne ::
 readOne doQuery table id = lookup_ table id & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
 
 readMany ::
-  ( HasQBuilder be,
+  ( ReadAllConstraint be a,
     Database be db,
-    With '[Table] (WithMetaInfo a),
-    FromBackendRow be (WithMetaInfo a Identity),
     MonadBeam be m
   ) =>
   (forall t. m t -> n t) ->

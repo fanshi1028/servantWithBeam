@@ -47,6 +47,7 @@ executable app
                        Utils.CRUD.ReadRoute
                        Utils.CRUD.UpdateRoute
                        Utils.CRUD.DeleteRoute
+                       Utils.Constraints
                        Utils.Account.Login
                        Utils.Account.Auth
                        Utils.Account.SignUp

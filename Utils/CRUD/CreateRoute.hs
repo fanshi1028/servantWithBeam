@@ -1,38 +1,30 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Utils.CRUD.CreateRoute where
 
 import Database.Beam (MonadBeam, SqlInsert)
 import Database.Beam.Query (insert, insertExpressions, runInsert)
-import Database.Beam.Query.Types (HasQBuilder)
-import Database.Beam.Schema.Tables (DatabaseEntity, Table, TableEntity)
+import Database.Beam.Schema.Tables (DatabaseEntity, TableEntity)
 import Servant (JSON, NoContent (NoContent), Post, ReqBody, (:>))
 import Universum
+import Utils.Constraints (CreateBodyConstraint)
 import Utils.FromAccount (FromAccount (Base, fromAccount))
 import Utils.Meta (Meta (..), WithMetaInfo)
 
 type CreateApi a = ReqBody '[JSON] (a Identity) :> Post '[JSON] NoContent
 
 createOneSql ::
-  ( HasQBuilder be,
-    Meta be a,
-    Table (WithMetaInfo a)
-  ) =>
+  CreateBodyConstraint be a =>
   DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   a Identity ->
   SqlInsert be $ WithMetaInfo a
 createOneSql table body = insertExpressions [addMetaInfo body] & insert table
 
 createOne ::
-  ( HasQBuilder be,
-    Meta be a,
-    Table (WithMetaInfo a),
+  ( CreateBodyConstraint be a,
     MonadBeam be m,
     Monad n
   ) =>
@@ -43,11 +35,9 @@ createOne ::
 createOne doQuery table = (>> return NoContent) . doQuery . runInsert . createOneSql table
 
 createOne' ::
-  ( HasQBuilder be,
-    Meta be a,
-    Table (WithMetaInfo a),
-    MonadBeam be m,
+  ( CreateBodyConstraint be a,
     FromAccount userInfo a,
+    MonadBeam be m,
     Monad n
   ) =>
   (forall t. m t -> n t) ->

@@ -105,6 +105,9 @@ cradle:
     - path: "./Utils/CRUD/DeleteRoute.hs"
       component: "app:exe:app"
 
+    - path: "./Utils/Constraints.hs"
+      component: "app:exe:app"
+
     - path: "./Utils/Account/Login.hs"
       component: "app:exe:app"
 
