@@ -14,7 +14,7 @@ in hsPkgs.shellFor {
   tools = {
     cabal = "3.2.0.0";
     hlint = "3.2.2";
-    haskell-language-server = "0.6.0";
+    haskell-language-server = "0.8.0";
     ormolu = "0.1.4.1";
     ghcid = "0.8.7";
     implicit-hie = "0.1.2.3";
