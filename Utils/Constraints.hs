@@ -17,8 +17,8 @@ type QueryIdConstraint be a =
 
 type CreateBodyConstraint be a =
   ( HasQBuilder be,
-    Meta be a,
-    Table (WithMetaInfo a)
+    Table (WithMetaInfo a),
+    Meta be a
   )
 
 type ReadAllConstraint be a =
