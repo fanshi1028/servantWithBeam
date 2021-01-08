@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -8,6 +6,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness
@@ -48,11 +48,11 @@ import Database.Beam.AutoMigrate
 import Database.Beam.Query (oneToMany_, oneToOne_)
 import Database.Beam.Schema (Database)
 import Database.Beam.Schema.Tables (DatabaseSettings, TableEntity, defaultDbSettings, renamingFields, withDbModification)
-import Databases.HitmenBusiness.ErasedMarks (ErasedMarkT (..), ErasedMarkB)
-import Databases.HitmenBusiness.Handlers (HandlerT (..), HandlerB)
-import Databases.HitmenBusiness.Hitmen (HitmanT (..), HitmanB)
-import Databases.HitmenBusiness.Marks (MarkT(..), MarkB)
-import Databases.HitmenBusiness.PursuingMarks (PursuingMarkT (..), PursuingMarkB)
+import Databases.HitmenBusiness.ErasedMarks (ErasedMarkB, ErasedMarkT (..))
+import Databases.HitmenBusiness.Handlers (HandlerB, HandlerT (..))
+import Databases.HitmenBusiness.Hitmen (HitmanB, HitmanT (..))
+import Databases.HitmenBusiness.Marks (MarkB, MarkT (..))
+import Databases.HitmenBusiness.PursuingMarks (PursuingMarkB, PursuingMarkT (..))
 import Universum
 import Utils.Account.Login (LoginT)
 
@@ -105,4 +105,3 @@ annotatedHitmenBusinessDb =
                          )
 
 hitmenBusinessDbSchema = fromAnnotatedDbSettings annotatedHitmenBusinessDb (Proxy @'[])
-

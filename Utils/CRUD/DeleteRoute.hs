@@ -9,8 +9,8 @@ import Database.Beam (MonadBeam, PrimaryKey, SqlDelete, SqlValable (val_), delet
 import Database.Beam.Schema.Tables (DatabaseEntity, TableEntity)
 import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
 import Universum
-import Utils.Meta (WithMetaInfo)
 import Utils.Constraints (DeleteOneConstraint)
+import Utils.Meta (WithMetaInfo)
 
 type DeleteApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent
 

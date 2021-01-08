@@ -14,9 +14,9 @@ import Database.Beam.Backend (SqlSerial (..))
 import Network.HTTP.Types (ok200)
 import Network.Wai (responseLBS)
 import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)), (:>))
+import Servant.Auth (Cookie)
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
 import Universum
-import Servant.Auth (Cookie)
 
 instance ToSample Datetime where
   toSamples _ = singleSample $ timeToDatetime epoch

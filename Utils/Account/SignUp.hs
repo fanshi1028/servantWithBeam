@@ -5,7 +5,7 @@
 
 module Utils.Account.SignUp where
 
-import Data.Aeson (FromJSON (..), ToJSON (..), (.:))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, (.:))
 import Data.Aeson.Types (genericToJSON)
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), WithNewPassword (WithNewPass), validatePassword, zxcvbnStrength)
@@ -13,7 +13,6 @@ import Servant.Docs (ToSample (..), noSamples, singleSample, toSample)
 import Universum
 import Utils.Account.Login (LoginId)
 import Validation (Validation (Success))
-import Data.Aeson (genericParseJSON)
 
 data WithUserName userT a = WithUserName
   { _userName :: LoginId userT,

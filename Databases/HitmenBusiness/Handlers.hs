@@ -21,9 +21,9 @@ where
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Generics.Labels ()
-import Database.Beam (Nullable)
+import Database.Beam (HasSqlEqualityCheck, Nullable)
 import Database.Beam.AutoMigrate (HasColumnType)
-import Database.Beam.Backend (SqlSerial (SqlSerial))
+import Database.Beam.Backend (HasSqlValueSyntax, SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
 import Database.Beam.Query (SqlValable (val_), default_)
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
@@ -39,8 +39,6 @@ import Utils.Account.Login (LoginId)
 import Utils.Account.SignUp (Payload, Validatable (..))
 import Utils.Meta (Meta (..), WithMetaInfo (..))
 import Validation (Validation (Success))
-import Database.Beam.Backend (HasSqlValueSyntax)
-import Database.Beam (HasSqlEqualityCheck)
 
 data HandlerB f = Handler
   { _codename :: C f Codename,
@@ -118,7 +116,7 @@ instance FromJWT (WithMetaInfo HandlerB Identity)
 
 instance ToJWT (WithMetaInfo HandlerB Identity)
 
-newtype instance LoginId HandlerB = HandlerLoginId {unHandlerLoginId :: Codename} deriving newtype (ToSample, FromJSON, ToJSON, HasColumnType )
+newtype instance LoginId HandlerB = HandlerLoginId {unHandlerLoginId :: Codename} deriving newtype (ToSample, FromJSON, ToJSON, HasColumnType)
 
 deriving newtype instance (HasSqlValueSyntax syntax Text) => HasSqlValueSyntax syntax (LoginId HandlerB)
 

@@ -119,7 +119,7 @@ instance
 
 instance
   ( ToSample (C f Int32),
-    ToSample (C f(SqlSerial Int32)),
+    ToSample (C f (SqlSerial Int32)),
     ToSample (C f Datetime)
   ) =>
   ToSample (MetaInfo MarkB f)

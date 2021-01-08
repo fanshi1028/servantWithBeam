@@ -44,4 +44,3 @@ type DeleteOneConstraint be a =
     Table (WithMetaInfo a),
     QueryIdConstraint be a
   )
-
