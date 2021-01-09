@@ -19,7 +19,7 @@ import Databases.HitmenBusiness.Utils.Auth (getUserInfoWithPasswordHash)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), PasswordAlgorithm (..), WithNewPassword (WithNewPass), WithPassword (WithPass))
-import Servant (Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, StdMethod (DELETE, POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
+import Servant (Get, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, StdMethod (DELETE, GET, POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, ToJWT (..), acceptLogin, clearSession)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
@@ -42,7 +42,7 @@ type AuthCookiesContent = Headers '[Header "Set-Cookie" SetCookie, Header "Set-C
 type AuthApi userT =
   ("signup" :> ReqBody '[JSON] (SignUp userT) :> Post '[JSON] NoContent)
     :<|> ("login" :> ReqBody '[JSON] (Login userT) :> Verb 'POST 204 '[JSON] AuthCookiesContent)
-    :<|> ("logout" :> Verb 'DELETE 204 '[JSON] AuthCookiesContent) -- FIXME logout route, not DELTE right?
+    :<|> ("logout" :> Get '[JSON] AuthCookiesContent)
 
 authServer ::
   ( Database be db,
