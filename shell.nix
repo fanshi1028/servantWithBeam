@@ -20,6 +20,7 @@ in hsPkgs.shellFor {
     implicit-hie = "0.1.2.3";
     retrie = "0.1.1.1";
     doctest = "0.17";
+    cabal-bounds = "2.3.0";
   };
   # See overlays/tools.nix for more details
 
