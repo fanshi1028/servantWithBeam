@@ -4,18 +4,22 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.Utils.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
 
 import Data.Aeson (FromJSON (..), ToJSON (..))
+import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2, PasswordHash (..))
 import Database.Beam (FromBackendRow (..), HasSqlEqualityCheck)
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
 import Database.Beam.Backend (BeamBackend, BeamSqlBackend, HasSqlValueSyntax (..))
+import Database.Beam.Postgres (ConnectInfo (..), defaultConnectInfo)
 import Servant.Auth.Server (SetCookie, def)
 import Servant.Docs (ToSample (..), singleSample)
+import System.Envy (FromEnv (..), env)
 import Universum
 
 -- | Codename
@@ -85,3 +89,14 @@ instance ToSample SetCookie where
 
 -- | PasswordHash
 deriving newtype instance HasColumnType (PasswordHash Argon2)
+
+-- | ConnectInfo
+instance FromEnv ConnectInfo where
+  fromEnv _ =
+    ( \user db ->
+        defaultConnectInfo
+          & #connectUser .~ user
+          & #connectDatabase .~ db
+    )
+      <$> env "PG_USER"
+      <*> env "HITMEN_DB"
