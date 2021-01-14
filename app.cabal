@@ -100,3 +100,4 @@ executable app
         beam-automigrate >=0.1.1.0 && <0.2,
         mtl ==2.2.*
         envy >=2.1.0.0 && <2.2
+        resource-pool >=0.2.3.2 && <0.3,

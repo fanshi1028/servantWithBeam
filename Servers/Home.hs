@@ -23,6 +23,7 @@ import Utils.Account.Auth (AuthApi, authServer)
 import Utils.CRUD (simpleCRUDServerForHitmenBusiness)
 import Utils.Docs (APIWithDoc, serveDocs)
 import Utils.QueryRunner (doPgQueryWithDebug)
+import Data.Pool (Pool)
 
 type HomeAPI' auths =
   ( SimpleCRUDAPI "handlers" HandlerB
@@ -42,9 +43,9 @@ homeApp ::
   Context context ->
   CookieSettings ->
   JWTSettings ->
-  Connection ->
+  Pool Connection ->
   Application
-homeApp cfg cs jwts conn = do
+homeApp cfg cs jwts conns = do
   -- serve @(APIWithDoc HomeAPI) Proxy $
   serveWithContext @(APIWithDoc HomeAPI) Proxy cfg $
     serveDocs @HomeAPI Proxy $
@@ -52,7 +53,7 @@ homeApp cfg cs jwts conn = do
       hoistServerWithContext @HomeAPI @'[CookieSettings, JWTSettings]
         Proxy
         Proxy
-        (usingReaderT conn)
+        (usingReaderT conns)
         -- (crud #_handlers :<|> crud #_hitmen :<|> crud #_marks :<|> crud #_hbErasedMarks :<|> crud #_hbPursuingMarks)
         ( ( crud #_handlers
               :<|> simpleCRUDServerForHitmen' doPgQueryWithDebug

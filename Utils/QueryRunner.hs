@@ -5,6 +5,7 @@
 
 module Utils.QueryRunner where
 
+import Data.Pool (Pool, withResource)
 import Database.Beam (HasQBuilder, MonadBeam)
 import Database.Beam.Postgres (Pg, Postgres, runBeamPostgresDebug)
 import qualified Database.Beam.Postgres as Pg (Connection)
@@ -13,13 +14,15 @@ import qualified Database.SQLite.Simple as Lite (Connection)
 import Servant (NoContent (NoContent))
 import Universum
 
-doPgQueryWithDebug' :: (MonadIO m) => (env -> Pg.Connection) -> (Pg a -> ReaderT env m a)
-doPgQueryWithDebug' extractFromEnv = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn . extractFromEnv))
+doPgQueryWithDebug' :: (MonadIO m) => (env -> Pool Pg.Connection) -> (Pg a -> ReaderT env m a)
+doPgQueryWithDebug' getPool pg = ReaderT $ \env -> liftIO $ withResource (getPool env) runWithConn
+  where
+    runWithConn = liftIO . flip (runBeamPostgresDebug putStrLn) pg
 
 -- doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
 -- doPgQueryWithDebug = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn))
 
-doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Pg.Connection m a)
+doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT (Pool Pg.Connection) m a)
 doPgQueryWithDebug = doPgQueryWithDebug' id
 
 doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM a -> ReaderT Lite.Connection m a)

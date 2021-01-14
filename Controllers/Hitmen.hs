@@ -29,11 +29,12 @@ import Utils.CRUD.ReadRoute (ReadManyApi, ReadOneApi)
 import Utils.CRUD.UpdateRoute (UpdateApi)
 import Utils.FromAccount (FromAccount (Base))
 import Utils.Meta (WithMetaInfo)
+import Data.Pool (Pool)
 
 simpleCRUDServerForHitmen ::
   ( With '[MonadIO, MonadError ServerError] m
   ) =>
-  ServerT (SimpleCRUDAPI path HitmanB) (ReaderT Connection m)
+  ServerT (SimpleCRUDAPI path HitmanB) (ReaderT (Pool Connection) m)
 simpleCRUDServerForHitmen = simpleCRUDServerForHitmenBusiness #_hitmen
 
 type HandlerAuths auths api = ProtectApi auths HandlerB api

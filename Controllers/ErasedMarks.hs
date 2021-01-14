@@ -13,9 +13,10 @@ import Databases.HitmenBusiness (ErasedMarkB)
 import Servant (ServerError, ServerT)
 import Universum
 import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
+import Data.Pool (Pool)
 
 simpleCRUDServerForErasedMarks ::
   ( With '[MonadIO, MonadError ServerError] m
   ) =>
-  ServerT (SimpleCRUDAPI path ErasedMarkB) (ReaderT Connection m)
+  ServerT (SimpleCRUDAPI path ErasedMarkB) (ReaderT (Pool Connection) m)
 simpleCRUDServerForErasedMarks = simpleCRUDServerForHitmenBusiness #_hbErasedMarks

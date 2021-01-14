@@ -3,7 +3,8 @@
 module Main where
 
 import Chronos (stopwatch)
-import Database.PostgreSQL.Simple (connectPostgreSQL, postgreSQLConnectionString)
+import Data.Pool (createPool, destroyAllResources)
+import Database.PostgreSQL.Simple (close, connect, connectPostgreSQL)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
 import Servant (Context (EmptyContext, (:.)))
 import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
@@ -17,20 +18,20 @@ main = do
   key <- generateKey
   let jwtCfg = defaultJWTSettings key
       cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
-  decodeEnv'
-    >>= either
-      putStrLn
-      ( connectDb
-          -- >=> tLog "show Migration: " . showMigration
-          -- >=> tLog "show Migration: " . doMigration
-          >=> runSettings settings . homeApp cfg def jwtCfg
-      )
+      runServer = runSettings settings . homeApp cfg def jwtCfg
+      runServerWithPool info = bracket (makePool info) destroyAllResources runServer
+  tLog "Get Env: " decodeEnv >>= either putStrLn runServerWithPool
   where
+    -- ( makePool
+    --     -- >=> tLog "show Migration: " . showMigration
+    --     -- >=> tLog "show Migration: " . doMigration
+    --     >=> runSettings settings . homeApp cfg def jwtCfg
+    -- )
+
     logTarget = stderr
     log = hPutStrLn @Text @IO logTarget
     tLog context io = stopwatch io >>= \(t, a) -> log (context <> show t) >> return a
-    decodeEnv' = tLog "Get Env: " decodeEnv
-    connectDb = tLog "Connect DB: " . connectPostgreSQL . postgreSQLConnectionString
+    makePool config = tLog "Make Pool: " $ createPool (tLog "Connect DB: " $ connect config) close 6 60 10
     port = 6868
     settings =
       defaultSettings
@@ -38,4 +39,3 @@ main = do
         & setOnExceptionResponse exceptionResponseForDebug
         & setBeforeMainLoop (log $ "listening on port: " <> show @Text port)
 
--- main = connectDb >>= run 6868 . homeApp
