@@ -98,6 +98,7 @@ executable app
         microlens >=0.4.11.0 && <0.5,
         lens ==4.19.*,
         beam-automigrate >=0.1.1.0 && <0.2,
-        mtl ==2.2.*
-        envy >=2.1.0.0 && <2.2
+        ekg ==0.4.*,
+        mtl ==2.2.*,
+        envy >=2.1.0.0 && <2.2,
         resource-pool >=0.2.3.2 && <0.3,

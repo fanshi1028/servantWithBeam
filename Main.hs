@@ -3,6 +3,7 @@
 module Main where
 
 import Chronos (stopwatch)
+import Control.Concurrent (killThread)
 import Data.Pool (createPool, destroyAllResources)
 import Database.PostgreSQL.Simple (close, connect, connectPostgreSQL)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
@@ -10,11 +11,12 @@ import Servant (Context (EmptyContext, (:.)))
 import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
 import Servers (homeApp)
 import System.Envy (decodeEnv)
+import System.Remote.Monitoring (forkServer, serverThreadId)
 import Universum
 import Utils.Migration (doMigration, showMigration)
 
-main :: IO ()
-main = do
+server :: IO ()
+server = do
   key <- generateKey
   let jwtCfg = defaultJWTSettings key
       cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
@@ -39,3 +41,6 @@ main = do
         & setOnExceptionResponse exceptionResponseForDebug
         & setBeforeMainLoop (log $ "listening on port: " <> show @Text port)
 
+main :: IO ()
+main = do
+  bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ const server

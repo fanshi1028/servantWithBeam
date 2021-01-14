@@ -1,4 +1,5 @@
 :root = http://localhost:6868
+:ekg = http://localhost:8000
 #
 POST :root/handlers
 Content-Type: application/json
@@ -25,3 +26,7 @@ Content-Type: application/json
 { "codename" : "Gary Staring Sky" }
 #
 GET :root/hitman
+
+#
+GET :ekg
+Accept: application/json
