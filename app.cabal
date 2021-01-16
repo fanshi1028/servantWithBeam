@@ -102,3 +102,6 @@ executable app
         mtl ==2.2.*,
         envy >=2.1.0.0 && <2.2,
         resource-pool >=0.2.3.2 && <0.3,
+        unliftio >=0.2.13.1 && <0.3,
+        unliftio-pool >=0.2.1.1 && <0.3,
+        co-log >=0.4.0.1 && <0.5

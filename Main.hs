@@ -1,10 +1,12 @@
-{-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Main where
 
 import Chronos (stopwatch)
+import Colog (HasLog (..), WithLog, logMsg, logTextStdout, usingLoggerT)
 import Control.Concurrent (killThread)
-import Data.Pool (createPool, destroyAllResources)
 import Database.PostgreSQL.Simple (close, connect, connectPostgreSQL)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
 import Servant (Context (EmptyContext, (:.)))
@@ -13,34 +15,40 @@ import Servers (homeApp)
 import System.Envy (decodeEnv)
 import System.Remote.Monitoring (forkServer, serverThreadId)
 import Universum
+import UnliftIO (MonadUnliftIO (..), toIO)
+import qualified UnliftIO (bracket)
+import UnliftIO.Pool (createPool, destroyAllResources)
 import Utils.Migration (doMigration, showMigration)
 
-server :: IO ()
+server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Text m) => m ()
 server = do
-  key <- generateKey
-  let jwtCfg = defaultJWTSettings key
-      cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
-      runServer = runSettings settings . homeApp cfg def jwtCfg
-      runServerWithPool info = bracket (makePool info) destroyAllResources runServer
-  tLog "Get Env: " decodeEnv >>= either putStrLn runServerWithPool
+  server <- liftIO $ mkServer . defaultJWTSettings <$> generateKey
+  doWelcome <- setBeforeMainLoop <$> toIO (log $ "listening on port: " <> show @Text port)
+  tLog "Get Env: " decodeEnv
+    >>= either (log . fromString) (`withPool` (liftIO . runSettings (settings & doWelcome) . server))
   where
-    -- ( makePool
-    --     -- >=> tLog "show Migration: " . showMigration
-    --     -- >=> tLog "show Migration: " . doMigration
-    --     >=> runSettings settings . homeApp cfg def jwtCfg
-    -- )
-
-    logTarget = stderr
-    log = hPutStrLn @Text @IO logTarget
-    tLog context io = stopwatch io >>= \(t, a) -> log (context <> show t) >> return a
-    makePool config = tLog "Make Pool: " $ createPool (tLog "Connect DB: " $ connect config) close 6 60 10
-    port = 6868
+    log = logMsg @Text
+    tLog context io =
+      liftIO (stopwatch io)
+        >>= \(t, a) -> log (context <> show t) >> return a
+    mkServer jwtCfg = homeApp (defaultCookieSettings :. jwtCfg :. EmptyContext) def jwtCfg
+    withPool config =
+      UnliftIO.bracket
+        (tLog "Make Pool: " $ createPool (connect config) close 6 60 10)
+        destroyAllResources
     settings =
       defaultSettings
         & setPort port
         & setOnExceptionResponse exceptionResponseForDebug
-        & setBeforeMainLoop (log $ "listening on port: " <> show @Text port)
+    port = 6868
 
 main :: IO ()
-main = do
-  bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ const server
+main = bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ const $ usingLoggerT logTextStdout server
+
+-- ( makePool
+--     -- >=> tLog "show Migration: " . showMigration
+--     -- >=> tLog "show Migration: " . doMigration
+--     >=> runSettings settings . homeApp cfg def jwtCfg
+-- )
+
+-- bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ const $ usingLoggerT (cmap fmtMessage logTextStdout) server

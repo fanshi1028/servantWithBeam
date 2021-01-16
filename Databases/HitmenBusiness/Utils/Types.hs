@@ -21,6 +21,8 @@ import Servant.Auth.Server (SetCookie, def)
 import Servant.Docs (ToSample (..), singleSample)
 import System.Envy (FromEnv (..), env)
 import Universum
+import UnliftIO (MonadUnliftIO)
+import Colog (LoggerT(..))
 
 -- | Codename
 newtype Codename = Codename {unCodename :: Text}
@@ -100,3 +102,6 @@ instance FromEnv ConnectInfo where
     )
       <$> env "PG_USER"
       <*> env "HITMEN_DB"
+
+-- | LoggerT
+deriving newtype instance (MonadUnliftIO m) => MonadUnliftIO (LoggerT msg m)
