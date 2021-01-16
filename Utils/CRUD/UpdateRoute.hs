@@ -6,6 +6,7 @@
 
 module Utils.CRUD.UpdateRoute where
 
+import Control.Natural (type (~>))
 import Database.Beam (Database, DatabaseEntity, FromBackendRow, PrimaryKey, SqlUpdate, TableEntity, pk, update, val_, (==.))
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning (runUpdateReturningList))
 import Servant (Capture, JSON, Put, ReqBody, (:>))
@@ -30,7 +31,7 @@ updateOne ::
     MonadBeamUpdateReturning be m,
     Monad n
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
   PrimaryKey (WithMetaInfo a) Identity ->
   a Identity ->

@@ -7,6 +7,7 @@
 module Utils.CRUD.ReadRoute where
 
 import Control.Monad.Except (MonadError)
+import Control.Natural (type (~>))
 import Database.Beam (Database, DatabaseEntity, MonadBeam, PrimaryKey, TableEntity, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
 import Servant (Capture, Get, JSON, ServerError, err404, throwError, (:<|>), (:>))
 import Universum
@@ -25,7 +26,7 @@ readOne ::
     MonadBeam be m,
     MonadError ServerError n
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
   PrimaryKey (WithMetaInfo a) Identity ->
   n (WithMetaInfo a Identity)
@@ -36,7 +37,7 @@ readMany ::
     Database be db,
     MonadBeam be m
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
   n [WithMetaInfo a Identity]
 readMany doQuery table = doQuery $ runSelectReturningList $ select $ all_ table

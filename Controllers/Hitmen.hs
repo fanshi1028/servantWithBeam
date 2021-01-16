@@ -13,6 +13,7 @@ where
 
 import Chronos (Datetime)
 import Control.Monad.Except (MonadError)
+import Control.Natural (type (~>))
 import Database.Beam (FromBackendRow, HasQBuilder, HasSqlEqualityCheck)
 import Database.Beam.Backend (BeamSqlBackendCanSerialize, SqlNull)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
@@ -60,7 +61,7 @@ simpleCRUDServerForHitmen' ::
     ThrowAll $ n NoContent,
     ThrowAll $ n [WithMetaInfo HitmanB Identity]
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   ServerT (SimpleCRUDHitmanAPI auths) n
 simpleCRUDServerForHitmen' doQuery =
   protected (createOne' doQuery table)

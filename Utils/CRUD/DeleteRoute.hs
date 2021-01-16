@@ -5,6 +5,7 @@
 
 module Utils.CRUD.DeleteRoute where
 
+import Control.Natural (type (~>))
 import Database.Beam (MonadBeam, PrimaryKey, SqlDelete, SqlValable (val_), delete, pk, runDelete, (==.))
 import Database.Beam.Schema.Tables (DatabaseEntity, TableEntity)
 import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
@@ -26,7 +27,7 @@ deleteOne ::
     MonadBeam be m,
     Monad n
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   PrimaryKey (WithMetaInfo a) Identity ->
   n NoContent

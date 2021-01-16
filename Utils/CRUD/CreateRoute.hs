@@ -5,6 +5,7 @@
 
 module Utils.CRUD.CreateRoute where
 
+import Control.Natural (type (~>))
 import Database.Beam (MonadBeam, SqlInsert)
 import Database.Beam.Query (insert, insertExpressions, runInsert)
 import Database.Beam.Schema.Tables (DatabaseEntity, TableEntity)
@@ -28,7 +29,7 @@ createOne ::
     MonadBeam be m,
     Monad n
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   a Identity ->
   n NoContent
@@ -40,7 +41,7 @@ createOne' ::
     MonadBeam be m,
     Monad n
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   WithMetaInfo userInfo Identity ->
   Base a Identity ->

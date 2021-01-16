@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -13,8 +14,9 @@ import Database.Beam.Sqlite (SqliteM, runBeamSqliteDebug)
 import qualified Database.SQLite.Simple as Lite (Connection)
 import Servant (NoContent (NoContent))
 import Universum
+import Control.Natural (type (~>))
 
-doPgQueryWithDebug' :: (MonadIO m) => (env -> Pool Pg.Connection) -> (Pg a -> ReaderT env m a)
+doPgQueryWithDebug' :: (MonadIO m) => (env -> Pool Pg.Connection) -> (Pg ~> ReaderT env m)
 doPgQueryWithDebug' getPool pg = ReaderT $ \env -> liftIO $ withResource (getPool env) runWithConn
   where
     runWithConn = liftIO . flip (runBeamPostgresDebug putStrLn) pg
@@ -22,10 +24,10 @@ doPgQueryWithDebug' getPool pg = ReaderT $ \env -> liftIO $ withResource (getPoo
 -- doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
 -- doPgQueryWithDebug = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn))
 
-doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT (Pool Pg.Connection) m a)
+doPgQueryWithDebug :: (MonadIO m) => (Pg ~> ReaderT (Pool Pg.Connection) m)
 doPgQueryWithDebug = doPgQueryWithDebug' id
 
-doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM a -> ReaderT Lite.Connection m a)
+doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM ~> ReaderT Lite.Connection m)
 doSqliteQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamSqliteDebug putStrLn)
 
 -- doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn

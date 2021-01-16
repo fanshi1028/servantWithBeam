@@ -9,6 +9,7 @@
 module Utils.Account.Auth (Login, authServer, AuthApi) where
 
 import Control.Monad.Except (MonadError)
+import Control.Natural (type (~>))
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Password (PasswordCheck (PasswordCheckFail, PasswordCheckSuccess))
 import Database.Beam (Database, DatabaseEntity, FromBackendRow, HasQBuilder, HasSqlEqualityCheck, PrimaryKey, Table (..), TableEntity, default_, insert, insertData, insertExpressions, runInsert, runSelectReturningOne, select, val_)
@@ -59,7 +60,7 @@ authServer ::
   ) =>
   DatabaseEntity be db $ TableEntity $ LoginT crypto userT ->
   DatabaseEntity be db $ TableEntity $ WithMetaInfo userT ->
-  (forall a. m a -> n a) ->
+  (m ~> n) ->
   CookieSettings ->
   JWTSettings ->
   ServerT (AuthApi userT) n

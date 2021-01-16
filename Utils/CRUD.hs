@@ -35,6 +35,7 @@ import Utils.CRUD.UpdateRoute (UpdateApi, updateOne)
 import Utils.Constraints (CreateBodyConstraint, DeleteOneConstraint, ReadOneConstraint, UpdateBodyConstraint)
 import Utils.Meta (WithMetaInfo)
 import Utils.QueryRunner (doPgQueryWithDebug)
+import Control.Natural (type (~>))
 
 type SimpleCRUDAPI (path :: Symbol) a = path :> (CreateApi a :<|> ReadManyApi a :<|> ReadOneApi a :<|> UpdateApi a :<|> DeleteApi a)
 
@@ -50,7 +51,7 @@ simpleCRUDServer ::
     MonadBeamUpdateReturning be m,
     With '[MonadIO, MonadError ServerError] n
   ) =>
-  (forall t. m t -> n t) ->
+  (m ~> n) ->
   DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
   ServerT (SimpleCRUDAPI path a) n
 simpleCRUDServer doQuery table =
