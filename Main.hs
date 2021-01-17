@@ -43,7 +43,12 @@ server = do
     port = 6868
 
 main :: IO ()
-main = bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ const $ usingLoggerT logTextStdout server
+main = bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $
+  const $
+    withBackgroundLogger defCapacity richMessageAction $ \log -> usingLoggerT log $
+      do
+        logInfo "Using Backgroud Loggers"
+        server
 
 -- ( makePool
 --     -- >=> tLog "show Migration: " . showMigration
