@@ -10,8 +10,7 @@ import Colog (Message, WithLog, defCapacity, logInfo, richMessageAction, usingLo
 import Control.Concurrent (killThread)
 import Database.PostgreSQL.Simple (close, connect)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
-import Servant (Context (EmptyContext, (:.)))
-import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
+import Servant.Auth.Server (def, defaultJWTSettings, generateKey)
 import Servers (homeApp)
 import System.Envy (decodeEnv)
 import System.Remote.Monitoring (forkServer, serverThreadId)
@@ -19,6 +18,8 @@ import Universum
 import UnliftIO (MonadUnliftIO (..), toIO)
 import qualified UnliftIO (bracket)
 import UnliftIO.Pool (createPool, destroyAllResources)
+import Utils.Types (Env(Env))
+import Databases.HitmenBusiness (hitmenBusinessDb)
 
 server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => m ()
 server = do
@@ -32,7 +33,7 @@ server = do
     tLog context io =
       liftIO (stopwatch io)
         >>= \(t, a) -> logInfo (context <> show t) >> return a
-    mkServer jwtCfg = homeApp (defaultCookieSettings :. jwtCfg :. EmptyContext) def jwtCfg
+    mkServer jwtCfg = homeApp . Env richMessageAction def jwtCfg hitmenBusinessDb
     withPool config =
       UnliftIO.bracket
         (tLog "Make Pool: " $ createPool (connect config) close 6 60 10)

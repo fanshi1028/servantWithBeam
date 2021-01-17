@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -11,21 +12,20 @@ module Servers.Home
   )
 where
 
-import Colog (richMessageAction)
+import Colog (LogAction, Message)
 import Controllers (SimpleCRUDAPI, SimpleCRUDHitmanAPI, simpleCRUDServerForHitmen')
-import Data.Pool (Pool)
+import Database.Beam.Postgres (Postgres)
 import Database.PostgreSQL.Simple (Connection)
-import Databases.HitmenBusiness (ErasedMarkB, HandlerB, MarkB, PursuingMarkB, hitmenBusinessDb)
-import Servant (Application, Context, ErrorFormatters, HasContextEntry, HasServer (hoistServerWithContext), serveWithContext, (:<|>) ((:<|>)), type (.++))
+import Databases.HitmenBusiness (ErasedMarkB, HandlerB, HitmenBusinessDb, MarkB, PursuingMarkB)
+import Servant (Application, Context (EmptyContext, (:.)), Handler, HasServer (hoistServerWithContext), serveWithContext, (:<|>) ((:<|>)))
 import Servant.Auth.Docs ()
 import Servant.Auth.Server (Cookie, CookieSettings, JWT, JWTSettings)
-import Servant.Server (DefaultErrorFormatters)
 import Universum
 import Utils.Account.Auth (AuthApi, authServer)
 import Utils.CRUD (simpleCRUDServerForHitmenBusiness)
 import Utils.Docs (APIWithDoc, serveDocs)
 import Utils.QueryRunner (doPgQueryWithDebug)
-import Utils.Types (Env (Env), MyServer (unMyServer))
+import Utils.Types (Env (Env, _cs, _jwts), MyServer (unMyServer))
 
 type HomeAPI' auths =
   ( SimpleCRUDAPI "handlers" HandlerB
@@ -38,22 +38,20 @@ type HomeAPI' auths =
 type HomeAPI = HomeAPI' '[JWT, Cookie] :<|> AuthApi HandlerB
 
 homeApp ::
-  ( HasContextEntry context JWTSettings,
-    HasContextEntry context CookieSettings,
-    HasContextEntry (context .++ DefaultErrorFormatters) ErrorFormatters
-  ) =>
-  Context context ->
-  CookieSettings ->
-  JWTSettings ->
-  Pool Connection ->
+  ( Env
+      Postgres
+      HitmenBusinessDb
+      Connection
+      (LogAction (MyServer Postgres HitmenBusinessDb Connection Message Handler) Message)
+  ) ->
   Application
-homeApp cfg cs jwts conns = do
-  serveWithContext @(APIWithDoc HomeAPI) Proxy cfg $
+homeApp env@Env {_cs, _jwts} = do
+  serveWithContext @(APIWithDoc HomeAPI) Proxy (_cs :. _jwts :. EmptyContext) $
     serveDocs @HomeAPI Proxy $
       hoistServerWithContext @HomeAPI @'[CookieSettings, JWTSettings]
         Proxy
         Proxy
-        (usingReaderT (Env richMessageAction cs jwts conns hitmenBusinessDb) . unMyServer)
+        (usingReaderT env . unMyServer)
         ( ( crud #_handlers
               :<|> simpleCRUDServerForHitmen' doPgQueryWithDebug
               :<|> crud #_marks

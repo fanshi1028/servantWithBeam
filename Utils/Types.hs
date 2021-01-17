@@ -46,8 +46,8 @@ data Env be db conn logger = Env
   { _logger :: logger,
     _cs :: CookieSettings,
     _jwts :: JWTSettings,
-    _pool :: Pool conn,
-    _db :: DatabaseSettings be db
+    _db :: DatabaseSettings be db,
+    _pool :: Pool conn
   }
   deriving (Generic)
 
