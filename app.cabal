@@ -63,6 +63,11 @@ executable app
         OverloadedStrings TypeApplications LambdaCase NoImplicitPrelude
         StrictData
 
+    ghc-options:
+        -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
+        -Wcompat -Wnoncanonical-monad-instances
+        -Wnoncanonical-monadfail-instances
+
     build-depends:
         base >=4.14.1.0 && <4.15,
         universum ==1.7.*,
