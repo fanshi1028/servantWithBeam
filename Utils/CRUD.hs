@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -20,12 +21,13 @@ module Utils.CRUD
 where
 
 import Control.Monad.Except (MonadError)
+import Control.Natural (type (~>))
 import Database.Beam (PrimaryKey)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
 import Database.Beam.Schema.Tables (Database, DatabaseEntity, TableEntity)
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
-import Servant (Capture, HasServer (ServerT), ServerError, (:<|>) ((:<|>)), (:>))
+import Servant (Capture, Handler, HasServer (ServerT), ServerError, (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Universum
 import Utils.CRUD.CreateRoute (CreateApi, createOne)
@@ -35,7 +37,7 @@ import Utils.CRUD.UpdateRoute (UpdateApi, updateOne)
 import Utils.Constraints (CreateBodyConstraint, DeleteOneConstraint, ReadOneConstraint, UpdateBodyConstraint)
 import Utils.Meta (WithMetaInfo)
 import Utils.QueryRunner (doPgQueryWithDebug)
-import Control.Natural (type (~>))
+import Utils.Types (MyServer, TableGetter)
 
 type SimpleCRUDAPI (path :: Symbol) a = path :> (CreateApi a :<|> ReadManyApi a :<|> ReadOneApi a :<|> UpdateApi a :<|> DeleteApi a)
 
@@ -48,19 +50,18 @@ simpleCRUDServer ::
     ReadOneConstraint be a,
     UpdateBodyConstraint be a,
     DeleteOneConstraint be a,
-    MonadBeamUpdateReturning be m,
-    With '[MonadIO, MonadError ServerError] n
+    MonadBeamUpdateReturning be m
   ) =>
-  (m ~> n) ->
-  DatabaseEntity be db (TableEntity (WithMetaInfo a)) ->
-  ServerT (SimpleCRUDAPI path a) n
-simpleCRUDServer doQuery table =
-  createOne doQuery table
-    :<|> readMany doQuery table
-    :<|> readOne doQuery table
-    :<|> updateOne doQuery table
-    :<|> deleteOne doQuery table
+  (m ~> MyServer be db conn msg Handler) ->
+  TableGetter be db (WithMetaInfo a) ->
+  ServerT (SimpleCRUDAPI path a) (MyServer be db conn msg Handler)
+simpleCRUDServer doQuery tableGet =
+  createOne doQuery tableGet
+    :<|> readMany doQuery tableGet
+    :<|> readOne doQuery tableGet
+    :<|> updateOne doQuery tableGet
+    :<|> deleteOne doQuery tableGet
 
-simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (hitmenBusinessDb ^. dbGetter)
+simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (view dbGetter)
 
 -- simpleCRUDServerForHitmenBusinessLite dbGetter = simpleCRUDServer doSqliteQueryWithDebug (hitmenBusinessDb ^. dbGetter)

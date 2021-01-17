@@ -5,7 +5,7 @@
 module Main where
 
 import Chronos (stopwatch)
-import Colog (HasLog (..), WithLog, logMsg, logTextStdout, usingLoggerT)
+import Colog (withLog, (>*<), HasLog (..), Message, WithLog, cmap, defCapacity, fmtMessage, fmtRichMessageDefault, logDebug, logInfo, logMsg, logTextStdout, richMessageAction, usingLoggerT, withBackgroundLogger, (>$<))
 import Control.Concurrent (killThread)
 import Database.PostgreSQL.Simple (close, connect, connectPostgreSQL)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
@@ -20,17 +20,17 @@ import qualified UnliftIO (bracket)
 import UnliftIO.Pool (createPool, destroyAllResources)
 import Utils.Migration (doMigration, showMigration)
 
-server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Text m) => m ()
+server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => m ()
 server = do
   server <- liftIO $ mkServer . defaultJWTSettings <$> generateKey
-  doWelcome <- setBeforeMainLoop <$> toIO (log $ "listening on port: " <> show @Text port)
+  doWelcome <- setBeforeMainLoop <$> toIO (logInfo $ "listening on port: " <> show @Text port)
   tLog "Get Env: " decodeEnv
-    >>= either (log . fromString) (`withPool` (liftIO . runSettings (settings & doWelcome) . server))
+    >>= either
+      (logInfo . fromString)
+      (`withPool` (liftIO . runSettings (settings & doWelcome) . server))
   where
-    log = logMsg @Text
-    tLog context io =
-      liftIO (stopwatch io)
-        >>= \(t, a) -> log (context <> show t) >> return a
+    tLog context io = liftIO (stopwatch io)
+        >>= \(t, a) -> logInfo (context <> show t) >> return a
     mkServer jwtCfg = homeApp (defaultCookieSettings :. jwtCfg :. EmptyContext) def jwtCfg
     withPool config =
       UnliftIO.bracket
@@ -51,4 +51,3 @@ main = bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ con
 --     >=> runSettings settings . homeApp cfg def jwtCfg
 -- )
 
--- bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ const $ usingLoggerT (cmap fmtMessage logTextStdout) server

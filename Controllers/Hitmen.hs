@@ -12,14 +12,16 @@ module Controllers.Hitmen
 where
 
 import Chronos (Datetime)
+import Colog (Message)
 import Control.Monad.Except (MonadError)
 import Control.Natural (type (~>))
+import Data.Pool (Pool)
 import Database.Beam (FromBackendRow, HasQBuilder, HasSqlEqualityCheck)
 import Database.Beam.Backend (BeamSqlBackendCanSerialize, SqlNull)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
-import Database.Beam.Postgres (Connection)
-import Databases.HitmenBusiness (HandlerB, HitmanB, hitmenBusinessDb)
-import Servant (NoContent, ServerError, ServerT, (:<|>) ((:<|>)), (:>))
+import Database.Beam.Postgres (Connection, Postgres)
+import Databases.HitmenBusiness (HandlerB, HitmanB, HitmenBusinessDb, hitmenBusinessDb)
+import Servant (Handler, NoContent, ServerError, ServerT, (:<|>) ((:<|>)), (:>))
 import Servant.Auth.Server (ThrowAll)
 import Universum
 import Utils.Account (ProtectApi, protected)
@@ -30,12 +32,9 @@ import Utils.CRUD.ReadRoute (ReadManyApi, ReadOneApi)
 import Utils.CRUD.UpdateRoute (UpdateApi)
 import Utils.FromAccount (FromAccount (Base))
 import Utils.Meta (WithMetaInfo)
-import Data.Pool (Pool)
+import Utils.Types (MyServer)
 
-simpleCRUDServerForHitmen ::
-  ( With '[MonadIO, MonadError ServerError] m
-  ) =>
-  ServerT (SimpleCRUDAPI path HitmanB) (ReaderT (Pool Connection) m)
+simpleCRUDServerForHitmen :: ServerT (SimpleCRUDAPI path HitmanB) (MyServer Postgres HitmenBusinessDb Connection Message Handler)
 simpleCRUDServerForHitmen = simpleCRUDServerForHitmenBusiness #_hitmen
 
 type HandlerAuths auths api = ProtectApi auths HandlerB api
@@ -56,18 +55,14 @@ simpleCRUDServerForHitmen' ::
     With '[FromBackendRow be, HasSqlEqualityCheck be] Int32,
     FromBackendRow be Datetime,
     FromBackendRow be SqlNull,
-    MonadBeamUpdateReturning be m,
-    With '[MonadIO, MonadError ServerError] n,
-    ThrowAll $ n NoContent,
-    ThrowAll $ n [WithMetaInfo HitmanB Identity]
+    MonadBeamUpdateReturning be m
   ) =>
-  (m ~> n) ->
-  ServerT (SimpleCRUDHitmanAPI auths) n
+  (m ~> MyServer be HitmenBusinessDb Connection msg Handler) ->
+  ServerT (SimpleCRUDHitmanAPI auths) (MyServer be HitmenBusinessDb Connection msg Handler)
 simpleCRUDServerForHitmen' doQuery =
-  protected (createOne' doQuery table)
-    :<|> readMany doQuery table
-    :<|> readOne doQuery table
-    :<|> protected (const $ updateOne doQuery table)
-    :<|> protected (const $ deleteOne doQuery table)
+  protected (createOne' q tableGet) :<|> readMany q tableGet :<|> readOne q tableGet
+    :<|> protected (const $ updateOne q tableGet)
+    :<|> protected (const $ deleteOne q tableGet)
   where
-    table = hitmenBusinessDb ^. #_hitmen
+    q = doQuery
+    tableGet = view #_hitmen

@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -8,10 +9,11 @@ module Utils.CRUD.DeleteRoute where
 import Control.Natural (type (~>))
 import Database.Beam (MonadBeam, PrimaryKey, SqlDelete, SqlValable (val_), delete, pk, runDelete, (==.))
 import Database.Beam.Schema.Tables (DatabaseEntity, TableEntity)
-import Servant (Capture, Delete, JSON, NoContent (NoContent), (:>))
+import Servant (Capture, Delete, Handler, JSON, NoContent (NoContent), (:>))
 import Universum
 import Utils.Constraints (DeleteOneConstraint)
 import Utils.Meta (WithMetaInfo)
+import Utils.Types (MyServer, TableGetter)
 
 type DeleteApi a = Capture "id" (PrimaryKey (WithMetaInfo a) Identity) :> Delete '[JSON] NoContent
 
@@ -23,12 +25,12 @@ deleteOneSql ::
 deleteOneSql table id = delete table $ (==. val_ id) . pk
 
 deleteOne ::
-  ( DeleteOneConstraint be a,
-    MonadBeam be m,
-    Monad n
-  ) =>
-  (m ~> n) ->
-  DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
+  (DeleteOneConstraint be a, MonadBeam be m) =>
+  (m ~> MyServer be db conn msg Handler) ->
+  TableGetter be db (WithMetaInfo a) ->
   PrimaryKey (WithMetaInfo a) Identity ->
-  n NoContent
-deleteOne doQuery table = (>> return NoContent) . doQuery . runDelete . deleteOneSql table
+  MyServer be db conn msg Handler NoContent
+deleteOne doQuery tableGet id = do
+  table <- tableGet . view #_db <$> ask
+  doQuery . runDelete $ deleteOneSql table id
+  return NoContent

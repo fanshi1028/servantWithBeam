@@ -7,16 +7,15 @@ module Controllers.ErasedMarks
   )
 where
 
+import Colog (Message)
 import Control.Monad.Except (MonadError)
-import Database.Beam.Postgres (Connection)
-import Databases.HitmenBusiness (ErasedMarkB)
-import Servant (ServerError, ServerT)
+import Data.Pool (Pool)
+import Database.Beam.Postgres (Connection, Postgres)
+import Databases.HitmenBusiness (ErasedMarkB, HitmenBusinessDb)
+import Servant (Handler, ServerError, ServerT)
 import Universum
 import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
-import Data.Pool (Pool)
+import Utils.Types (MyServer)
 
-simpleCRUDServerForErasedMarks ::
-  ( With '[MonadIO, MonadError ServerError] m
-  ) =>
-  ServerT (SimpleCRUDAPI path ErasedMarkB) (ReaderT (Pool Connection) m)
+simpleCRUDServerForErasedMarks :: ServerT (SimpleCRUDAPI path ErasedMarkB) (MyServer Postgres HitmenBusinessDb Connection Message Handler)
 simpleCRUDServerForErasedMarks = simpleCRUDServerForHitmenBusiness #_hbErasedMarks

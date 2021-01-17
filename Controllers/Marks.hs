@@ -7,16 +7,15 @@ module Controllers.Marks
   )
 where
 
+import Colog (Message)
 import Control.Monad.Except (MonadError)
-import Database.Beam.Postgres (Connection)
-import Databases.HitmenBusiness (MarkB)
-import Servant (ServerError, ServerT)
+import Data.Pool (Pool)
+import Database.Beam.Postgres (Connection, Postgres)
+import Databases.HitmenBusiness (HitmenBusinessDb, MarkB)
+import Utils.Types (MyServer)
+import Servant (Handler, ServerError, ServerT)
 import Universum
 import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
-import Data.Pool (Pool)
 
-simpleCRUDServerForMarks ::
-  ( With '[MonadIO, MonadError ServerError] m
-  ) =>
-  ServerT (SimpleCRUDAPI path MarkB) (ReaderT (Pool Connection) m)
+simpleCRUDServerForMarks :: ServerT (SimpleCRUDAPI path MarkB) (MyServer Postgres HitmenBusinessDb Connection Message Handler)
 simpleCRUDServerForMarks = simpleCRUDServerForHitmenBusiness #_marks

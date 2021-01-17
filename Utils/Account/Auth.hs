@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -20,13 +21,14 @@ import Databases.HitmenBusiness.Utils.Auth (getUserInfoWithPasswordHash)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), PasswordAlgorithm (..), WithNewPassword (WithNewPass), WithPassword (WithPass))
-import Servant (Get, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, StdMethod (DELETE, GET, POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
+import Servant (Get, Handler, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, StdMethod (DELETE, GET, POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
 import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, ToJWT (..), acceptLogin, clearSession)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
 import Utils.Account.SignUp (SignUp, Validatable, WithUserName (..), validateSignUp)
 import Utils.Constraints (CreateBodyConstraint, QueryIdConstraint, ReadOneConstraint)
 import Utils.Meta (Meta, WithMetaInfo, addMetaInfo)
+import Utils.Types (MyServer, TableGetter)
 import Validation (Validation (Failure, Success))
 
 type Login userT = WithPassword $ LoginId userT
@@ -55,24 +57,23 @@ authServer ::
     ToJWT (WithMetaInfo userT Identity),
     With '[FromBackendRow be, BeamSqlBackendCanSerialize be] Text,
     With '[MonadBeamInsertReturning be] m,
-    With '[MonadIO, MonadError ServerError] n,
     With '[Typeable, PasswordAlgorithm] crypto
   ) =>
-  DatabaseEntity be db $ TableEntity $ LoginT crypto userT ->
-  DatabaseEntity be db $ TableEntity $ WithMetaInfo userT ->
-  (m ~> n) ->
-  CookieSettings ->
-  JWTSettings ->
-  ServerT (AuthApi userT) n
-authServer loginTable userInfoTable doQuery cs jwts = signUp :<|> login :<|> logout
+  TableGetter be db (LoginT crypto userT) ->
+  TableGetter be db (WithMetaInfo userT) ->
+  (m ~> MyServer be db conn msg Handler) ->
+  ServerT (AuthApi userT) (MyServer be db conn msg Handler)
+authServer loginTableGetter userInfoTableGetter doQuery = signUp :<|> login :<|> logout
   where
-    authCheck (WithPass pw userName) =
+    authCheck (WithPass pw userName) = do
+      (loginTable, userInfoTable) <- (loginTableGetter &&& userInfoTableGetter) . view #_db <$> ask
       getUserInfoWithPasswordHash loginTable userInfoTable userName & select & runSelectReturningOne & doQuery >>= \case
         Nothing -> throwError err401
         Just (userInfo, hash) -> case checkPassword pw hash of
           PasswordCheckFail -> throwError err401
           PasswordCheckSuccess -> return userInfo
-    login payload =
+    login payload = do
+      (cs, jwts) <- (view #_cs &&& view #_jwts) <$> ask
       authCheck payload
         >>= liftIO . acceptLogin cs jwts
         >>= maybe (throwError err401) (return . ($ NoContent))
@@ -80,6 +81,7 @@ authServer loginTable userInfoTable doQuery cs jwts = signUp :<|> login :<|> log
       Failure e -> throwError err400 {errBody = encodeUtf8 $ "Password Invliad: \n" <> foldr1 (\a b -> a <> "\n" <> b) e}
       Success (WithUserName name base) -> do
         hpw <- liftIO $ hashPassword pw
+        (loginTable, userInfoTable) <- (loginTableGetter &&& userInfoTableGetter) . view #_db <$> ask
         let insertUserTable = runInsertReturningList $ insert userInfoTable $ insertExpressions [addMetaInfo base]
             mkLoginExpression user =
               LoginAccount
@@ -91,4 +93,6 @@ authServer loginTable userInfoTable doQuery cs jwts = signUp :<|> login :<|> log
                 }
             goSignUp = insertUserTable >>= runInsert . insert loginTable . insertData . map mkLoginExpression
         doQuery goSignUp >> return NoContent
-    logout = return $ clearSession cs NoContent
+    logout = do
+      cs <- view #_cs <$> ask
+      return $ clearSession cs NoContent

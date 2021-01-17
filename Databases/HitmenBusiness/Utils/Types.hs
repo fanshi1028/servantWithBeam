@@ -4,25 +4,36 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Databases.HitmenBusiness.Utils.Types (FirstName (..), LastName (..), Codename (..), MarkDescription (..), MarkStatus (..)) where
+module Databases.HitmenBusiness.Utils.Types
+  ( FirstName (..),
+    LastName (..),
+    Codename (..),
+    MarkDescription (..),
+    MarkStatus (..),
+  )
+where
 
+import Colog (HasLog (..), LogAction, LoggerT (..), Message)
+import Control.Monad.Except (MonadError)
+import Control.Natural (type (~>))
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2, PasswordHash (..))
-import Database.Beam (FromBackendRow (..), HasSqlEqualityCheck)
+import Database.Beam (DatabaseEntity, DatabaseSettings, FromBackendRow (..), HasSqlEqualityCheck, TableEntity)
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
 import Database.Beam.Backend (BeamBackend, BeamSqlBackend, HasSqlValueSyntax (..))
 import Database.Beam.Postgres (ConnectInfo (..), defaultConnectInfo)
-import Servant.Auth.Server (SetCookie, def)
+import Servant (Handler (..), ServerError)
+import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, def)
 import Servant.Docs (ToSample (..), singleSample)
 import System.Envy (FromEnv (..), env)
 import Universum
 import UnliftIO (MonadUnliftIO)
-import Colog (LoggerT(..))
+import UnliftIO.Pool (Pool)
 
 -- | Codename
 newtype Codename = Codename {unCodename :: Text}
@@ -91,17 +102,3 @@ instance ToSample SetCookie where
 
 -- | PasswordHash
 deriving newtype instance HasColumnType (PasswordHash Argon2)
-
--- | ConnectInfo
-instance FromEnv ConnectInfo where
-  fromEnv _ =
-    ( \user db ->
-        defaultConnectInfo
-          & #connectUser .~ user
-          & #connectDatabase .~ db
-    )
-      <$> env "PG_USER"
-      <*> env "HITMEN_DB"
-
--- | LoggerT
-deriving newtype instance (MonadUnliftIO m) => MonadUnliftIO (LoggerT msg m)

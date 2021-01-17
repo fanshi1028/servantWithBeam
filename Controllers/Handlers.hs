@@ -7,16 +7,15 @@ module Controllers.Handlers
   )
 where
 
+import Colog (Message)
 import Control.Monad.Except (MonadError)
-import Database.Beam.Postgres (Connection)
-import Databases.HitmenBusiness (HandlerB)
-import Servant (ServerError, ServerT)
+import Data.Pool (Pool)
+import Database.Beam.Postgres (Connection, Postgres)
+import Databases.HitmenBusiness (HandlerB, HitmenBusinessDb)
+import Servant (Handler, ServerError, ServerT)
 import Universum
 import Utils.CRUD (SimpleCRUDAPI, simpleCRUDServerForHitmenBusiness)
-import Data.Pool (Pool)
+import Utils.Types (MyServer)
 
-simpleCRUDServerForHandlers ::
-  ( With '[MonadIO, MonadError ServerError] m
-  ) =>
-  ServerT (SimpleCRUDAPI path HandlerB) (ReaderT (Pool Connection) m)
+simpleCRUDServerForHandlers :: ServerT (SimpleCRUDAPI path HandlerB) (MyServer Postgres HitmenBusinessDb Connection Message Handler)
 simpleCRUDServerForHandlers = simpleCRUDServerForHitmenBusiness #_handlers

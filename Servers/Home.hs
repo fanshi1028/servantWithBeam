@@ -11,7 +11,9 @@ module Servers.Home
   )
 where
 
+import Colog (cmap, fmtMessage, logDebug, logTextStdout, richMessageAction)
 import Controllers (SimpleCRUDAPI, SimpleCRUDHitmanAPI, simpleCRUDServerForHitmen')
+import Data.Pool (Pool)
 import Database.PostgreSQL.Simple (Connection)
 import Databases.HitmenBusiness (ErasedMarkB, HandlerB, MarkB, PursuingMarkB, hitmenBusinessDb)
 import Servant (Application, Context, ErrorFormatters, HasContextEntry, HasServer (hoistServerWithContext), serveWithContext, (:<|>) ((:<|>)), type (.++))
@@ -23,7 +25,7 @@ import Utils.Account.Auth (AuthApi, authServer)
 import Utils.CRUD (simpleCRUDServerForHitmenBusiness)
 import Utils.Docs (APIWithDoc, serveDocs)
 import Utils.QueryRunner (doPgQueryWithDebug)
-import Data.Pool (Pool)
+import Utils.Types (Env (Env), MyServer (unMyServer))
 
 type HomeAPI' auths =
   ( SimpleCRUDAPI "handlers" HandlerB
@@ -46,36 +48,19 @@ homeApp ::
   Pool Connection ->
   Application
 homeApp cfg cs jwts conns = do
-  -- serve @(APIWithDoc HomeAPI) Proxy $
   serveWithContext @(APIWithDoc HomeAPI) Proxy cfg $
     serveDocs @HomeAPI Proxy $
-      -- hoistServer @(HomeAPI '[Cookie])
       hoistServerWithContext @HomeAPI @'[CookieSettings, JWTSettings]
         Proxy
         Proxy
-        (usingReaderT conns)
-        -- (crud #_handlers :<|> crud #_hitmen :<|> crud #_marks :<|> crud #_hbErasedMarks :<|> crud #_hbPursuingMarks)
+        (usingReaderT (Env richMessageAction cs jwts conns hitmenBusinessDb) . unMyServer)
         ( ( crud #_handlers
               :<|> simpleCRUDServerForHitmen' doPgQueryWithDebug
               :<|> crud #_marks
               :<|> crud #_hbErasedMarks
               :<|> crud #_hbPursuingMarks
           )
-            :<|> authServer (hitmenBusinessDb ^. #_hbHandlersAccount) (hitmenBusinessDb ^. #_handlers) doPgQueryWithDebug cs jwts
+            :<|> authServer (view #_hbHandlersAccount) (view #_handlers) doPgQueryWithDebug
         )
   where
     crud getter = simpleCRUDServerForHitmenBusiness getter
-
--- homeApp :: Connection -> Application
--- homeApp =
---   serve @(APIWithDoc HomeAPI)
---     Proxy
---     . serveDocs @HomeAPI Proxy
---     <$> simpleCRUDServerForHandlers
---       |:<|> simpleCRUDServerForHitmen
---       |:<|> simpleCRUDServerForMarks
---       |:<|> simpleCRUDServerForErasedMarks
---       |:<|> simpleCRUDServerForPursuingMarks
---   where
---     infixr 5 |:<|>
---     (|:<|>) = liftA2 (:<|>)

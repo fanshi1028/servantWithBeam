@@ -1,39 +1,41 @@
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Utils.QueryRunner where
 
-import Data.Pool (Pool, withResource)
+import Colog (LogAction (unLogAction), Message, WithLog, logDebug, logMsg, logTextStdout)
+import Control.Natural (type (~>))
 import Database.Beam (HasQBuilder, MonadBeam)
 import Database.Beam.Postgres (Pg, Postgres, runBeamPostgresDebug)
 import qualified Database.Beam.Postgres as Pg (Connection)
 import Database.Beam.Sqlite (SqliteM, runBeamSqliteDebug)
 import qualified Database.SQLite.Simple as Lite (Connection)
-import Servant (NoContent (NoContent))
+import Servant (Handler, NoContent (NoContent))
 import Universum
-import Control.Natural (type (~>))
+import UnliftIO (MonadUnliftIO (withRunInIO))
+import UnliftIO.Pool (Pool, withResource)
+import Utils.Types (MyServer)
 
-doPgQueryWithDebug' :: (MonadIO m) => (env -> Pool Pg.Connection) -> (Pg ~> ReaderT env m)
-doPgQueryWithDebug' getPool pg = ReaderT $ \env -> liftIO $ withResource (getPool env) runWithConn
-  where
-    runWithConn = liftIO . flip (runBeamPostgresDebug putStrLn) pg
+doPgQueryWithDebug :: Pg ~> MyServer be db Pg.Connection Message Handler
+doPgQueryWithDebug pg = do
+  pool <- view #_pool <$> ask
+  logDebug "hi"
+  liftIO $ withResource pool (flip (runBeamPostgresDebug $ unLogAction logTextStdout . fromString) pg)
 
 -- doPgQueryWithDebug :: (MonadIO m) => (Pg a -> ReaderT Connection m a)
 -- doPgQueryWithDebug = ReaderT <$> (liftIO <<$>> flip (runBeamPostgresDebug putStrLn))
 
-doPgQueryWithDebug :: (MonadIO m) => (Pg ~> ReaderT (Pool Pg.Connection) m)
-doPgQueryWithDebug = doPgQueryWithDebug' id
+-- doPgQueryWithDebug :: Pg ~> MyServer be db conn Text Handler
+-- doPgQueryWithDebug = doPgQueryWithDebug' (view #_pool)
 
 doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM ~> ReaderT Lite.Connection m)
 doSqliteQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamSqliteDebug putStrLn)
 
 -- doSqliteQueryWithDebug conn = liftIO <$> runBeamSqliteDebug putStrLn conn
-
--- class QueryRunner m n where
---   doQuery :: (MonadBeam be m, Monad n) => forall t. m t -> n t
 
 -- instance (MonadIO n) => QueryRunner Pg (ReaderT Pg.Connection n) where
 --   doQuery = doPgQueryWithDebug
