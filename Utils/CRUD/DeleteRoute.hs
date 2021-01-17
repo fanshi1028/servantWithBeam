@@ -22,7 +22,7 @@ deleteOneSql ::
   DatabaseEntity be db $ TableEntity $ WithMetaInfo a ->
   PrimaryKey (WithMetaInfo a) Identity ->
   SqlDelete be $ WithMetaInfo a
-deleteOneSql table id = delete table $ (==. val_ id) . pk
+deleteOneSql table id' = delete table $ (==. val_ id') . pk
 
 deleteOne ::
   (DeleteOneConstraint be a, MonadBeam be m) =>
@@ -30,7 +30,7 @@ deleteOne ::
   TableGetter be db (WithMetaInfo a) ->
   PrimaryKey (WithMetaInfo a) Identity ->
   MyServer be db conn msg Handler NoContent
-deleteOne doQuery tableGet id = do
+deleteOne doQuery tableGet id' = do
   table <- tableGet . view #_db <$> ask
-  doQuery . runDelete $ deleteOneSql table id
+  doQuery . runDelete $ deleteOneSql table id'
   return NoContent

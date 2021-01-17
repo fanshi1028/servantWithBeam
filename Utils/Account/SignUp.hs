@@ -5,7 +5,7 @@
 
 module Utils.Account.SignUp where
 
-import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, (.:))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON)
 import Data.Aeson.Types (genericToJSON)
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), WithNewPassword (WithNewPass), validatePassword, zxcvbnStrength)

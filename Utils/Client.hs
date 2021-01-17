@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -w #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
@@ -33,4 +34,4 @@ temp name = do
       return $ show a
 
 -- >>> temp "yesman"
--- "[WithMetaInfo {_base = Handler {_codename = \"yesman\", _dieAt = Nothing}, _metaInfo = HandlerMetaInfo {_handlerId = SqlSerial {unSerial = 1}, _createdAt = Datetime {datetimeDate = Date {dateYear = Year {getYear = 2020}, dateMonth = Month {getMonth = 11}, dateDay = DayOfMonth {getDayOfMonth = 12}}, datetimeTime = TimeOfDay {timeOfDayHour = 19, timeOfDayMinute = 16, timeOfDayNanoseconds = 46113930000}}}}]"
+-- "[WithMetaInfo {_base = Handler {_codename = \"yesman\", _dieAt = Nothing}, _metaInfo = HandlerMetaInfo {_handlerId = SqlSerial {unSerial = 1}, _createdAt = Datetime {datetimeDate = Date {dateYear = Year {getYear = 2020}, dateMonth = Month {getMonth = 11}, dateDay = DayOfMonth {getDayOfMonth = 12}}, datetimeTime = TimeOfDay {timeOfDayHour = 19, timeOfDayMinute = 16, timeOfDayNanoseconds = 46113930000}}}},WithMetaInfo {_base = Handler {_codename = \"EX\", _dieAt = Nothing}, _metaInfo = HandlerMetaInfo {_handlerId = SqlSerial {unSerial = 2}, _createdAt = Datetime {datetimeDate = Date {dateYear = Year {getYear = 2021}, dateMonth = Month {getMonth = 0}, dateDay = DayOfMonth {getDayOfMonth = 3}}, datetimeTime = TimeOfDay {timeOfDayHour = 14, timeOfDayMinute = 42, timeOfDayNanoseconds = 14140409000}}}}]"

@@ -8,11 +8,12 @@ where
 
 import Database.Beam.AutoMigrate (migrate, printMigration, tryRunMigrationsWithEditUpdate)
 import Database.Beam.AutoMigrate.Postgres (getSchema)
-import Database.Beam.Postgres (runBeamPostgresDebug)
+import Database.Beam.Postgres (Connection, runBeamPostgresDebug)
 import Database.PostgreSQL.Simple (withTransaction)
 import Databases.HitmenBusiness (annotatedHitmenBusinessDb, hitmenBusinessDbSchema)
 import Universum
 
+showMigration :: Connection -> IO Connection
 showMigration conn = do
   withTransaction conn $
     runBeamPostgresDebug putStrLn conn $
@@ -20,6 +21,7 @@ showMigration conn = do
         migrate conn hitmenBusinessDbSchema
   return conn
 
+showMigration1 :: Connection -> IO Connection
 showMigration1 conn = do
   actualSchema <- getSchema conn
   -- print $ diff actualSchema hitmenBusinessDbSchema
@@ -30,13 +32,15 @@ showMigration1 conn = do
   return conn
 
 -- doMigration = tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb
+doMigration :: Connection -> IO Connection
 doMigration conn = do
   tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb conn
   putTextLn "Migration done"
   return conn
 
+showAndDoMigration :: Connection -> IO Connection
 showAndDoMigration conn = do
-  showMigration conn
+  void $ showMigration conn
   putTextLn "migrate?"
   getLine >>= \case
     "y" -> doMigration conn

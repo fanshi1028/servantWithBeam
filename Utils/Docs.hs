@@ -14,7 +14,6 @@ import Database.Beam.Backend (SqlSerial (..))
 import Network.HTTP.Types (ok200)
 import Network.Wai (responseLBS)
 import Servant (HasServer (ServerT), Raw, Tagged (Tagged), (:<|>) ((:<|>)), (:>))
-import Servant.Auth (Cookie)
 import Servant.Docs (HasDocs, ToSample (..), docs, markdown, singleSample)
 import Universum
 
@@ -35,5 +34,3 @@ serveDocs api server = server :<|> Tagged toDocs
   where
     docsBS = encodeUtf8 . markdown . docs $ api
     toDocs _ res = res $ responseLBS ok200 [("Content-Type", "text/plain")] docsBS
-
--- instance ToCapture

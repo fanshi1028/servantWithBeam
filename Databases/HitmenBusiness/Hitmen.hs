@@ -12,7 +12,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.Hitmen
-  ( HitmanT (..),
+  ( HitmanT,
     HitmanB (..),
     HitmanId,
     PrimaryKey (HitmanId),

@@ -13,16 +13,13 @@ where
 
 import Chronos (Datetime)
 import Colog (Message)
-import Control.Monad.Except (MonadError)
 import Control.Natural (type (~>))
-import Data.Pool (Pool)
 import Database.Beam (FromBackendRow, HasQBuilder, HasSqlEqualityCheck)
 import Database.Beam.Backend (BeamSqlBackendCanSerialize, SqlNull)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
 import Database.Beam.Postgres (Connection, Postgres)
-import Databases.HitmenBusiness (HandlerB, HitmanB, HitmenBusinessDb, hitmenBusinessDb)
-import Servant (Handler, NoContent, ServerError, ServerT, (:<|>) ((:<|>)), (:>))
-import Servant.Auth.Server (ThrowAll)
+import Databases.HitmenBusiness (HandlerB, HitmanB, HitmenBusinessDb)
+import Servant (Handler, ServerT, (:<|>) ((:<|>)), (:>))
 import Universum
 import Utils.Account (ProtectApi, protected)
 import Utils.CRUD (SimpleCRUDAPI, deleteOne, readMany, readOne, simpleCRUDServerForHitmenBusiness, updateOne)
@@ -31,7 +28,6 @@ import Utils.CRUD.DeleteRoute (DeleteApi)
 import Utils.CRUD.ReadRoute (ReadManyApi, ReadOneApi)
 import Utils.CRUD.UpdateRoute (UpdateApi)
 import Utils.FromAccount (FromAccount (Base))
-import Utils.Meta (WithMetaInfo)
 import Utils.Types (MyServer)
 
 simpleCRUDServerForHitmen :: ServerT (SimpleCRUDAPI path HitmanB) (MyServer Postgres HitmenBusinessDb Connection Message Handler)
@@ -60,9 +56,10 @@ simpleCRUDServerForHitmen' ::
   (m ~> MyServer be HitmenBusinessDb Connection msg Handler) ->
   ServerT (SimpleCRUDHitmanAPI auths) (MyServer be HitmenBusinessDb Connection msg Handler)
 simpleCRUDServerForHitmen' doQuery =
-  protected (createOne' q tableGet) :<|> readMany q tableGet :<|> readOne q tableGet
-    :<|> protected (const $ updateOne q tableGet)
-    :<|> protected (const $ deleteOne q tableGet)
+  protected (createOne' doQuery tableGet)
+    :<|> readMany doQuery tableGet
+    :<|> readOne doQuery tableGet
+    :<|> protected (const $ updateOne doQuery tableGet)
+    :<|> protected (const $ deleteOne doQuery tableGet)
   where
-    q = doQuery
     tableGet = view #_hitmen

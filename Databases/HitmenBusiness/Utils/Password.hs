@@ -97,8 +97,6 @@ deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBacken
 
 deriving newtype instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be (PasswordHash a)
 
--- instance HasColumnType (PasswordHash a)
-
 -- >>> toSamples @(PasswordHash Argon2) Proxy
 -- [("",PasswordHash {unPasswordHash = "$argon2id$v=19$m=65536,t=2,p=1$ZndlZ3dncmdnZ2dyd2V3a2s4MzQ3$tBE4ORs4fF4F7rfsUsY8kkyEi7uurt5cy3bTaHw83GM="})]
 instance ToSample (PasswordHash Argon2) where

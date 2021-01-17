@@ -7,10 +7,9 @@
 
 module Utils.CRUD.ReadRoute where
 
-import Control.Monad.Except (MonadError)
 import Control.Natural (type (~>))
-import Database.Beam (Database, DatabaseEntity, MonadBeam, PrimaryKey, TableEntity, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
-import Servant (Capture, Get, Handler, JSON, ServerError, err404, throwError, (:<|>), (:>))
+import Database.Beam (Database, MonadBeam, PrimaryKey, all_, lookup_, runSelectReturningList, runSelectReturningOne, select)
+import Servant (Capture, Get, Handler, JSON, err404, throwError, (:<|>), (:>))
 import Universum
 import Utils.Constraints (ReadAllConstraint, ReadOneConstraint)
 import Utils.Meta (WithMetaInfo (..))
@@ -28,9 +27,9 @@ readOne ::
   TableGetter be db (WithMetaInfo a) ->
   PrimaryKey (WithMetaInfo a) Identity ->
   MyServer be db conn msg Handler (WithMetaInfo a Identity)
-readOne doQuery tableGet id = do
+readOne doQuery tableGet id' = do
   table <- tableGet . view #_db <$> ask
-  lookup_ table id & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
+  lookup_ table id' & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
 
 readMany ::
   (ReadAllConstraint be a, Database be db, MonadBeam be m) =>

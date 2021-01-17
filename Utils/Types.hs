@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -16,17 +15,13 @@ module Utils.Types
   )
 where
 
-import Colog (HasLog (..), LogAction, LoggerT (..), Message)
+import Colog (HasLog (..), LogAction, LoggerT (..))
 import Control.Monad.Except (MonadError)
-import Control.Natural (type (~>))
-import Data.Aeson (FromJSON (..), ToJSON (..))
 import Data.Generics.Labels ()
-import Data.Password.Argon2 (Argon2, PasswordHash (..))
-import Database.Beam (DatabaseEntity, DatabaseSettings, FromBackendRow (..), HasSqlEqualityCheck, TableEntity)
+import Database.Beam (DatabaseEntity, DatabaseSettings, TableEntity)
 import Database.Beam.Postgres (ConnectInfo (..), defaultConnectInfo)
-import Servant (Handler (..), ServerError)
-import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, def)
-import Servant.Docs (ToSample (..), singleSample)
+import Servant (ServerError)
+import Servant.Auth.Server (CookieSettings, JWTSettings)
 import System.Envy (FromEnv (..), env)
 import Universum
 import UnliftIO (MonadUnliftIO)

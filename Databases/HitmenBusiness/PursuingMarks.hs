@@ -8,7 +8,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.PursuingMarks
-  ( PursuingMarkT (..),
+  ( PursuingMarkT,
     PursuingMarkB (..),
     PursuingMark,
     PrimaryKey (PursuingMarkId),

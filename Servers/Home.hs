@@ -11,7 +11,7 @@ module Servers.Home
   )
 where
 
-import Colog (cmap, fmtMessage, logDebug, logTextStdout, richMessageAction)
+import Colog (richMessageAction)
 import Controllers (SimpleCRUDAPI, SimpleCRUDHitmanAPI, simpleCRUDServerForHitmen')
 import Data.Pool (Pool)
 import Database.PostgreSQL.Simple (Connection)

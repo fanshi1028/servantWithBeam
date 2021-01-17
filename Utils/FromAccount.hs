@@ -4,10 +4,9 @@
 
 module Utils.FromAccount where
 
-import Servant.Docs (ToSample)
 import Universum
 import Utils.Meta (WithMetaInfo)
 
 class FromAccount userInfo a where
-  data Base a :: (* -> *) -> *
+  data Base a :: (Type -> Type) -> Type
   fromAccount :: WithMetaInfo userInfo Identity -> Base a Identity -> a Identity

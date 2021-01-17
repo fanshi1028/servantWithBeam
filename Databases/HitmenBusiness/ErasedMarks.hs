@@ -8,7 +8,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.ErasedMarks
-  ( ErasedMarkT (..),
+  ( ErasedMarkT,
     ErasedMarkB (..),
     ErasedMarkId,
     PrimaryKey (ErasedMarkId),

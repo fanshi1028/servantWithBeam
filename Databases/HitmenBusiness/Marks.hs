@@ -10,7 +10,7 @@
 
 module Databases.HitmenBusiness.Marks
   ( MarkId,
-    MarkT (..),
+    MarkT,
     MarkB (..),
     PrimaryKey (MarkId),
   )

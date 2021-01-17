@@ -30,6 +30,7 @@ module Databases.HitmenBusiness
     HitmanT,
     MarkT,
     PursuingMarkT,
+    acountOf,
   )
 where
 
@@ -37,9 +38,10 @@ import Data.Char (isUpper)
 import qualified Data.Char as C
 import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2)
-import Database.Beam (dbModification)
+import Database.Beam (HasSqlEqualityCheck, Q, QExpr, dbModification)
 import Database.Beam.AutoMigrate
   ( AnnotatedDatabaseSettings,
+    Schema,
     UniqueConstraint (U),
     defaultAnnotatedDbSettings,
     fromAnnotatedDbSettings,
@@ -48,13 +50,14 @@ import Database.Beam.AutoMigrate
 import Database.Beam.Query (oneToMany_, oneToOne_)
 import Database.Beam.Schema (Database)
 import Database.Beam.Schema.Tables (DatabaseSettings, TableEntity, defaultDbSettings, renamingFields, withDbModification)
-import Databases.HitmenBusiness.ErasedMarks (ErasedMarkB, ErasedMarkT (..))
-import Databases.HitmenBusiness.Handlers (HandlerB, HandlerT (..))
-import Databases.HitmenBusiness.Hitmen (HitmanB, HitmanT (..))
-import Databases.HitmenBusiness.Marks (MarkB, MarkT (..))
-import Databases.HitmenBusiness.PursuingMarks (PursuingMarkB, PursuingMarkT (..))
+import Databases.HitmenBusiness.ErasedMarks (ErasedMarkB, ErasedMarkT)
+import Databases.HitmenBusiness.Handlers (HandlerB, HandlerT)
+import Databases.HitmenBusiness.Hitmen (HitmanB, HitmanT)
+import Databases.HitmenBusiness.Marks (MarkB, MarkT)
+import Databases.HitmenBusiness.PursuingMarks (PursuingMarkB, PursuingMarkT)
 import Universum
 import Utils.Account.Login (LoginT)
+import Utils.Meta (WithMetaInfo)
 
 data HitmenBusinessDb f = HitmenBusinessDb
   { _hitmen :: f (TableEntity HitmanT),
@@ -80,17 +83,23 @@ hitmenBusinessDb =
           let next' = maybe mempty (uncurry (:) . first C.toLower) (uncons next)
            in comp : unCamelCase next'
 
-handlerIs handlers = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view $ #_base . #_handlerId) handlers
+handlerIs :: HasSqlEqualityCheck be Int32 => HandlerT (QExpr be s) -> Q be HitmenBusinessDb s (HitmanT (QExpr be s))
+handlerIs = oneToOne_ (hitmenBusinessDb ^. #_hitmen) (view $ #_base . #_handlerId)
 
-markPursuedBy hitmen = oneToMany_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_hitmanId) hitmen
+markPursuedBy :: HasSqlEqualityCheck be Int32 => HitmanT (QExpr be s) -> Q be HitmenBusinessDb s (PursuingMarkT (QExpr be s))
+markPursuedBy = oneToMany_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_hitmanId)
 
-pursuingMarkOf marks = oneToOne_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_markId) marks
+pursuingMarkOf :: HasSqlEqualityCheck be Int32 => MarkT (QExpr be s) -> Q be HitmenBusinessDb s (PursuingMarkT (QExpr be s))
+pursuingMarkOf = oneToOne_ (hitmenBusinessDb ^. #_hbPursuingMarks) (view $ #_base . #_markId)
 
-markErasedBy hitmen = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . #_hitmanId) hitmen
+markErasedBy :: HasSqlEqualityCheck be Int32 => HitmanT (QExpr be s) -> Q be HitmenBusinessDb s (ErasedMarkT (QExpr be s))
+markErasedBy = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . #_hitmanId)
 
-erasedMarkOf marks = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . #_markId) marks
+erasedMarkOf :: HasSqlEqualityCheck be Int32 => MarkT (QExpr be s) -> Q be HitmenBusinessDb s (ErasedMarkT (QExpr be s))
+erasedMarkOf = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . #_markId)
 
-acountOf handlers = oneToOne_ (hitmenBusinessDb ^. #_hbHandlersAccount) (view $ #_account) handlers
+acountOf :: HasSqlEqualityCheck be Int32 => WithMetaInfo HandlerB (QExpr be s) -> Q be HitmenBusinessDb s (LoginT Argon2 HandlerB (QExpr be s))
+acountOf = oneToOne_ (hitmenBusinessDb ^. #_hbHandlersAccount) (view #_account)
 
 annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings be HitmenBusinessDb
 annotatedHitmenBusinessDb =
@@ -104,4 +113,5 @@ annotatedHitmenBusinessDb =
                              }
                          )
 
+hitmenBusinessDbSchema :: Schema
 hitmenBusinessDbSchema = fromAnnotatedDbSettings annotatedHitmenBusinessDb (Proxy @'[])

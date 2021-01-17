@@ -11,7 +11,6 @@ module Utils.CRUD
   ( simpleCRUDServer,
     SimpleCRUDAPI,
     simpleCRUDServerForHitmenBusiness,
-    -- simpleCRUDServerForHitmenBusinessLite,
     createOne,
     readOne,
     readMany,
@@ -20,14 +19,15 @@ module Utils.CRUD
   )
 where
 
-import Control.Monad.Except (MonadError)
+import Colog (Message)
 import Control.Natural (type (~>))
 import Database.Beam (PrimaryKey)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamUpdateReturning)
+import Database.Beam.Postgres (Connection, Postgres)
 import Database.Beam.Schema.Tables (Database, DatabaseEntity, TableEntity)
-import Databases.HitmenBusiness (hitmenBusinessDb)
 import GHC.TypeLits (Symbol)
-import Servant (Capture, Handler, HasServer (ServerT), ServerError, (:<|>) ((:<|>)), (:>))
+import Lens.Micro (Getting)
+import Servant (Capture, Handler, HasServer (ServerT), (:<|>) ((:<|>)), (:>))
 import Servant.Docs (DocCapture (..), ToCapture (..))
 import Universum
 import Utils.CRUD.CreateRoute (CreateApi, createOne)
@@ -62,6 +62,18 @@ simpleCRUDServer doQuery tableGet =
     :<|> updateOne doQuery tableGet
     :<|> deleteOne doQuery tableGet
 
+simpleCRUDServerForHitmenBusiness ::
+  ( Database Postgres db,
+    CreateBodyConstraint Postgres a,
+    ReadOneConstraint Postgres a,
+    UpdateBodyConstraint Postgres a,
+    DeleteOneConstraint Postgres a
+  ) =>
+  Getting
+    (DatabaseEntity Postgres db $ TableEntity (WithMetaInfo a))
+    (db (DatabaseEntity Postgres db))
+    (DatabaseEntity Postgres db $ TableEntity (WithMetaInfo a)) ->
+  ServerT
+    (SimpleCRUDAPI path a)
+    (MyServer Postgres db Connection Message Handler)
 simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (view dbGetter)
-
--- simpleCRUDServerForHitmenBusinessLite dbGetter = simpleCRUDServer doSqliteQueryWithDebug (hitmenBusinessDb ^. dbGetter)

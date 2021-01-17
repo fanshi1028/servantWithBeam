@@ -1,8 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -15,7 +11,7 @@ import Universum
 import Utils.Account.Login (LoginT (..))
 import Utils.Meta (WithMetaInfo)
 
-type ProtectApi (auths :: [*]) userT api = Auth auths (WithMetaInfo userT Identity) :> api
+type ProtectApi (auths :: [Type]) userT api = Auth auths (WithMetaInfo userT Identity) :> api
 
 protected :: ThrowAll server => (userInfo -> server) -> AuthResult userInfo -> server
 protected toServer = \case

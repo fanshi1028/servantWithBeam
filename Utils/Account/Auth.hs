@@ -9,25 +9,23 @@
 
 module Utils.Account.Auth (Login, authServer, AuthApi) where
 
-import Control.Monad.Except (MonadError)
 import Control.Natural (type (~>))
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Password (PasswordCheck (PasswordCheckFail, PasswordCheckSuccess))
-import Database.Beam (Database, DatabaseEntity, FromBackendRow, HasQBuilder, HasSqlEqualityCheck, PrimaryKey, Table (..), TableEntity, default_, insert, insertData, insertExpressions, runInsert, runSelectReturningOne, select, val_)
+import Database.Beam (Database, FromBackendRow, HasSqlEqualityCheck, Table (..), default_, insert, insertData, insertExpressions, runInsert, runSelectReturningOne, select, val_)
 import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamInsertReturning, runInsertReturningList)
-import Database.Beam.Schema.Tables (FieldsFulfillConstraint)
 import Databases.HitmenBusiness.Utils.Auth (getUserInfoWithPasswordHash)
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Password (NewPassword (..), PasswordAlgorithm (..), WithNewPassword (WithNewPass), WithPassword (WithPass))
-import Servant (Get, Handler, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerError, ServerT, StdMethod (DELETE, GET, POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
-import Servant.Auth.Server (CookieSettings, JWTSettings, SetCookie, ToJWT (..), acceptLogin, clearSession)
+import Servant (Get, Handler, Header, Headers, JSON, NoContent (..), Post, ReqBody, ServerT, StdMethod (POST), Verb, err400, err401, errBody, throwError, (:<|>) ((:<|>)), (:>))
+import Servant.Auth.Server (SetCookie, ToJWT (..), acceptLogin, clearSession)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
 import Utils.Account.SignUp (SignUp, Validatable, WithUserName (..), validateSignUp)
-import Utils.Constraints (CreateBodyConstraint, QueryIdConstraint, ReadOneConstraint)
-import Utils.Meta (Meta, WithMetaInfo, addMetaInfo)
+import Utils.Constraints (CreateBodyConstraint, ReadOneConstraint)
+import Utils.Meta (WithMetaInfo, addMetaInfo)
 import Utils.Types (MyServer, TableGetter)
 import Validation (Validation (Failure, Success))
 

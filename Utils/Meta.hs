@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -21,7 +20,7 @@ import Servant.Docs (ToSample)
 import Universum
 
 class Meta be a where
-  data MetaInfo a :: (* -> *) -> *
+  data MetaInfo a :: (Type -> Type) -> Type
   addMetaInfo :: a Identity -> WithMetaInfo a (QExpr be s)
   updateWithMetaInfo ::
     (Beamable a, BeamSqlBackend be, FieldsFulfillConstraint (BeamSqlBackendCanSerialize be) a) =>

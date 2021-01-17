@@ -15,7 +15,7 @@ import Database.Beam.Backend (SqlSerial (..))
 import Universum
 import Utils.Meta (WithMetaInfo)
 
-data family LoginId (userT :: (* -> *) -> *)
+data family LoginId (userT :: (Type -> Type) -> Type)
 
 data LoginT crypto userT f = LoginAccount
   { _accountId :: C f (SqlSerial Int32),

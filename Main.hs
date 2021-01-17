@@ -5,9 +5,10 @@
 module Main where
 
 import Chronos (stopwatch)
-import Colog (withLog, (>*<), HasLog (..), Message, WithLog, cmap, defCapacity, fmtMessage, fmtRichMessageDefault, logDebug, logInfo, logMsg, logTextStdout, richMessageAction, usingLoggerT, withBackgroundLogger, (>$<))
+-- import System.Metrics (createCounter)
+import Colog (Message, WithLog, defCapacity, logInfo, richMessageAction, usingLoggerT, withBackgroundLogger)
 import Control.Concurrent (killThread)
-import Database.PostgreSQL.Simple (close, connect, connectPostgreSQL)
+import Database.PostgreSQL.Simple (close, connect)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
 import Servant (Context (EmptyContext, (:.)))
 import Servant.Auth.Server (def, defaultCookieSettings, defaultJWTSettings, generateKey)
@@ -18,18 +19,18 @@ import Universum
 import UnliftIO (MonadUnliftIO (..), toIO)
 import qualified UnliftIO (bracket)
 import UnliftIO.Pool (createPool, destroyAllResources)
-import Utils.Migration (doMigration, showMigration)
 
 server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => m ()
 server = do
-  server <- liftIO $ mkServer . defaultJWTSettings <$> generateKey
+  server' <- liftIO $ mkServer . defaultJWTSettings <$> generateKey
   doWelcome <- setBeforeMainLoop <$> toIO (logInfo $ "listening on port: " <> show @Text port)
   tLog "Get Env: " decodeEnv
     >>= either
       (logInfo . fromString)
-      (`withPool` (liftIO . runSettings (settings & doWelcome) . server))
+      (`withPool` (liftIO . runSettings (settings & doWelcome) . server'))
   where
-    tLog context io = liftIO (stopwatch io)
+    tLog context io =
+      liftIO (stopwatch io)
         >>= \(t, a) -> logInfo (context <> show t) >> return a
     mkServer jwtCfg = homeApp (defaultCookieSettings :. jwtCfg :. EmptyContext) def jwtCfg
     withPool config =

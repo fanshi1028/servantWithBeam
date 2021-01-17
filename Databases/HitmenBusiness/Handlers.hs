@@ -11,7 +11,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness.Handlers
-  ( HandlerT (..),
+  ( HandlerT,
     HandlerB (..),
     PrimaryKey (HandlerId),
     HandlerId,
@@ -30,15 +30,13 @@ import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
 import Databases.HitmenBusiness.Utils.Chronos (currentTimestamp_')
 import Databases.HitmenBusiness.Utils.JSON (noCamelOpt)
 import Databases.HitmenBusiness.Utils.Types (Codename)
-import Servant (FromHttpApiData (..), JSON, ToHttpApiData (..))
+import Servant (FromHttpApiData (..), ToHttpApiData (..))
 import Servant.Auth.JWT (FromJWT, ToJWT)
-import Servant.Auth.Server.Internal.Class (IsAuth)
 import Servant.Docs (ToSample)
 import Universum
 import Utils.Account.Login (LoginId)
-import Utils.Account.SignUp (Payload, Validatable (..))
+import Utils.Account.SignUp (Validatable (..))
 import Utils.Meta (Meta (..), WithMetaInfo (..))
-import Validation (Validation (Success))
 
 data HandlerB f = Handler
   { _codename :: C f Codename,

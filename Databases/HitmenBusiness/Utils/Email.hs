@@ -55,7 +55,7 @@ instance ToSample Email where
     singleSample $ Email $ emailAddr (LP "example") (DN "exmail.com")
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be Email where
-  fromBackendRow = (decode <$> fromBackendRow) >>= either (fail . show) (return . Email)
+  fromBackendRow = fromBackendRow >>= either (fail . show) (return . Email) . decode
 
 instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be Email where
   sqlValueSyntax = sqlValueSyntax . encode . unEmail
