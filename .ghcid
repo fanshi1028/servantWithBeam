@@ -1,4 +1,4 @@
--c "cabal new-repl --repl-options=-with-rtsopts=-T --repl-options=-threaded --repl-options=-with-rtsopts=-N --repl-options=-w"
+-c "cabal new-repl --repl-options=-w -O2 -fobject-code +RTS -N -T -info -RTS"
 --reload=./Main.hs
 -r
 --restart=./app.cabal
