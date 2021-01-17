@@ -12,37 +12,40 @@ import Database.Beam.Postgres (Connection, runBeamPostgresDebug)
 import Database.PostgreSQL.Simple (withTransaction)
 import Databases.HitmenBusiness (annotatedHitmenBusinessDb, hitmenBusinessDbSchema)
 import Universum
+import UnliftIO.Pool (Pool, withResource)
 
-showMigration :: Connection -> IO Connection
-showMigration conn = do
-  withTransaction conn $
-    runBeamPostgresDebug putStrLn conn $
-      printMigration $
-        migrate conn hitmenBusinessDbSchema
-  return conn
+showMigration :: Pool Connection -> IO (Pool Connection)
+showMigration conns = do
+  withResource conns $ \conn -> do
+    withTransaction conn $
+      runBeamPostgresDebug putStrLn conn $
+        printMigration $ migrate conn hitmenBusinessDbSchema
+  return conns
 
-showMigration1 :: Connection -> IO Connection
-showMigration1 conn = do
-  actualSchema <- getSchema conn
-  -- print $ diff actualSchema hitmenBusinessDbSchema
-  -- putStrLn $ "======================================================"
-  -- print $ hitmenBusinessDbSchema
-  print actualSchema
-  -- print $ diff hitmenBusinessDbSchema actualSchema
-  return conn
+showMigration1 :: Pool Connection -> IO (Pool Connection)
+showMigration1 conns = do
+  withResource conns $ \conn -> do
+    actualSchema <- getSchema conn
+    -- print $ diff actualSchema hitmenBusinessDbSchema
+    -- putStrLn $ "======================================================"
+    -- print $ hitmenBusinessDbSchema
+    print actualSchema
+    -- print $ diff hitmenBusinessDbSchema actualSchema
+  return conns
 
 -- doMigration = tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb
-doMigration :: Connection -> IO Connection
-doMigration conn = do
-  tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb conn
-  putTextLn "Migration done"
-  return conn
+doMigration :: Pool Connection -> IO (Pool Connection)
+doMigration conns = do
+  withResource conns $ \conn -> do
+    tryRunMigrationsWithEditUpdate annotatedHitmenBusinessDb conn
+    putTextLn "Migration done"
+    return conns
 
-showAndDoMigration :: Connection -> IO Connection
-showAndDoMigration conn = do
-  void $ showMigration conn
+showAndDoMigration :: Pool Connection -> IO (Pool Connection)
+showAndDoMigration conns = do
+  void $ showMigration conns
   putTextLn "migrate?"
   getLine >>= \case
-    "y" -> doMigration conn
-    "Y" -> doMigration conn
-    _ -> putTextLn "Exiting" >> return conn
+    "y" -> doMigration conns
+    "Y" -> doMigration conns
+    _ -> putTextLn "Exiting" >> return conns

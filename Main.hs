@@ -9,6 +9,7 @@ import Chronos (stopwatch)
 import Colog (Message, WithLog, defCapacity, logInfo, richMessageAction, usingLoggerT, withBackgroundLogger)
 import Control.Concurrent (killThread)
 import Database.PostgreSQL.Simple (close, connect)
+import Databases.HitmenBusiness (hitmenBusinessDb)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
 import Servant.Auth.Server (def, defaultJWTSettings, generateKey)
 import Servers (homeApp)
@@ -18,8 +19,8 @@ import Universum
 import UnliftIO (MonadUnliftIO (..), toIO)
 import qualified UnliftIO (bracket)
 import UnliftIO.Pool (createPool, destroyAllResources)
-import Utils.Types (Env(Env))
-import Databases.HitmenBusiness (hitmenBusinessDb)
+import Utils.Migration (showMigration)
+import Utils.Types (Env (Env))
 
 server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => m ()
 server = do
@@ -28,7 +29,12 @@ server = do
   tLog "Get Env: " decodeEnv
     >>= either
       (logInfo . fromString)
-      (`withPool` (liftIO . runSettings (settings & doWelcome) . server'))
+      ( `withPool`
+          ( (tLog "show Migration: " . showMigration)
+              -- >=> (tLog "do Migration: " . doMigration)
+              >=> (liftIO . runSettings (settings & doWelcome) . server')
+          )
+      )
   where
     tLog context io =
       liftIO (stopwatch io)
@@ -45,16 +51,12 @@ server = do
     port = 6868
 
 main :: IO ()
-main = bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $
-  const $
-    withBackgroundLogger defCapacity richMessageAction $ \log -> usingLoggerT log $
-      do
-        logInfo "Using Backgroud Loggers"
-        server
+main =
+  bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $
+    const $
+      withBackgroundLogger defCapacity richMessageAction $
+        flip usingLoggerT $ do
+          logInfo "Using Backgroud Loggers"
+          server
 
--- ( makePool
---     -- >=> tLog "show Migration: " . showMigration
---     -- >=> tLog "show Migration: " . doMigration
---     >=> runSettings settings . homeApp cfg def jwtCfg
--- )
 
