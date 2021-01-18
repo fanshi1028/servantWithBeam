@@ -24,7 +24,8 @@ import Utils.Types (Env (Env))
 
 server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => m ()
 server = do
-  server' <- liftIO $ mkServer . defaultJWTSettings <$> generateKey
+  requestCount <- newTVarIO 0
+  server' <- liftIO $ mkServer requestCount . defaultJWTSettings <$> generateKey
   doWelcome <- setBeforeMainLoop <$> toIO (logInfo $ "listening on port: " <> show @Text port)
   tLog "Get Env: " decodeEnv
     >>= either
@@ -39,7 +40,7 @@ server = do
     tLog context io =
       liftIO (stopwatch io)
         >>= \(t, a) -> logInfo (context <> show t) >> return a
-    mkServer jwtCfg = homeApp . Env richMessageAction def jwtCfg hitmenBusinessDb
+    mkServer requestCount jwtCfg  = homeApp . Env richMessageAction def jwtCfg requestCount hitmenBusinessDb
     withPool config =
       UnliftIO.bracket
         (tLog "Make Pool: " $ createPool (connect config) close 6 60 10)

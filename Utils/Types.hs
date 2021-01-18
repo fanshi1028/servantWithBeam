@@ -46,6 +46,7 @@ data Env be db conn logger = Env
   { _logger :: logger,
     _cs :: CookieSettings,
     _jwts :: JWTSettings,
+    _state :: TVar Int,
     _db :: DatabaseSettings be db,
     _pool :: Pool conn
   }

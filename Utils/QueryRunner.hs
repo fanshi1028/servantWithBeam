@@ -17,8 +17,9 @@ import Utils.Types (MyServer)
 
 doPgQueryWithDebug :: Pg ~> MyServer be db Pg.Connection Message Handler
 doPgQueryWithDebug pg = do
-  pool <- view #_pool <$> ask
-  logDebug "hi"
+  (pool, requestCount) <- (view #_pool &&& view #_state) <$> ask
+  atomically $ modifyTVar' requestCount (+1)
+  readTVarIO requestCount >>= logDebug . ("Request count: " <>) . show
   liftIO $ withResource pool (flip (runBeamPostgresDebug $ unLogAction logTextStdout . fromString) pg)
 
 doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM ~> ReaderT Lite.Connection m)
