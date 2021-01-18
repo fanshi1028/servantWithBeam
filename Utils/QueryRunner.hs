@@ -14,12 +14,15 @@ import Servant (Handler)
 import Universum
 import UnliftIO.Pool (withResource)
 import Utils.Types (MyServer)
+import System.Metrics.Counter (read, add)
 
 doPgQueryWithDebug :: Pg ~> MyServer be db Pg.Connection Message Handler
 doPgQueryWithDebug pg = do
-  (pool, requestCount) <- (view #_pool &&& view #_state) <$> ask
+  (pool, (requestCount, counter)) <- (view #_pool &&& view #_state &&& view #_counter) <$> ask
   atomically $ modifyTVar' requestCount (+1)
+  liftIO $ add counter 2
   readTVarIO requestCount >>= logDebug . ("Request count: " <>) . show
+  liftIO (read counter) >>= logDebug . ("Counter count: " <>) . show
   liftIO $ withResource pool (flip (runBeamPostgresDebug $ unLogAction logTextStdout . fromString) pg)
 
 doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM ~> ReaderT Lite.Connection m)

@@ -26,6 +26,7 @@ import System.Envy (FromEnv (..), env)
 import Universum
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Pool (Pool)
+import System.Metrics.Counter (Counter)
 
 -- | ConnectInfo
 instance FromEnv ConnectInfo where
@@ -47,6 +48,7 @@ data Env be db conn logger = Env
     _cs :: CookieSettings,
     _jwts :: JWTSettings,
     _state :: TVar Int,
+    _counter :: Counter,
     _db :: DatabaseSettings be db,
     _pool :: Pool conn
   }

@@ -103,6 +103,7 @@ executable app
         microlens >=0.4.11.0 && <0.5,
         lens ==4.19.*,
         beam-automigrate >=0.1.1.0 && <0.2,
+        ekg-core ==0.1.*,
         ekg ==0.4.*,
         mtl ==2.2.*,
         natural-transformation ==0.4.*,
