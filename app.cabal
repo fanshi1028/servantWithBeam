@@ -77,6 +77,7 @@ executable app
         time ==1.9.*,
         addy ==0.1.*,
         unordered-containers >=0.2.13 && <0.3,
+        servant-errors,
         servant-server ==0.18.*,
         servant-client ==0.18.*,
         servant-docs ==0.11.*,

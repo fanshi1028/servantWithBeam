@@ -10,6 +10,7 @@ import Control.Concurrent (killThread)
 import Database.PostgreSQL.Simple (close, connect)
 import Databases.HitmenBusiness (hitmenBusinessDb)
 import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, runSettings, setBeforeMainLoop, setOnExceptionResponse, setPort)
+import Network.Wai.Middleware.Servant.Errors (errorMwDefJson)
 import Servant.Auth.Server (def, defaultJWTSettings, generateKey)
 import Servers (homeApp)
 import System.Envy (decodeEnv)
@@ -33,7 +34,7 @@ server ekgCounter = do
       ( `withPool`
           ( (tLog "show Migration: " . showMigration)
               -- >=> (tLog "do Migration: " . doMigration)
-              >=> (liftIO . runSettings (settings & doWelcome) . server')
+              >=> (liftIO . runSettings (settings & doWelcome) . errorMwDefJson . server')
           )
       )
   where
@@ -54,7 +55,6 @@ server ekgCounter = do
 main :: IO ()
 main =
   bracket (forkServer "localhost" 8000) (killThread . serverThreadId) $ \ekg ->
-    -- const $
     withBackgroundLogger defCapacity richMessageAction $
       flip usingLoggerT $ do
         logInfo "Initialized the ekg counter"
