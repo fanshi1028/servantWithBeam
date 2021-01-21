@@ -23,7 +23,7 @@ doPgQueryWithDebug pg = do
   liftIO $ add counter 2
   readTVarIO requestCount >>= logDebug . ("Request count: " <>) . show
   liftIO (read counter) >>= logDebug . ("Counter count: " <>) . show
-  liftIO $ withResource pool (flip (runBeamPostgresDebug $ unLogAction logTextStdout . fromString) pg)
+  liftIO $ withResource pool $ flip (runBeamPostgresDebug $ unLogAction logTextStdout . fromString) pg
 
 doSqliteQueryWithDebug :: (MonadIO m) => (SqliteM ~> ReaderT Lite.Connection m)
 doSqliteQueryWithDebug = ReaderT . (liftIO <$>) <$> flip (runBeamSqliteDebug putStrLn)

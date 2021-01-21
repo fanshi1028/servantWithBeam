@@ -28,12 +28,11 @@ import Utils.QueryRunner (doPgQueryWithDebug)
 import Utils.Types (Env (Env, _cs, _jwts), MyServer (unMyServer))
 
 type HomeAPI' auths =
-  ( SimpleCRUDAPI "handlers" HandlerB
-      :<|> SimpleCRUDHitmanAPI auths
-      :<|> SimpleCRUDAPI "marks" MarkB
-      :<|> SimpleCRUDAPI "erased_marks" ErasedMarkB
-      :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkB
-  )
+  SimpleCRUDAPI "handlers" HandlerB
+    :<|> SimpleCRUDHitmanAPI auths
+    :<|> SimpleCRUDAPI "marks" MarkB
+    :<|> SimpleCRUDAPI "erased_marks" ErasedMarkB
+    :<|> SimpleCRUDAPI "pursuing_marks" PursuingMarkB
 
 type HomeAPI = HomeAPI' '[JWT, Cookie] :<|> AuthApi HandlerB
 
@@ -52,13 +51,12 @@ homeApp env@Env {_cs, _jwts} = do
         Proxy
         Proxy
         (usingReaderT env . unMyServer)
-        ( ( crud #_handlers
+        $ ( crud #_handlers
               :<|> simpleCRUDServerForHitmen' doPgQueryWithDebug
               :<|> crud #_marks
               :<|> crud #_hbErasedMarks
               :<|> crud #_hbPursuingMarks
           )
-            :<|> authServer (view #_hbHandlersAccount) (view #_handlers) doPgQueryWithDebug
-        )
+          :<|> authServer (view #_hbHandlersAccount) (view #_handlers) doPgQueryWithDebug
   where
     crud getter = simpleCRUDServerForHitmenBusiness getter

@@ -8,6 +8,7 @@ module Databases.HitmenBusiness.Utils.Email where
 
 import Addy (EmailAddr, decode, emailAddr, encode)
 import Addy.Internal.Types (DomainName (DN), LocalPart (LP))
+import Control.Arrow (ArrowChoice ((|||)), (>>>))
 import Data.Aeson (FromJSON (..), ToJSON (..), Value (String))
 import Data.Aeson.Types (typeMismatch)
 import Database.Beam.AutoMigrate (ColumnType (SqlStdType), HasColumnType (..))
@@ -30,10 +31,9 @@ instance Show Email where
 -- >>> readEither @Text @Email "example@xmail.com"
 -- Right example@xmail.com
 instance Read Email where
-  readPrec = TR.parens $
-    TR.prec 0 $ do
-      s <- RP.lift $ many RP.get
-      either (fail . show) (return . Email) $ decode $ toText s
+  readPrec =
+    TR.parens $
+      TR.prec 0 $ RP.lift $ many RP.get >>= (toText >>> decode >>> fail . show ||| return . Email)
 
 -- >>> toJSON $ Email $ emailAddr (LP "example") (DN "exmail.com")
 -- String "example@exmail.com"
@@ -45,7 +45,7 @@ instance ToJSON Email where
 -- Right example@exmail.com
 instance FromJSON Email where
   parseJSON = \case
-    (String s) -> either (fail . toString) return $ readEither s
+    (String s) -> fail . toString ||| return $ readEither s
     x -> typeMismatch "emails are strings" x
 
 -- >>> toSamples @Email Proxy
@@ -55,7 +55,7 @@ instance ToSample Email where
     singleSample $ Email $ emailAddr (LP "example") (DN "exmail.com")
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be Email where
-  fromBackendRow = fromBackendRow >>= either (fail . show) (return . Email) . decode
+  fromBackendRow = fromBackendRow >>= (decode >>> fail . show ||| return . Email)
 
 instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be Email where
   sqlValueSyntax = sqlValueSyntax . encode . unEmail

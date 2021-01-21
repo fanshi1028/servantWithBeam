@@ -37,7 +37,7 @@ class Validatable a where
   valiatePayload :: Payload a -> Validation e $ Payload a
   valiatePayload = Success
 
-validateSignUp :: Validatable userT => SignUp userT -> Validation (NonEmpty LText) $ Payload userT
+validateSignUp :: Validatable userT => SignUp userT -> Validation (NonEmpty Text) $ Payload userT
 validateSignUp (WithNewPass (NewPassword npw) payload) =
   const <$> valiatePayload payload
     <*> (validatePassword npw <> zxcvbnStrength npw)

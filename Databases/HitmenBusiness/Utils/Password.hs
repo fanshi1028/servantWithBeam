@@ -57,7 +57,7 @@ validatePassword =
 -- >>> zxcvbnStrength "fewh"
 -- Failure ("{\"strength\":\"Weak\",\"score\":3600}" :| [])
 -- zxcvbnStrength :: Password -> Validation (NonEmpty LByteString) ()
-zxcvbnStrength :: Password -> Validation (NonEmpty LText) ()
+zxcvbnStrength :: Password -> Validation (NonEmpty Text) ()
 zxcvbnStrength pw =
   maybe
     (Failure $ "Impossible, the zxcvbn checker got wrong ref day input!" :| [])
@@ -66,7 +66,7 @@ zxcvbnStrength pw =
          in case strength sc of
               Strong -> pure ()
               Safe -> pure ()
-              _ -> Failure $ encodeToLazyText sc :| []
+              _ -> Failure $ toText (encodeToLazyText sc) :| []
     )
     $ fromOrdinalDateValid 2020 360
 
@@ -74,8 +74,7 @@ zxcvbnStrength pw =
 -- Right **PASSWORD**
 instance Read Password where
   readPrec = TR.prec 0 $ do
-    s <- many TR.get
-    return $ mkPassword $ toText s
+    many TR.get >>= return . mkPassword . toText
 
 instance ToSample Password where
   toSamples _ = singleSample $ mkPassword "123456789"

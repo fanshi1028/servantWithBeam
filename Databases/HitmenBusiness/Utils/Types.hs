@@ -17,6 +17,7 @@ module Databases.HitmenBusiness.Utils.Types
   )
 where
 
+import Control.Arrow (ArrowChoice ((|||)))
 import Data.Aeson (FromJSON (..), ToJSON (..))
 import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2, PasswordHash (..))
@@ -83,7 +84,7 @@ data MarkStatus = Active | Erased | Cancelled
   deriving (HasColumnType) via (PgEnum MarkStatus)
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatus where
-  fromBackendRow = (readEither @Text @MarkStatus <$> fromBackendRow) >>= either (fail . toString) return
+  fromBackendRow = (readEither @Text @MarkStatus <$> fromBackendRow) >>= fail . toString ||| return
 
 instance HasSqlValueSyntax expr Text => HasSqlValueSyntax expr MarkStatus where
   sqlValueSyntax = sqlValueSyntax . show @Text

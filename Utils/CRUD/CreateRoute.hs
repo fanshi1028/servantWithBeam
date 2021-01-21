@@ -32,10 +32,8 @@ createOne ::
   TableGetter be db (WithMetaInfo a) ->
   a Identity ->
   MyServer be db conn msg Handler NoContent
-createOne doQuery tableGet body = do
-  table <- tableGet . view #_db <$> ask
-  doQuery . runInsert $ createOneSql table body
-  return NoContent
+createOne doQuery tableGet body =
+  ask >>= doQuery . runInsert . flip createOneSql body . tableGet . view #_db >> return NoContent
 
 createOne' ::
   ( CreateBodyConstraint be a,
@@ -47,7 +45,5 @@ createOne' ::
   WithMetaInfo userInfo Identity ->
   Base a Identity ->
   MyServer be db conn msg Handler NoContent
-createOne' doQuery tableGet authInfo body = do
-  table <- tableGet . view #_db <$> ask
-  doQuery . runInsert . createOneSql table $ fromAccount authInfo body
-  return NoContent
+createOne' doQuery tableGet authInfo body =
+  ask >>= doQuery . runInsert . flip createOneSql (fromAccount authInfo body) . tableGet . view #_db >> return NoContent

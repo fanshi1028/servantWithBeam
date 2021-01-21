@@ -22,7 +22,5 @@ flatten :: Text -> Text -> Value -> Maybe Value
 flatten key1 key2 = \case
   (Object v) -> do
     let tryFlatten k = lookup k v >>= flatten1 k
-    base <- tryFlatten key1
-    meta <- tryFlatten key2
-    return $ Object $ base <> meta
+    (<>) <$> tryFlatten key1 <*> tryFlatten key2 <&> Object
   _ -> Nothing

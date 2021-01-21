@@ -30,7 +30,5 @@ deleteOne ::
   TableGetter be db (WithMetaInfo a) ->
   PrimaryKey (WithMetaInfo a) Identity ->
   MyServer be db conn msg Handler NoContent
-deleteOne doQuery tableGet id' = do
-  table <- tableGet . view #_db <$> ask
-  doQuery . runDelete $ deleteOneSql table id'
-  return NoContent
+deleteOne doQuery tableGet id' =
+  ask >>= doQuery . runDelete . flip deleteOneSql id' . tableGet . view #_db >> return NoContent

@@ -76,7 +76,7 @@ authServer loginTableGetter userInfoTableGetter doQuery = signUp :<|> login :<|>
         >>= liftIO . acceptLogin cs jwts
         >>= maybe (throwError err401) (return . ($ NoContent))
     signUp su@(WithNewPass (NewPassword pw) _) = case validateSignUp su of
-      Failure e -> throwError err400 {errBody = encodeUtf8 $ "Password Invliad: \n" <> foldr1 (\a b -> a <> "\n" <> b) e}
+      Failure e -> throwError err400 {errBody = encodeUtf8 $ "Password Invliad: \n" <> unlines (toList e)}
       Success (WithUserName name base) -> do
         hpw <- liftIO $ hashPassword pw
         (loginTable, userInfoTable) <- (loginTableGetter &&& userInfoTableGetter) . view #_db <$> ask
@@ -91,6 +91,4 @@ authServer loginTableGetter userInfoTableGetter doQuery = signUp :<|> login :<|>
                 }
             goSignUp = insertUserTable >>= runInsert . insert loginTable . insertData . map mkLoginExpression
         doQuery goSignUp >> return NoContent
-    logout = do
-      cs <- view #_cs <$> ask
-      return $ clearSession cs NoContent
+    logout = flip clearSession NoContent . view #_cs <$> ask

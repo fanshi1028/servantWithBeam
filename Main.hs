@@ -6,6 +6,7 @@ module Main where
 
 import Chronos (stopwatch)
 import Colog (Message, WithLog, defCapacity, logInfo, richMessageAction, usingLoggerT, withBackgroundLogger)
+import Control.Arrow (ArrowChoice ((|||)))
 import Control.Concurrent (killThread)
 import Database.PostgreSQL.Simple (close, connect)
 import Databases.HitmenBusiness (hitmenBusinessDb)
@@ -29,14 +30,13 @@ server ekgCounter = do
   server' <- liftIO $ mkServer requestCount . defaultJWTSettings <$> generateKey
   doWelcome <- setBeforeMainLoop <$> toIO (logInfo $ "listening on port: " <> show @Text port)
   tLog "Get Env: " decodeEnv
-    >>= either
-      (logInfo . fromString)
-      ( `withPool`
-          ( (tLog "show Migration: " . showMigration)
-              -- >=> (tLog "do Migration: " . doMigration)
-              >=> (liftIO . runSettings (settings & doWelcome) . errorMwDefJson . server')
-          )
-      )
+    >>= logInfo . fromString
+      ||| flip
+        withPool
+        ( tLog "show Migration: " . showMigration
+            -- >=> (tLog "do Migration: " . doMigration)
+            >=> liftIO . runSettings (settings & doWelcome) . errorMwDefJson . server'
+        )
   where
     tLog context io =
       liftIO (stopwatch io)

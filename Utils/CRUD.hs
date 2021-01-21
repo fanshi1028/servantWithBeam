@@ -76,4 +76,4 @@ simpleCRUDServerForHitmenBusiness ::
   ServerT
     (SimpleCRUDAPI path a)
     (MyServer Postgres db Connection Message Handler)
-simpleCRUDServerForHitmenBusiness dbGetter = simpleCRUDServer doPgQueryWithDebug (view dbGetter)
+simpleCRUDServerForHitmenBusiness = simpleCRUDServer doPgQueryWithDebug . view

@@ -28,8 +28,8 @@ readOne ::
   PrimaryKey (WithMetaInfo a) Identity ->
   MyServer be db conn msg Handler (WithMetaInfo a Identity)
 readOne doQuery tableGet id' = do
-  table <- tableGet . view #_db <$> ask
-  lookup_ table id' & runSelectReturningOne & doQuery >>= maybe (throwError err404) return
+  ask >>= doQuery . runSelectReturningOne . flip lookup_ id' . tableGet . view #_db
+    >>= maybe (throwError err404) return
 
 readMany ::
   (ReadAllConstraint be a, Database be db, MonadBeam be m) =>
