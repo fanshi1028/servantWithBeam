@@ -22,6 +22,7 @@ import Universum
   :<|> (createErasedMark :<|> getErasedMarks :<|> getErasedMark :<|> updateErasedMark :<|> deleteErasedMark)
   :<|> (createPursuingMark :<|> getPursuingMarks :<|> getPursuingMark :<|> updatePursuingMark :<|> deletePursuingMark) = client @(HomeAPI' '[JWT, Cookie]) Proxy
 
+temp :: p -> IO [Char]
 temp name = do
   manager' <- newManager defaultManagerSettings
   let runClientM' = flip runClientM $ mkClientEnv manager' (BaseUrl Http "localhost" 6868 "")

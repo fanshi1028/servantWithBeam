@@ -1,4 +1,6 @@
--c "cabal new-repl --repl-options=-w -O2 -fobject-code +RTS -N -T -info -RTS"
+-c "cabal new-repl ./app/Main.hs --repl-options=-w -O2 -fno-code +RTS -N -T -RTS"
+-c "cabal new-repl test --repl-options=-w +RTS -N -T -RTS"
+--reload=./tests/Main.hs
 --reload=./Main.hs
 -r
 --restart=./app.cabal
