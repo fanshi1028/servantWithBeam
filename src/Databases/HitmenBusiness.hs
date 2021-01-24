@@ -20,11 +20,11 @@ module Databases.HitmenBusiness
     handlerIs,
     annotatedHitmenBusinessDb,
     hitmenBusinessDbSchema,
-    ErasedMarkB,
-    HandlerB,
-    HitmanB,
-    MarkB,
-    PursuingMarkB,
+    ErasedMarkB (ErasedMark),
+    HandlerB (Handler),
+    HitmanB (Hitman),
+    MarkB (Mark),
+    PursuingMarkB (PursuingMark),
     ErasedMarkT,
     HandlerT,
     HitmanT,
@@ -50,11 +50,11 @@ import Database.Beam.AutoMigrate
 import Database.Beam.Query (oneToMany_, oneToOne_)
 import Database.Beam.Schema (Database)
 import Database.Beam.Schema.Tables (DatabaseSettings, TableEntity, defaultDbSettings, renamingFields, withDbModification)
-import Databases.HitmenBusiness.ErasedMarks (ErasedMarkB, ErasedMarkT)
-import Databases.HitmenBusiness.Handlers (HandlerB, HandlerT)
-import Databases.HitmenBusiness.Hitmen (HitmanB, HitmanT)
-import Databases.HitmenBusiness.Marks (MarkB, MarkT)
-import Databases.HitmenBusiness.PursuingMarks (PursuingMarkB, PursuingMarkT)
+import Databases.HitmenBusiness.ErasedMarks (ErasedMarkB (ErasedMark), ErasedMarkT)
+import Databases.HitmenBusiness.Handlers (HandlerB (Handler), HandlerT)
+import Databases.HitmenBusiness.Hitmen (HitmanB (Hitman), HitmanT)
+import Databases.HitmenBusiness.Marks (MarkB (Mark), MarkT)
+import Databases.HitmenBusiness.PursuingMarks (PursuingMarkB (PursuingMark), PursuingMarkT)
 import Universum
 import Utils.Account.Login (LoginT)
 import Utils.Meta (WithMetaInfo)

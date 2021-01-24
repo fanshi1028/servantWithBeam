@@ -12,7 +12,7 @@
 
 module Databases.HitmenBusiness.Handlers
   ( HandlerT,
-    HandlerB (..),
+    HandlerB (Handler),
     PrimaryKey (HandlerId),
     HandlerId,
   )

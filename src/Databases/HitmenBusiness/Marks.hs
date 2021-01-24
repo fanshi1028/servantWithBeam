@@ -11,7 +11,7 @@
 module Databases.HitmenBusiness.Marks
   ( MarkId,
     MarkT,
-    MarkB (..),
+    MarkB (Mark),
     PrimaryKey (MarkId),
   )
 where

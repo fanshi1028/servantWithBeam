@@ -9,7 +9,7 @@
 
 module Databases.HitmenBusiness.ErasedMarks
   ( ErasedMarkT,
-    ErasedMarkB (..),
+    ErasedMarkB (ErasedMark),
     ErasedMarkId,
     PrimaryKey (ErasedMarkId),
   )

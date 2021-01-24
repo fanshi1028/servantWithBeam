@@ -13,7 +13,7 @@
 
 module Databases.HitmenBusiness.Hitmen
   ( HitmanT,
-    HitmanB (..),
+    HitmanB (Hitman),
     HitmanId,
     PrimaryKey (HitmanId),
   )

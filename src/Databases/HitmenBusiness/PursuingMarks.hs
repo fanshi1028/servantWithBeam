@@ -9,7 +9,7 @@
 
 module Databases.HitmenBusiness.PursuingMarks
   ( PursuingMarkT,
-    PursuingMarkB (..),
+    PursuingMarkB (PursuingMark),
     PursuingMark,
     PrimaryKey (PursuingMarkId),
   )
