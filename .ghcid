@@ -1,6 +1,6 @@
--c "cabal new-repl ./app/Main.hs --repl-options=-w -O2 -fno-code +RTS -N -T -RTS"
--c "cabal new-repl test --repl-options=-w +RTS -N -T -RTS"
+-c "cabal new-repl test --repl-options=-w -fghcid +RTS -N -T -RTS"
+-c "cabal new-repl app --repl-options=-w -fghcid -O2 -fno-code +RTS -N -T -RTS"
+--reload=./app/Main.hs
 --reload=./tests/Main.hs
---reload=./Main.hs
 -r
---restart=./app.cabal
+--restart=./servant-with-beam.cabal

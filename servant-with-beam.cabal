@@ -1,4 +1,4 @@
-cabal-version: >=1.10
+cabal-version: 2.2
 name:          servant-with-beam
 version:       0.1.0.0
 license:       MIT
@@ -14,6 +14,10 @@ build-type:    Simple
 source-repository head
     type:     git
     location: https://github.com/fanshi1028/servantWithBeam
+
+flag ghcid
+    default: False
+    manual:  True
 
 library
     exposed-modules:
@@ -109,6 +113,7 @@ library
         ekg-core ==0.1.*,
         ekg ==0.4.*,
         mtl ==2.2.*,
+        fused-effects >=1.1.1.0 && <1.2,
         optparse-applicative >=0.16.1.0 && <0.17,
         optparse-generic >=1.4.4 && <1.5,
         natural-transformation ==0.4.*,
@@ -117,8 +122,11 @@ library
         unliftio >=0.2.13.1 && <0.3,
         unliftio-pool >=0.2.1.1 && <0.3,
         co-log >=0.4.0.1 && <0.5,
+        recursion-schemes ==5.2.*,
+        retry >=0.8.1.2 && <0.9,
+        validity >=0.11.0.0 && <0.12
 
-executable servant-with-beam
+executable app
     main-is:            Main.hs
     hs-source-dirs:     app
     default-language:   Haskell2010
@@ -131,23 +139,65 @@ executable servant-with-beam
         -Wcompat -Wnoncanonical-monad-instances
 
     build-depends:
-        servant-with-beam -any,
         base >=4.14.1.0 && <4.15,
         async >=2.2.2 && <2.3,
         universum ==1.7.*,
+        bytestring >=0.10.10 && <0.11,
+        password ==2.1.*,
+        validation-selective ==0.1.*,
+        zxcvbn-hs ==0.3.*,
+        time ==1.9.*,
+        addy ==0.1.*,
+        unordered-containers >=0.2.13 && <0.3,
+        servant >=0.18.2 && <0.19,
         servant-errors >=0.1.6.0 && <0.2,
+        servant-server ==0.18.*,
+        servant-client ==0.18.*,
+        servant-docs ==0.11.*,
+        servant-auth ==0.4.*,
         servant-auth-server >=0.4.6.0 && <0.5,
+        servant-auth-docs >=0.2.10.0 && <0.3,
+        servant-auth-client ==0.4.*,
+        http-types ==0.12.*,
+        http-client >=0.6.4.1 && <0.7,
+        wai >=3.2.2 && <3.3,
         warp >=3.3.10 && <3.4,
+        wai-extra >=3.0.0 && <3.2,
+        wai-middleware-static >=0.9.0 && <0.10,
+        text ==1.2.*,
+        aeson ==1.4.*,
         chronos ==1.1.*,
+        beam-core >=0.9.0.0 && <0.10,
+        beam-sqlite >=0.5.0.0 && <0.6,
+        beam-postgres >=0.5.0.0 && <0.6,
+        beam-migrate >=0.5.0.0 && <0.6,
+        postgresql-simple ==0.6.*,
+        sqlite-simple >=0.4.0.0 && <0.5,
+        generic-lens >=2.0.0.0 && <2.1,
+        microlens >=0.4.11.0 && <0.5,
+        lens ==4.19.*,
+        beam-automigrate >=0.1.1.0 && <0.2,
         ekg-core ==0.1.*,
         ekg ==0.4.*,
+        mtl ==2.2.*,
+        fused-effects >=1.1.1.0 && <1.2,
         optparse-applicative >=0.16.1.0 && <0.17,
         optparse-generic >=1.4.4 && <1.5,
-        postgresql-simple ==0.6.*,
+        natural-transformation ==0.4.*,
         envy >=2.1.0.0 && <2.2,
+        resource-pool >=0.2.3.2 && <0.3,
         unliftio >=0.2.13.1 && <0.3,
         unliftio-pool >=0.2.1.1 && <0.3,
-        co-log >=0.4.0.1 && <0.5
+        co-log >=0.4.0.1 && <0.5,
+        recursion-schemes ==5.2.*,
+        retry >=0.8.1.2 && <0.9,
+        validity >=0.11.0.0 && <0.12
+
+    if flag(ghcid)
+        hs-source-dirs: src
+
+    else
+        build-depends: servant-with-beam -any
 
 test-suite test
     type:               exitcode-stdio-1.0
@@ -165,13 +215,35 @@ test-suite test
         -Wnoncanonical-monad-instances
 
     build-depends:
-        servant-with-beam -any,
         base >=4.14.1.0 && <4.15,
         universum >=1.7.1 && <1.8,
+        chronos ==1.1.*,
+        beam-core >=0.9.0.0 && <0.10,
+        http-client >=0.6.4.1 && <0.7,
+        servant-client >=0.18.2 && <0.19,
         tasty >=1.4.0.2 && <1.5,
         tasty-hunit >=0.10.0.3 && <0.11,
         tasty-expected-failure >=0.12.2 && <0.13,
         hedgehog >=1.0.4 && <1.1,
         tasty-hedgehog >=1.0.0.2 && <1.1,
+        QuickCheck ==2.14.*,
+        hedgehog-quickcheck >=0.1.1 && <0.2,
+        hedgehog-fakedata >=0.0.1.3 && <0.1,
+        fakedata >=0.8.0 && <0.9,
+        hedgehog-corpus >=0.2.0 && <0.3,
+        servant-quickcheck >=0.0.10.0 && <0.1,
         tasty-golden >=2.3.4 && <2.4,
-        tasty-rerun >=1.1.18 && <1.2
+        tasty-rerun >=1.1.18 && <1.2,
+        tasty-hspec >=1.1.6 && <1.2,
+        genvalidity >=0.11.0.0 && <0.12,
+        genvalidity-text >=0.7.0.2 && <0.8,
+        genvalidity-property >=0.5.0.1 && <0.6,
+        genvalidity-hspec >=0.7.0.4 && <0.8,
+        genvalidity-aeson >=0.3.0.0 && <0.4,
+        genvalidity-hspec-aeson >=0.3.1.1 && <0.4
+
+    if flag(ghcid)
+        hs-source-dirs: src app
+
+    else
+        build-depends: servant-with-beam -any
