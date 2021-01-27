@@ -130,8 +130,12 @@ instance
   ) =>
   ToSample (MetaInfo HitmanB f)
 
+instance FromJSON (PrimaryKey HitmanT Identity)
+
 instance FromJSON (Base HitmanB Identity) where
   parseJSON = genericParseJSON noCamelOpt'
+
+instance ToJSON (PrimaryKey HitmanT Identity)
 
 instance ToJSON (Base HitmanB Identity) where
   toJSON = genericToJSON noCamelOpt'

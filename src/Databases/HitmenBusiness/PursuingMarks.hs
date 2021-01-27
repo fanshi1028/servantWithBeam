@@ -72,7 +72,6 @@ instance FromHttpApiData (PrimaryKey PursuingMarkT Identity) where
 instance ToHttpApiData (PrimaryKey PursuingMarkT Identity) where
   toUrlPiece (PursuingMarkId (SqlSerial i)) = toUrlPiece i
 
-instance ToJSON (PrimaryKey HitmanT Identity)
 
 instance ToJSON (PursuingMarkB Identity) where
   toJSON = genericToJSON noCamelOpt
@@ -81,8 +80,6 @@ instance ToJSON (PursuingMarkB Identity) where
 instance ToJSON (MetaInfo PursuingMarkB Identity) where
   toJSON = genericToJSON noCamelOpt
   toEncoding = genericToEncoding noCamelOpt
-
-instance FromJSON (PrimaryKey HitmanT Identity)
 
 instance FromJSON (PursuingMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
