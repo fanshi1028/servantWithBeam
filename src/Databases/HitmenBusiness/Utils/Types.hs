@@ -23,10 +23,12 @@ import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2, PasswordHash (..))
 import Database.Beam (FromBackendRow (..), HasSqlEqualityCheck)
 import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
-import Database.Beam.Backend (BeamBackend, BeamSqlBackend, HasSqlValueSyntax (..))
+import Database.Beam.Backend (SqlSerial(..), BeamBackend, BeamSqlBackend, HasSqlValueSyntax (..))
 import Servant.Auth.Server (SetCookie, def)
 import Servant.Docs (ToSample (..), singleSample)
 import Universum
+import Data.Validity (declare, Validity(..))
+import Data.Char (isPrint)
 
 -- | Codename
 newtype Codename = Codename {unCodename :: Text}
@@ -42,9 +44,19 @@ deriving newtype instance (BeamSqlBackend be, HasSqlEqualityCheck be Text) => Ha
 instance ToSample Codename where
   toSamples _ = singleSample $ Codename "codename"
 
+-- >>> validate (Codename "")
+-- Validation {unValidation = [Violated "Must be non empty"]}
+instance Validity Codename where
+  validate (Codename name) =
+    mconcat
+      [ declare "Must be non empty" $ not (null name),
+        declare "All Char must be printable" $ all isPrint name
+      ]
+
 -- | FirstName
 newtype FirstName = FirstName {unFirstName :: Text}
   deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving Validity via Codename
   deriving (Generic)
 
 deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be FirstName
@@ -57,6 +69,7 @@ instance ToSample FirstName where
 -- | LastName
 newtype LastName = LastName {unLastName :: Text}
   deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving Validity via Codename
   deriving (Generic)
 
 deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be LastName
@@ -69,6 +82,7 @@ instance ToSample LastName where
 -- | MarkDescription
 newtype MarkDescription = MarkDescription {unMarkDescription :: Text}
   deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving Validity via Codename
   deriving (Generic)
 
 deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkDescription
@@ -80,7 +94,7 @@ instance ToSample MarkDescription where
 
 -- | MarkStatus
 data MarkStatus = Active | Erased | Cancelled
-  deriving (Generic, FromJSON, Enum, Read, Show, Bounded, Typeable, ToSample)
+  deriving (Generic, FromJSON, Enum, Read, Show, Bounded, Typeable, ToSample, Validity)
   deriving (HasColumnType) via (PgEnum MarkStatus)
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatus where
@@ -95,3 +109,6 @@ instance ToSample SetCookie where
 
 -- | PasswordHash
 deriving newtype instance HasColumnType (PasswordHash Argon2)
+
+-- | SqlSerial
+deriving newtype instance Validity (SqlSerial Int32)
