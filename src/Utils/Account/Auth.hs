@@ -12,6 +12,7 @@ module Utils.Account.Auth (Login, authServer, AuthApi) where
 import Control.Natural (type (~>))
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Password (PasswordCheck (PasswordCheckFail, PasswordCheckSuccess))
+import Data.Validity (Validity)
 import Database.Beam (Database, FromBackendRow, HasSqlEqualityCheck, Table (..), default_, insert, insertData, insertExpressions, runInsert, runSelectReturningOne, select, val_)
 import Database.Beam.Backend (BeamSqlBackendCanSerialize)
 import Database.Beam.Backend.SQL.BeamExtensions (MonadBeamInsertReturning, runInsertReturningList)
@@ -23,7 +24,7 @@ import Servant (Get, Handler, Header, Headers, JSON, NoContent (..), Post, ReqBo
 import Servant.Auth.Server (SetCookie, ToJWT (..), acceptLogin, clearSession)
 import Universum
 import Utils.Account.Login (LoginId, LoginT (..))
-import Utils.Account.SignUp (SignUp, Validatable, WithUserName (..), validateSignUp)
+import Utils.Account.SignUp (Payload, SignUp, WithUserName (..), validateSignUp)
 import Utils.Constraints (CreateBodyConstraint, ReadOneConstraint)
 import Utils.Meta (WithMetaInfo, addMetaInfo)
 import Utils.Types (MyServer, TableGetter)
@@ -47,7 +48,8 @@ type AuthApi userT =
 
 authServer ::
   ( Database be db,
-    With '[Typeable, Validatable] userT,
+    With '[Typeable] userT,
+    With '[Validity] (Payload userT),
     ReadOneConstraint be userT,
     CreateBodyConstraint be userT,
     Generic (userT Identity),
@@ -76,7 +78,7 @@ authServer loginTableGetter userInfoTableGetter doQuery = signUp :<|> login :<|>
         >>= liftIO . acceptLogin cs jwts
         >>= maybe (throwError err401) (return . ($ NoContent))
     signUp su@(WithNewPass (NewPassword pw) _) = case validateSignUp su of
-      Failure e -> throwError err400 {errBody = encodeUtf8 $ "Password Invliad: \n" <> unlines (toList e)}
+      Failure e -> throwError err400 {errBody = encodeUtf8 $ "Signup fail: \n" <> unlines (toList e)}
       Success (WithUserName name base) -> do
         hpw <- liftIO $ hashPassword pw
         (loginTable, userInfoTable) <- (loginTableGetter &&& userInfoTableGetter) . view #_db <$> ask
