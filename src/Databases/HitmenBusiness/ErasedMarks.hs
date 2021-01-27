@@ -17,6 +17,7 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
+import Data.Validity (Validity, prettyValidate)
 import Database.Beam (default_, val_)
 import Database.Beam.Backend (BeamSqlBackend, SqlSerial (SqlSerial))
 import Database.Beam.Schema.Tables (Beamable, C, Table (PrimaryKey, primaryKey))
@@ -79,8 +80,10 @@ instance ToJSON (MetaInfo ErasedMarkB Identity) where
 instance FromJSON (ErasedMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
+instance Validity (MetaInfo ErasedMarkB Identity)
+
 instance FromJSON (MetaInfo ErasedMarkB Identity) where
-  parseJSON = genericParseJSON noCamelOpt
+  parseJSON = genericParseJSON noCamelOpt >=> either fail return . prettyValidate
 
 instance ToSample (C f (SqlSerial Int32)) => ToSample (PrimaryKey ErasedMarkT f)
 

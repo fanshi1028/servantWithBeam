@@ -21,6 +21,7 @@ where
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
 import Data.Generics.Labels ()
+import Data.Validity (Validity, prettyValidate)
 import Database.Beam (HasSqlEqualityCheck, Nullable)
 import Database.Beam.AutoMigrate (HasColumnType)
 import Database.Beam.Backend (HasSqlValueSyntax, SqlSerial (SqlSerial))
@@ -35,7 +36,7 @@ import Servant.Auth.JWT (FromJWT, ToJWT)
 import Servant.Docs (ToSample)
 import Universum
 import Utils.Account.Login (LoginId)
-import Utils.Account.SignUp (Validatable (..))
+import Utils.Account.SignUp (Payload)
 import Utils.Meta (Meta (..), WithMetaInfo (..))
 
 data HandlerB f = Handler
@@ -96,8 +97,12 @@ instance Table HandlerT where
   data PrimaryKey HandlerT f = HandlerId (C f (SqlSerial Int32)) deriving (Generic, Beamable)
   primaryKey = HandlerId . _handlerId . _metaInfo
 
+instance Validity (Payload HandlerB)
+
+instance Validity (HandlerB Identity)
+
 instance FromJSON (HandlerB Identity) where
-  parseJSON = genericParseJSON noCamelOpt
+  parseJSON = genericParseJSON noCamelOpt >=> either fail return . prettyValidate
 
 instance FromJSON (MetaInfo HandlerB Identity) where
   parseJSON = genericParseJSON noCamelOpt
@@ -114,10 +119,9 @@ instance FromJWT (WithMetaInfo HandlerB Identity)
 
 instance ToJWT (WithMetaInfo HandlerB Identity)
 
-newtype instance LoginId HandlerB = HandlerLoginId {unHandlerLoginId :: Codename} deriving newtype (ToSample, FromJSON, ToJSON, HasColumnType)
+newtype instance LoginId HandlerB = HandlerLoginId {unHandlerLoginId :: Codename}
+  deriving newtype (ToSample, FromJSON, ToJSON, HasColumnType, Validity)
 
 deriving newtype instance (HasSqlValueSyntax syntax Text) => HasSqlValueSyntax syntax (LoginId HandlerB)
 
 deriving newtype instance (BeamSqlBackend be, HasSqlEqualityCheck be Codename) => HasSqlEqualityCheck be (LoginId HandlerB)
-
-instance Validatable HandlerB

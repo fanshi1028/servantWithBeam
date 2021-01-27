@@ -17,6 +17,7 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
+import Data.Validity (Validity, prettyValidate)
 import Database.Beam (Nullable, default_, val_)
 import Database.Beam.Backend (BeamSqlBackend, BeamSqlBackendCanSerialize, SqlSerial (SqlSerial))
 import Database.Beam.Schema (Table (..))
@@ -72,7 +73,6 @@ instance FromHttpApiData (PrimaryKey PursuingMarkT Identity) where
 instance ToHttpApiData (PrimaryKey PursuingMarkT Identity) where
   toUrlPiece (PursuingMarkId (SqlSerial i)) = toUrlPiece i
 
-
 instance ToJSON (PursuingMarkB Identity) where
   toJSON = genericToJSON noCamelOpt
   toEncoding = genericToEncoding noCamelOpt
@@ -84,8 +84,10 @@ instance ToJSON (MetaInfo PursuingMarkB Identity) where
 instance FromJSON (PursuingMarkB Identity) where
   parseJSON = genericParseJSON noCamelOpt
 
+instance Validity (MetaInfo PursuingMarkB Identity)
+
 instance FromJSON (MetaInfo PursuingMarkB Identity) where
-  parseJSON = genericParseJSON noCamelOpt
+  parseJSON = genericParseJSON noCamelOpt >=> either fail return . prettyValidate
 
 instance ToSample (SqlSerial Int32) => ToSample (PrimaryKey PursuingMarkT Identity)
 

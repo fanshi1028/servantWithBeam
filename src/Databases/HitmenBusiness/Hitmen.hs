@@ -21,6 +21,7 @@ where
 
 import Chronos (Datetime)
 import Data.Aeson (FromJSON (parseJSON), ToJSON (..), genericParseJSON, genericToEncoding, genericToJSON)
+import Data.Validity (Validity, prettyValidate)
 import Database.Beam (Nullable, default_, pk, val_)
 import Database.Beam.Backend (SqlSerial (SqlSerial))
 import Database.Beam.Backend.SQL (BeamSqlBackend, BeamSqlBackendCanSerialize)
@@ -130,10 +131,12 @@ instance
   ) =>
   ToSample (MetaInfo HitmanB f)
 
+instance Validity (Base HitmanB Identity)
+
 instance FromJSON (PrimaryKey HitmanT Identity)
 
 instance FromJSON (Base HitmanB Identity) where
-  parseJSON = genericParseJSON noCamelOpt'
+  parseJSON = genericParseJSON noCamelOpt' >=> either fail return . prettyValidate
 
 instance ToJSON (PrimaryKey HitmanT Identity)
 
