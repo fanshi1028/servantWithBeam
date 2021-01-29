@@ -1,8 +1,8 @@
-cabal-version: 2.2
+cabal-version: 3.0
 name:          servant-with-beam
 version:       0.1.0.0
 license:       MIT
-copyright:     Francis Chan (c) 2015-2018
+copyright:     Francis Chan (c) 2020-2021
 maintainer:    jackychany321@gmail.com
 author:        Francis Chan
 homepage:      https://github.com/fanshi1028/servantWithBeam
@@ -19,7 +19,112 @@ flag ghcid
     default: False
     manual:  True
 
+common ghc
+    default-language:   Haskell2010
+    default-extensions:
+        OverloadedStrings TypeApplications LambdaCase NoImplicitPrelude
+        StrictData
+    ghc-options:
+        -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
+        -Wcompat -Wnoncanonical-monad-instances
+
+common prelude
+    build-depends:
+        base >=4.14.1.0 && <4.15,
+        universum ==1.7.*
+
+common monitor
+    build-depends:
+        ekg-core ==0.1.*,
+        co-log >=0.4.0.1 && <0.5
+
+common basic
+    import:
+        ghc,
+        prelude,
+        monitor
+    build-depends:
+        chronos ==1.1.*,
+        postgresql-simple ==0.6.*,
+        envy >=2.1.0.0 && <2.2,
+        servant-auth-server >=0.4.6.0 && <0.5,
+        servant-errors >=0.1.6.0 && <0.2,
+        unliftio >=0.2.13.1 && <0.3,
+        unliftio-pool >=0.2.1.1 && <0.3
+
+common sql
+    build-depends:
+        beam-core >=0.9.0.0 && <0.10,
+        beam-postgres >=0.5.0.0 && <0.6,
+        beam-sqlite >=0.5.0.0 && <0.6,
+        beam-migrate >=0.5.0.0 && <0.6,
+        beam-automigrate >=0.1.1.0 && <0.2,
+        sqlite-simple >=0.4.0.0 && <0.5
+
+common servant
+    build-depends:
+        servant-server ==0.18.*,
+        servant-docs ==0.11.*,
+        servant-auth ==0.4.*,
+        servant-auth-docs >=0.2.10.0 && <0.3,
+        servant-auth-client ==0.4.*
+
+common password
+    build-depends:
+        password ==2.1.*,
+        zxcvbn-hs ==0.3.*
+
+common validation
+    import:
+        password
+    build-depends:
+        validation-selective ==0.1.*,
+        validity >=0.11.0.0 && <0.12
+
+common lens
+    build-depends:
+        generic-lens >=2.0.0.0 && <2.1,
+        microlens >=0.4.11.0 && <0.5
+
+common server
+    import:
+        servant,
+        validation,
+    build-depends:
+        http-types ==0.12.*,
+        wai >=3.2.2 && <3.3
+
+common client
+    build-depends:
+        http-client >=0.6.4.1 && <0.7,
+        servant-client ==0.18.*
+
+common libdeps
+    import:
+        basic,
+        sql,
+        lens,
+        server,
+        client
+    build-depends:
+        mtl ==2.2.*,
+        unordered-containers >=0.2.13 && <0.3,
+        time ==1.9.*,
+        aeson ==1.4.*,
+        natural-transformation ==0.4.*,
+        addy ==0.1.*
+
+common unused
+    build-depends:
+        async >=2.2.2 && <2.3,
+        fused-effects >=1.1.1.0 && <1.2,
+        optparse-applicative >=0.16.1.0 && <0.17,
+        recursion-schemes ==5.2.*,
+        retry >=0.8.1.2 && <0.9
+
 library
+    import:
+        libdeps
     exposed-modules:
         Servers
         Servers.Home
@@ -62,165 +167,33 @@ library
         Utils.Account.SignUp
 
     hs-source-dirs:     src
-    default-language:   Haskell2010
-    default-extensions:
-        OverloadedStrings TypeApplications LambdaCase NoImplicitPrelude
-        StrictData
-
-    ghc-options:
-        -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
-        -Wcompat -Wnoncanonical-monad-instances
-
-    build-depends:
-        base >=4.14.1.0 && <4.15,
-        async >=2.2.2 && <2.3,
-        universum ==1.7.*,
-        bytestring >=0.10.10 && <0.11,
-        password ==2.1.*,
-        validation-selective ==0.1.*,
-        zxcvbn-hs ==0.3.*,
-        time ==1.9.*,
-        addy ==0.1.*,
-        unordered-containers >=0.2.13 && <0.3,
-        servant >=0.18.2 && <0.19,
-        servant-errors >=0.1.6.0 && <0.2,
-        servant-server ==0.18.*,
-        servant-client ==0.18.*,
-        servant-docs ==0.11.*,
-        servant-auth ==0.4.*,
-        servant-auth-server >=0.4.6.0 && <0.5,
-        servant-auth-docs >=0.2.10.0 && <0.3,
-        servant-auth-client ==0.4.*,
-        http-types ==0.12.*,
-        http-client >=0.6.4.1 && <0.7,
-        wai >=3.2.2 && <3.3,
-        warp >=3.3.10 && <3.4,
-        wai-extra >=3.0.0 && <3.2,
-        wai-middleware-static >=0.9.0 && <0.10,
-        text ==1.2.*,
-        aeson ==1.4.*,
-        chronos ==1.1.*,
-        beam-core >=0.9.0.0 && <0.10,
-        beam-sqlite >=0.5.0.0 && <0.6,
-        beam-postgres >=0.5.0.0 && <0.6,
-        beam-migrate >=0.5.0.0 && <0.6,
-        postgresql-simple ==0.6.*,
-        sqlite-simple >=0.4.0.0 && <0.5,
-        generic-lens >=2.0.0.0 && <2.1,
-        microlens >=0.4.11.0 && <0.5,
-        lens ==4.19.*,
-        beam-automigrate >=0.1.1.0 && <0.2,
-        ekg-core ==0.1.*,
-        ekg ==0.4.*,
-        mtl ==2.2.*,
-        fused-effects >=1.1.1.0 && <1.2,
-        optparse-applicative >=0.16.1.0 && <0.17,
-        optparse-generic >=1.4.4 && <1.5,
-        natural-transformation ==0.4.*,
-        envy >=2.1.0.0 && <2.2,
-        resource-pool >=0.2.3.2 && <0.3,
-        unliftio >=0.2.13.1 && <0.3,
-        unliftio-pool >=0.2.1.1 && <0.3,
-        co-log >=0.4.0.1 && <0.5,
-        recursion-schemes ==5.2.*,
-        retry >=0.8.1.2 && <0.9,
-        validity >=0.11.0.0 && <0.12
 
 executable app
+    if flag(ghcid)
+        import:         libdeps
+        hs-source-dirs: src
+    else
+        import:         basic
+        build-depends:  servant-with-beam -any
     main-is:            Main.hs
     hs-source-dirs:     app
-    default-language:   Haskell2010
-    default-extensions:
-        OverloadedStrings TypeApplications LambdaCase NoImplicitPrelude
-        StrictData
-
-    ghc-options:
-        -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
-        -Wcompat -Wnoncanonical-monad-instances
-
     build-depends:
-        base >=4.14.1.0 && <4.15,
-        async >=2.2.2 && <2.3,
-        universum ==1.7.*,
-        bytestring >=0.10.10 && <0.11,
-        password ==2.1.*,
-        validation-selective ==0.1.*,
-        zxcvbn-hs ==0.3.*,
-        time ==1.9.*,
-        addy ==0.1.*,
-        unordered-containers >=0.2.13 && <0.3,
-        servant >=0.18.2 && <0.19,
-        servant-errors >=0.1.6.0 && <0.2,
-        servant-server ==0.18.*,
-        servant-client ==0.18.*,
-        servant-docs ==0.11.*,
-        servant-auth ==0.4.*,
-        servant-auth-server >=0.4.6.0 && <0.5,
-        servant-auth-docs >=0.2.10.0 && <0.3,
-        servant-auth-client ==0.4.*,
-        http-types ==0.12.*,
-        http-client >=0.6.4.1 && <0.7,
-        wai >=3.2.2 && <3.3,
         warp >=3.3.10 && <3.4,
-        wai-extra >=3.0.0 && <3.2,
-        wai-middleware-static >=0.9.0 && <0.10,
-        text ==1.2.*,
-        aeson ==1.4.*,
-        chronos ==1.1.*,
-        beam-core >=0.9.0.0 && <0.10,
-        beam-sqlite >=0.5.0.0 && <0.6,
-        beam-postgres >=0.5.0.0 && <0.6,
-        beam-migrate >=0.5.0.0 && <0.6,
-        postgresql-simple ==0.6.*,
-        sqlite-simple >=0.4.0.0 && <0.5,
-        generic-lens >=2.0.0.0 && <2.1,
-        microlens >=0.4.11.0 && <0.5,
-        lens ==4.19.*,
-        beam-automigrate >=0.1.1.0 && <0.2,
-        ekg-core ==0.1.*,
-        ekg ==0.4.*,
-        mtl ==2.2.*,
-        fused-effects >=1.1.1.0 && <1.2,
-        optparse-applicative >=0.16.1.0 && <0.17,
         optparse-generic >=1.4.4 && <1.5,
-        natural-transformation ==0.4.*,
-        envy >=2.1.0.0 && <2.2,
-        resource-pool >=0.2.3.2 && <0.3,
-        unliftio >=0.2.13.1 && <0.3,
-        unliftio-pool >=0.2.1.1 && <0.3,
-        co-log >=0.4.0.1 && <0.5,
-        recursion-schemes ==5.2.*,
-        retry >=0.8.1.2 && <0.9,
-        validity >=0.11.0.0 && <0.12
-
-    if flag(ghcid)
-        hs-source-dirs: src
-
-    else
-        build-depends: servant-with-beam -any
+        ekg ==0.4.*
 
 test-suite test
+    if flag(ghcid)
+        import:         libdeps
+        hs-source-dirs: src app
+    else
+        import:         basic, client
+        build-depends:  servant-with-beam -any
     type:               exitcode-stdio-1.0
     main-is:            Main.hs
     hs-source-dirs:     tests
     other-modules:      Client
-    default-language:   Haskell2010
-    default-extensions:
-        OverloadedStrings TypeApplications LambdaCase NoImplicitPrelude
-        StrictData
-
-    ghc-options:
-        -threaded -rtsopts -with-rtsopts=-N -W -Wall
-        -Wincomplete-uni-patterns -Wincomplete-record-updates -Wcompat
-        -Wnoncanonical-monad-instances
-
     build-depends:
-        base >=4.14.1.0 && <4.15,
-        universum >=1.7.1 && <1.8,
-        chronos ==1.1.*,
-        beam-core >=0.9.0.0 && <0.10,
-        http-client >=0.6.4.1 && <0.7,
-        servant-client >=0.18.2 && <0.19,
         tasty >=1.4.0.2 && <1.5,
         tasty-hunit >=0.10.0.3 && <0.11,
         tasty-expected-failure >=0.12.2 && <0.13,
@@ -241,9 +214,3 @@ test-suite test
         genvalidity-hspec >=0.7.0.4 && <0.8,
         genvalidity-aeson >=0.3.0.0 && <0.4,
         genvalidity-hspec-aeson >=0.3.1.1 && <0.4
-
-    if flag(ghcid)
-        hs-source-dirs: src app
-
-    else
-        build-depends: servant-with-beam -any
