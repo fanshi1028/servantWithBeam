@@ -1,0 +1,20 @@
+name: "Nix Build"
+on:
+    pull_request:
+    push:
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2.3.4
+            - uses: cachix/install-nix-action@v12
+            - uses: cachix/cachix-action@v8
+              with:
+                  name: fanshi1028
+                  authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+            - run: nix-build -A servantWithBeam.components.exes.app
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: servant-with-beam
+                  path: result/bin/app
+            - run: echo ok
