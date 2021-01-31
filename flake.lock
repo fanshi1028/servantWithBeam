@@ -1,3 +1,4 @@
+-- FIXME Can't get it work, might try again in the future when flakes are more stable
 {
   "nodes": {
     "flake-utils": {
@@ -15,7 +16,7 @@
         "type": "github"
       }
     },
-    "nixpkgs": {
+    "haskellNix": {
       "locked": {
         "lastModified": 1612055553,
         "narHash": "sha256-26FbIt89YTFT1CvahVOFKXXOtgmLQb472kdY2la6FWk=",
@@ -33,7 +34,7 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "haskellNix": "haskellNix"
       }
     }
   },
