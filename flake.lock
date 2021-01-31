@@ -1,4 +1,4 @@
--- FIXME Can't get it work, might try again in the future when flakes are more stable
+// FIXME Can't get it work, might try again in the future when flakes are more stable
 {
   "nodes": {
     "flake-utils": {
