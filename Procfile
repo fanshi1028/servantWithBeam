@@ -1,1 +1,1 @@
-web: ./results/bin/app
+web: ./app

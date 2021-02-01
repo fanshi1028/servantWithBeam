@@ -22,21 +22,23 @@ import Database.Beam (DatabaseEntity, DatabaseSettings, TableEntity)
 import Database.Beam.Postgres (ConnectInfo (..), defaultConnectInfo)
 import Servant (ServerError)
 import Servant.Auth.Server (CookieSettings, JWTSettings)
-import System.Envy (FromEnv (..), env)
+import System.Envy (FromEnv (..), env, envMaybe, (.!=))
+import System.Metrics.Counter (Counter)
 import Universum
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Pool (Pool)
-import System.Metrics.Counter (Counter)
 
 -- | ConnectInfo
 instance FromEnv ConnectInfo where
   fromEnv _ =
-    ( \user db ->
+    ( \host user db ->
         defaultConnectInfo
+          & #connectHost .~ host
           & #connectUser .~ user
           & #connectDatabase .~ db
     )
-      <$> env "PG_USER"
+      <$> envMaybe "DATABASE_URL" .!= "localhost"
+      <*> env "PG_USER"
       <*> env "HITMEN_DB"
 
 -- | LoggerT
