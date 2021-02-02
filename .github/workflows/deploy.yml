@@ -23,17 +23,28 @@ jobs:
         run: sed -i '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
       - name: add haskell.nix substituters
         run: sed -i '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-      - name: build with nix
-        run: nix-build -A servant-with-beam.components.exes.app
-      # - name: commit
-      #   run: git config user.name "deploy-bot" && git config user.email "deploy-bot-no-reply@github.com" && git add -A && git commit -m "build result commit"
+      # - name: build with nix
+      #   run: nix-build -A servant-with-beam.components.exes.app
+      - name:
+        run: git config user.name "Heroku-Deploy" && git config user.email "deploy-no-reply@github.com"
+      - name: build docker with nix
+        run: nix-build ./release.nix
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/AkhileshNS/heroku-deploy/issues/45
       - uses: akhileshns/heroku-deploy@v3.9.9
-        if: github.ref == 'refs/heads/master' && job.status == 'success'
         with:
           heroku_api_key: "${{ secrets.HEROKU_API_KEY }}"
           heroku_app_name: "servant-with-beam"
           heroku_email: "jackychany321@gmail.com"
-          dontuseforce: "false"
-          appdir: "result/bin"
-          # justlogin: true
-      # - run: heroku auth:whoami
+          justlogin: "true"
+      - name: login docker
+        run: |
+          heroku container:login
+          docker login --username ${{ secrets.DOCKER_USER_NAME }} --password ${{ secrets.DOCKER_PASSWORD }}
+          docker load < result
+          docker tag servant-with-beam registry.heroku.com/servant-with-beam/web
+          docker push registry.heroku.com/servant-with-beam/web
+          heroku container:release web --app servant-with-beam
