@@ -25,14 +25,22 @@ jobs:
         run: sed -i '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
       # - name: build with nix
       #   run: nix-build -A servant-with-beam.components.exes.app
-      - name:
-        run: git config user.name "Heroku-Deploy" && git config user.email "deploy-no-reply@github.com"
+      # - name:
+      #   run: git config user.name "Heroku-Deploy" && git config user.email "deploy-no-reply@github.com"
       - name: build docker with nix
         run: nix-build ./release.nix
+      - uses: actions/upload-artifact@v2
+        with:
+          name: servant-with-beam-docker-image
+          path: ./result/
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: servant-with-beam-docker-image
       # https://github.com/AkhileshNS/heroku-deploy/issues/45
       - uses: akhileshns/heroku-deploy@v3.9.9
         with:
@@ -44,7 +52,7 @@ jobs:
         run: |
           heroku container:login
           docker login --username ${{ secrets.DOCKER_USER_NAME }} --password ${{ secrets.DOCKER_PASSWORD }}
-          docker load < result
+          docker load < ./result
           docker tag servant-with-beam registry.heroku.com/servant-with-beam/web
           docker push registry.heroku.com/servant-with-beam/web
           heroku container:release web --app servant-with-beam
