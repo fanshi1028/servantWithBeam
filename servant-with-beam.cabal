@@ -112,7 +112,8 @@ common libdeps
         time ==1.9.*,
         aeson ==1.4.*,
         natural-transformation ==0.4.*,
-        addy ==0.1.*
+        addy ==0.1.*,
+        attoparsec
 
 library
     import:

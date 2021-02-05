@@ -17,29 +17,40 @@ where
 
 import Colog (HasLog (..), LogAction, LoggerT (..))
 import Control.Monad.Except (MonadError)
+import Data.Attoparsec.Text (Parser, maybeResult, parse, string, takeText, takeTill)
 import Data.Generics.Labels ()
 import Database.Beam (DatabaseEntity, DatabaseSettings, TableEntity)
-import Database.Beam.Postgres (ConnectInfo (..), defaultConnectInfo)
+import Database.Beam.Postgres (ConnectInfo (..))
 import Servant (ServerError)
 import Servant.Auth.Server (CookieSettings, JWTSettings)
-import System.Envy (FromEnv (..), env, envMaybe, (.!=))
+import System.Envy (FromEnv (..), Var (..), env, envMaybe, (.!=))
 import System.Metrics.Counter (Counter)
 import Universum
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Pool (Pool)
 
 -- | ConnectInfo
+parseDatabaseUrl :: Parser ConnectInfo
+parseDatabaseUrl =
+  string "postgres://" *> do
+    user <- toString <$> takeTill (== ':')
+    pw <- toString <$> takeTill (== '@')
+    host <- toString <$> takeTill (== '/')
+    db <- toString <$> takeText
+    return $ ConnectInfo host 5432 user pw db
+
+instance Var ConnectInfo where
+  fromVar = maybeResult . parse parseDatabaseUrl . fromString
+
 instance FromEnv ConnectInfo where
   fromEnv _ =
-    ( \host user db ->
-        defaultConnectInfo
-          & #connectHost .~ host
-          & #connectUser .~ user
-          & #connectDatabase .~ db
-    )
-      <$> envMaybe "DATABASE_URL" .!= "localhost"
-      <*> env "PG_USER"
-      <*> env "HITMEN_DB"
+    env "DATABASE_URL"
+      <|> ConnectInfo
+        <$> envMaybe "PG_HOST" .!= "localhost"
+          <*> envMaybe "PG_PORT" .!= 5432
+          <*> env "PG_USER"
+          <*> envMaybe "PG_PW" .!= ""
+          <*> env "HITMEN_DB"
 
 -- | LoggerT
 deriving newtype instance (MonadUnliftIO m) => MonadUnliftIO (LoggerT msg m)
