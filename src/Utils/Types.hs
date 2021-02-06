@@ -17,7 +17,7 @@ where
 
 import Colog (HasLog (..), LogAction, LoggerT (..))
 import Control.Monad.Except (MonadError)
-import Data.Attoparsec.Text (Parser, maybeResult, parse, string, takeText, takeTill)
+import Data.Attoparsec.Text (Parser, char, parseOnly, string, takeText, takeTill)
 import Data.Generics.Labels ()
 import Database.Beam (DatabaseEntity, DatabaseSettings, TableEntity)
 import Database.Beam.Postgres (ConnectInfo (..))
@@ -30,17 +30,21 @@ import UnliftIO (MonadUnliftIO)
 import UnliftIO.Pool (Pool)
 
 -- | ConnectInfo
+-- >>> parseOnly parseDatabaseUrl "postgres://user:pw@host:port/db"
+-- Right (ConnectInfo {connectHost = "host", connectPort = 5432, connectUser = "user", connectPassword = "pw", connectDatabase = "db"})
 parseDatabaseUrl :: Parser ConnectInfo
 parseDatabaseUrl =
   string "postgres://" *> do
-    user <- toString <$> takeTill (== ':')
-    pw <- toString <$> takeTill (== '@')
-    host <- toString <$> takeTill (== '/')
+    let parseTill c trans = trans <$> takeTill (== c) <* char c
+    user <- parseTill ':' toString
+    pw <- parseTill '@' toString
+    host <- parseTill ':' toString
+    port <- parseTill '/' $ fromRight 5432 . readEither
     db <- toString <$> takeText
-    return $ ConnectInfo host 5432 user pw db
+    return $ ConnectInfo host port user pw db
 
 instance Var ConnectInfo where
-  fromVar = maybeResult . parse parseDatabaseUrl . fromString
+  fromVar = rightToMaybe . parseOnly parseDatabaseUrl . fromString
 
 instance FromEnv ConnectInfo where
   fromEnv _ =
