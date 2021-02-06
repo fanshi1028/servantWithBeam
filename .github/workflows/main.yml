@@ -19,9 +19,8 @@ jobs:
               run: sed -i '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
             - name: add haskell.nix substituters
               run: sed -i '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-            - run: nix-build -A servant-with-beam.components.exes.app
-            - uses: actions/upload-artifact@v2
-              with:
-                  name: servant-with-beam
-                  path: result/bin/app
-            - run: echo ok
+            - run: nix-build -j8 -A servant-with-beam.components.exes.app
+            # - uses: actions/upload-artifact@v2
+            #   with:
+            #       name: servant-with-beam
+            #       path: result/bin/app
