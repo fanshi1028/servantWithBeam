@@ -113,7 +113,7 @@ common libdeps
         aeson ==1.4.*,
         natural-transformation ==0.4.*,
         addy ==0.1.*,
-        attoparsec
+        attoparsec >=0.13.2 && < 0.14,
 
 library
     import:
