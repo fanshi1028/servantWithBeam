@@ -14,7 +14,7 @@ import Network.Wai.Handler.Warp (defaultSettings, exceptionResponseForDebug, run
 import Network.Wai.Middleware.Servant.Errors (errorMwDefJson)
 import Servant.Auth.Server (def, defaultJWTSettings, generateKey)
 import Servers (homeApp)
-import System.Envy (decodeEnv)
+import System.Envy (decodeEnv, env, envMaybe, runEnv, (.!=))
 import System.Metrics.Counter (Counter)
 import System.Remote.Monitoring (forkServer, getCounter, serverThreadId)
 import Universum
@@ -28,14 +28,21 @@ server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => Counter ->
 server ekgCounter = do
   requestCount <- newTVarIO 0
   server' <- liftIO $ mkServer requestCount . defaultJWTSettings <$> generateKey
-  doWelcome <- setBeforeMainLoop <$> toIO (logInfo $ "listening on port: " <> show @Text port)
+  settings <- do
+    port <- liftIO $ fromRight 6868 <$> runEnv (env "PORT")
+    doWelcome <- setBeforeMainLoop <$> toIO (logInfo $ "listening on port: " <> show @Text port)
+    return $
+      defaultSettings
+        & setOnExceptionResponse exceptionResponseForDebug
+        & setPort port
+        & doWelcome
   tLog "Get Env: " decodeEnv
     >>= logInfo . fromString
       ||| flip
         withPool
         ( -- tLog "show Migration: " . showMigration >=>
           -- tLog "do Migration: " . doMigration >=>
-          liftIO . runSettings (settings & doWelcome) . errorMwDefJson . server'
+          liftIO . runSettings settings . errorMwDefJson . server'
         )
   where
     tLog context io =
@@ -46,11 +53,6 @@ server ekgCounter = do
       UnliftIO.bracket
         (tLog "Make Pool: " $ createPool (connect config) close 4 60 5)
         destroyAllResources
-    settings =
-      defaultSettings
-        & setPort port
-        & setOnExceptionResponse exceptionResponseForDebug
-    port = 6868
 
 main :: IO ()
 main =
