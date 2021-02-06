@@ -44,7 +44,7 @@ server ekgCounter = do
     mkServer requestCount jwtCfg = homeApp . Env richMessageAction def jwtCfg requestCount ekgCounter hitmenBusinessDb
     withPool config =
       UnliftIO.bracket
-        (tLog "Make Pool: " $ createPool (connect config) close 6 60 10)
+        (tLog "Make Pool: " $ createPool (connect config) close 4 60 5)
         destroyAllResources
     settings =
       defaultSettings
