@@ -34,8 +34,8 @@ server ekgCounter = do
       ||| flip
         withPool
         ( -- tLog "show Migration: " . showMigration >=>
-          tLog "do Migration: " . doMigration
-            >=> liftIO . runSettings (settings & doWelcome) . errorMwDefJson . server'
+          tLog "do Migration: " . doMigration >=>
+          liftIO . runSettings (settings & doWelcome) . errorMwDefJson . server'
         )
   where
     tLog context io =
