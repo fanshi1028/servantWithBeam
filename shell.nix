@@ -1,6 +1,5 @@
-{ pkgs ? import ./nix/pkgs.nix { } }:
-let hsPkgs = import ./default.nix { };
-in hsPkgs.shellFor {
+{ pkgs ? import ./default.nix { } }:
+pkgs.shellFor {
   # Include only the *local* packages of your project.
   packages = ps: with ps; [ servant-with-beam ];
 
@@ -21,11 +20,20 @@ in hsPkgs.shellFor {
     retrie = "0.1.1.1";
     doctest = "0.17";
     cabal-bounds = "2.3.0";
+    cabal-fmt = {
+      version = "0.1.5";
+      cabalProject = ''
+        packages: .
+               '';
+    };
   };
   # See overlays/tools.nix for more details
 
   # Some you may need to get some other way.
-  buildInputs = with pkgs; [ postgresql ];
+  buildInputs = with pkgs; [
+    postgresql
+    heroku
+  ];
 
   # Prevents cabal from choosing alternate plans, so that
   # *all* dependencies are provided by Nix.

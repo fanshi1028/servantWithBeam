@@ -21,13 +21,15 @@ let
       includedFiles || baseNameOf path == "${name}.cabal";
     src = baseSrc;
   };
-in pkgs.haskell-nix.project {
-  inherit src;
   # For `cabal.project` based projects specify the GHC version to use.
   compiler-nix-name = "ghc8102"; # Not used for `stack.yaml` based projects.
+in pkgs.haskell-nix.project {
+  inherit src compiler-nix-name;
   # modules = [{
   #   # packages.servantWithBeam.components.app.depends = with pkgs; [];
   #   reinstallableLibGhc = true;
   # }];
   index-state = "2021-01-05T00:00:00Z";
+} // {
+  inherit (pkgs) heroku postgresql;
 }
