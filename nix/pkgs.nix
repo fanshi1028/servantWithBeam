@@ -1,4 +1,4 @@
-{ sources ? import ./sources.nix, static ? false }:
+{ sources ? import ./sources.nix, compiler ? "ghc865", static ? false }:
 let
   # https://github.com/input-output-hk/haskell.nix/issues/741
   haskellNix = import sources.haskell-nix { };
@@ -19,7 +19,6 @@ let
   nixpkgsArgs = haskellNix.nixpkgsArgs // { inherit overlays; };
   static-haskell-nix = (import "${sources.static-haskell-nix}/survey" {
     normalPkgs = import nixpkgsSrc haskellNix.nixpkgsArgs;
-    inherit overlays;
-    compiler = "ghc865";
+    inherit overlays compiler;
   }).pkgs;
 in if static then static-haskell-nix else import nixpkgsSrc nixpkgsArgs

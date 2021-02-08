@@ -1,5 +1,6 @@
-{ static ? false, pkgs ? import ./nix/pkgs.nix { inherit static; }, checkMaterialization ? false
-}:
+{ compiler ? "ghc8102", static ? false
+, pkgs ? import ./nix/pkgs.nix { inherit static compiler; }
+, checkMaterialization ? false }:
 
 let
   hLib = pkgs.haskell-nix.haskellLib;
@@ -24,7 +25,8 @@ let
     src = baseSrc;
   };
   # For `cabal.project` based projects specify the GHC version to use.
-  compiler-nix-name = "ghc8102"; # Not used for `stack.yaml` based projects.
+  # compiler-nix-name = "ghc8102"; # Not used for `stack.yaml` based projects.
+  compiler-nix-name = compiler; # Not used for `stack.yaml` based projects.
 
   # NOTE https://www.joachim-breitner.de/blog/776-Distributing_Haskell_programs_in_a_multi-platform_zip_file
   # NOTE https://github.com/entropia/tip-toi-reveng/blob/master/default.nix
