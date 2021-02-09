@@ -8,10 +8,8 @@ jobs:
                 os: [ubuntu-latest
                 # , macos-latest, window-latest
                 ]
-                ghc: [
-                # 865,
-                883, 8102]
-                # static: [true, false]
+                ghc: [865, 883, 8102]
+                static: [true, false]
         runs-on: ${{matrix.os}}
         steps:
             - uses: actions/checkout@v2.3.4
@@ -29,12 +27,8 @@ jobs:
               run: sed -i '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
             - name: add haskell.nix substituters
               run: sed -i '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-            # - run: nix-build -j4 release.nix
             # https://github.com/NixOS/nix/issues/1216#issuecomment-581609266
-            - run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg static true -A servant-with-beam.components.exes.app
-            # - run: nix-build -j4 --arg static ${{matrix.static}} -A servant-with-beam.components.exes.app
-            # - run: nix-build -j4 --arg static ${{matrix.static}} release.nix
-            # - run: ldd ./result/bin/app
+            - run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg static ${{matrix.static}} -A servant-with-beam.components.exes.app
             # - uses: actions/upload-artifact@v2
             #   with:
             #       name: servant-with-beam
