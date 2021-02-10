@@ -1,4 +1,5 @@
-{ pkgs ? import ./nix/pkgs.nix { } }:
+{ compiler ? "ghc8102", pkgs ? import ./nix/pkgs.nix { inherit compiler; }
+, checkMaterialization ? false }:
 let
   hLib = pkgs.haskell-nix.haskellLib;
 
@@ -21,14 +22,14 @@ let
       includedFiles || baseNameOf path == "${name}.cabal";
     src = baseSrc;
   };
-  # For `cabal.project` based projects specify the GHC version to use.
-  compiler-nix-name = "ghc8102"; # Not used for `stack.yaml` based projects.
 in pkgs.haskell-nix.project {
-  inherit src compiler-nix-name;
-  # modules = [{
-  #   # packages.servantWithBeam.components.app.depends = with pkgs; [];
-  #   reinstallableLibGhc = true;
-  # }];
+  inherit src;
+  compiler-nix-name = compiler;
+  modules = [{
+    packages.servant-with-beam.dontStrip = false;
+    # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
+    packages.ekg.enableSeparateDataOutput = true;
+  }];
   index-state = "2021-01-05T00:00:00Z";
 } // {
   inherit (pkgs) heroku postgresql;

@@ -1,4 +1,5 @@
-{ sources ? import ./sources.nix }:
+{ compiler ? "ghc8102" # unused here
+, sources ? import ./sources.nix }:
 let
   haskellNix = import sources.haskell-nix { };
   nixpkgsSrc = haskellNix.sources.nixpkgs-2009;

@@ -1,4 +1,4 @@
-{ pkgs ? import ./default.nix { } }:
+{ compiler ? "ghc8102", pkgs ? import ./default.nix { inherit compiler; } }:
 pkgs.shellFor {
   # Include only the *local* packages of your project.
   packages = ps: with ps; [ servant-with-beam ];
@@ -11,7 +11,6 @@ pkgs.shellFor {
 
   # Some common tools can be added with the `tools` argument
   tools = {
-    cabal = "3.2.0.0";
     hlint = "3.2.2";
     haskell-language-server = "0.8.0";
     ormolu = "0.1.4.1";
@@ -19,7 +18,6 @@ pkgs.shellFor {
     implicit-hie = "0.1.2.3";
     retrie = "0.1.1.1";
     doctest = "0.17";
-    cabal-bounds = "2.3.0";
     cabal-fmt = {
       version = "0.1.5";
       cabalProject = ''
