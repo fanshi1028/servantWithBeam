@@ -11,6 +11,7 @@ pkgs.shellFor {
 
   # Some common tools can be added with the `tools` argument
   tools = {
+    cabal = "3.2.0.0";
     hlint = "3.2.2";
     haskell-language-server = "0.8.0";
     ormolu = "0.1.4.1";
