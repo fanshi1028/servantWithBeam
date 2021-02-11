@@ -25,7 +25,10 @@ let
 in pkgs.haskell-nix.project {
   inherit src;
   compiler-nix-name = compiler;
+  cabal-install = "3.2.0.0";
   modules = [{
+    # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
+    reinstallableLibGhc = true;
     packages.servant-with-beam.dontStrip = false;
     # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
     packages.ekg.enableSeparateDataOutput = true;
