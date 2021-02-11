@@ -7,7 +7,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                # os: [ubuntu-latest, macos-latest]
+                os: [ubuntu-latest, macos-latest]
                 ghc: [865, 883, 8102]
                 include:
                   - os: ubuntu-latest
@@ -39,8 +39,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [window-latest]
-                ghc: [865, 883, 8102]
+                os: [windows-latest]
+                ghc: [8.6.5, 8.8.3, 8.10.1]
                 cabal: [3.2]
         runs-on: ${{matrix.os}}
         steps:
