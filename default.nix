@@ -25,7 +25,8 @@ let
 in pkgs.haskell-nix.project {
   inherit src;
   compiler-nix-name = compiler;
-  cabal-install = "3.2.0.0";
+  cabal-install = pkgs.haskell-nix.tool compiler "cabal" "3.2.0.0"
+    "3.2.0.0";
   modules = [{
     # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
     reinstallableLibGhc = true;
