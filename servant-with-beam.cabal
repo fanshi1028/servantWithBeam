@@ -30,7 +30,7 @@ common ghc
 
   ghc-options:
     -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
-    -Wcompat -Wnoncanonical-monad-instances -threaded -O2
+    -Wcompat -Wnoncanonical-monad-instances -O2
 
 common prelude
   build-depends:
@@ -42,7 +42,7 @@ common monitor
     , co-log    ^>=0.4.0.1
     , ekg-core  ^>=0.1
 
-common basic
+common app-depends
   import:
     ghc,
     prelude,
@@ -54,17 +54,15 @@ common basic
     , postgresql-simple    ^>=0.6
     , servant-auth-server  ^>=0.4.6.0
     , servant-errors       ^>=0.1.6.0
+    , sqlite-simple        ^>=0.4.0.0
     , unliftio             ^>=0.2.13.1
     , unliftio-pool        ^>=0.2.1.1
 
 common sql
   build-depends:
-    , beam-automigrate  ^>=0.1.1.0
-    , beam-core         ^>=0.9.0.0
-    , beam-migrate      ^>=0.5.0.0
-    , beam-postgres     ^>=0.5.0.0
-    , beam-sqlite       ^>=0.5.0.0
-    , sqlite-simple     ^>=0.4.0.0
+    , beam-core      ^>=0.9.0.0
+    , beam-postgres  ^>=0.5.0.0
+    , beam-sqlite    ^>=0.5.0.0
 
 common servant
   build-depends:
@@ -106,7 +104,7 @@ common client
 
 common libdeps
   import:
-    basic,
+    app-depends,
     sql,
     lens,
     server,
@@ -121,6 +119,24 @@ common libdeps
     , time                    ^>=1.9
     , unordered-containers    ^>=0.2.13
 
+common migration
+  import:
+    ghc,
+    prelude,
+    sql
+
+  build-depends:
+    , postgresql-simple    ^>=0.6
+    , beam-automigrate  ^>=0.1.1.0
+    , beam-migrate      ^>=0.5.0.0
+    , chronos           ^>=1.1
+    , envy              ^>=2.1.0.0
+    , optparse-generic  ^>=1.4.4
+    , password          ^>=2.1
+    , time              ^>=1.9
+    , unliftio          ^>=0.2.13.1
+    , unliftio-pool     ^>=0.2.1.1
+    , co-log            ^>=0.4.0.1
 library
   import:          libdeps
   exposed-modules:
@@ -160,7 +176,6 @@ library
     Utils.Docs
     Utils.FromAccount
     Utils.Meta
-    Utils.Migration
     Utils.QueryRunner
     Utils.Types
 
@@ -172,15 +187,35 @@ executable app
     hs-source-dirs: src
 
   else
-    import:        basic
+    import:        app-depends
     build-depends: servant-with-beam
 
   main-is:        Main.hs
   hs-source-dirs: app
   build-depends:
-    , ekg               ^>=0.4
-    , optparse-generic  ^>=1.4.4
-    , warp              ^>=3.3.10
+    , ekg   ^>=0.4
+    , warp  ^>=3.3.10
+
+  ghc-options:    -threaded
+
+executable scripts
+  if flag(ghcid)
+    import:         libdeps, migration
+    hs-source-dirs: src
+
+  else
+    import:        migration
+    build-depends: servant-with-beam
+
+  main-is:        Main.hs
+  hs-source-dirs: scripts
+  other-modules:
+    Migration.Databases.HitmenBusiness
+    Migration.Databases.HitmenBusiness.Handlers
+    Migration.Utils.Chronos
+    Migration.Utils.Types
+
+  ghc-options:    -threaded
 
 test-suite test
   if flag(ghcid)
@@ -188,7 +223,7 @@ test-suite test
     hs-source-dirs: src app
 
   else
-    import:        basic, client
+    import:        app-depends, client
     build-depends: servant-with-beam
 
   type:           exitcode-stdio-1.0
@@ -216,3 +251,5 @@ test-suite test
     , tasty-hspec              ^>=1.1.6
     , tasty-hunit              ^>=0.10.0.3
     , tasty-rerun              ^>=1.1.18
+
+  ghc-options:    -threaded

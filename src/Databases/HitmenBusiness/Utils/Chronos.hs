@@ -7,18 +7,13 @@ import Data.Aeson (FromJSON (..))
 import Data.Time (LocalTime)
 import Data.Validity (Validity (..), declare)
 import Database.Beam (FromBackendRow, QGenExpr (..))
-import Database.Beam.AutoMigrate (HasColumnType (..))
 import Database.Beam.Backend (BeamSqlBackend, HasSqlValueSyntax (..), currentTimestampE, timestampType)
-import Database.Beam.Migrate (HasDefaultSqlDataType (..))
 import Database.Beam.Postgres (Postgres, ResultError (ConversionFailed, Incompatible, UnexpectedNull))
 import Database.Beam.Postgres.Syntax (PgValueSyntax, defaultPgValueSyntax)
 import Database.PostgreSQL.Simple.FromField (FromField (..), returnError, typeOid)
 import Database.PostgreSQL.Simple.ToField (Action (Plain), ToField (..), inQuotes)
 import Database.PostgreSQL.Simple.TypeInfo.Static (timestampOid)
 import Universum
-
-instance HasDefaultSqlDataType Postgres Datetime where
-  defaultSqlDataType _ _ _ = timestampType Nothing False
 
 instance ToField Datetime where
   toField = Plain . inQuotes . builderUtf8_YmdHMS (SubsecondPrecisionFixed 6) (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
@@ -38,10 +33,6 @@ instance FromField Datetime where
         $ maybe (returnError ConversionFailed f "") return <$> decode_YmdHMS_lenient . decodeUtf8
 
 instance FromBackendRow Postgres Datetime
-
-instance HasColumnType Datetime where
-  defaultColumnType _ = defaultColumnType @LocalTime Proxy
-  defaultTypeCast _ = defaultTypeCast @LocalTime Proxy
 
 instance Validity Year where
   validate (Year y) = declare "Must between 1800 and 2100" $ 2100 >= y && y >= 1800

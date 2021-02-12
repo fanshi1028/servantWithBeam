@@ -11,15 +11,13 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Databases.HitmenBusiness
-  ( HitmenBusinessDb,
+  ( HitmenBusinessDb(..),
     hitmenBusinessDb,
     erasedMarkOf,
     markErasedBy,
     pursuingMarkOf,
     markPursuedBy,
     handlerIs,
-    annotatedHitmenBusinessDb,
-    hitmenBusinessDbSchema,
     ErasedMarkB (ErasedMark),
     HandlerB (Handler),
     HitmanB (Hitman),
@@ -39,14 +37,6 @@ import qualified Data.Char as C
 import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2)
 import Database.Beam (HasSqlEqualityCheck, Q, QExpr, dbModification)
-import Database.Beam.AutoMigrate
-  ( AnnotatedDatabaseSettings,
-    Schema,
-    UniqueConstraint (U),
-    defaultAnnotatedDbSettings,
-    fromAnnotatedDbSettings,
-    uniqueConstraintOn,
-  )
 import Database.Beam.Query (oneToMany_, oneToOne_)
 import Database.Beam.Schema (Database)
 import Database.Beam.Schema.Tables (DatabaseSettings, TableEntity, defaultDbSettings, renamingFields, withDbModification)
@@ -100,18 +90,3 @@ erasedMarkOf = oneToOne_ (hitmenBusinessDb ^. #_hbErasedMarks) (view $ #_base . 
 
 acountOf :: HasSqlEqualityCheck be Int32 => WithMetaInfo HandlerB (QExpr be s) -> Q be HitmenBusinessDb s (LoginT Argon2 HandlerB (QExpr be s))
 acountOf = oneToOne_ (hitmenBusinessDb ^. #_hbHandlersAccount) (view #_account)
-
-annotatedHitmenBusinessDb :: AnnotatedDatabaseSettings be HitmenBusinessDb
-annotatedHitmenBusinessDb =
-  defaultAnnotatedDbSettings hitmenBusinessDb
-    `withDbModification` ( dbModification
-                             { _handlers = uniqueConstraintOn [U $ view $ #_base . #_codename],
-                               _hitmen = uniqueConstraintOn [U $ view $ #_base . #_codename],
-                               _hbErasedMarks = uniqueConstraintOn [U $ view $ #_base . #_markId],
-                               _hbPursuingMarks = uniqueConstraintOn [U $ view $ #_base . #_hitmanId, U $ view $ #_base . #_markId],
-                               _hbHandlersAccount = uniqueConstraintOn [U $ view #_accountName] <> uniqueConstraintOn [U $ view #_account]
-                             }
-                         )
-
-hitmenBusinessDbSchema :: Schema
-hitmenBusinessDbSchema = fromAnnotatedDbSettings annotatedHitmenBusinessDb (Proxy @'[])

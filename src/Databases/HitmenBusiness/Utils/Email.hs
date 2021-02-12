@@ -11,8 +11,7 @@ import Addy.Internal.Types (DomainName (DN), LocalPart (LP))
 import Control.Arrow (ArrowChoice ((|||)), (>>>))
 import Data.Aeson (FromJSON (..), ToJSON (..), Value (String))
 import Data.Aeson.Types (typeMismatch)
-import Database.Beam.AutoMigrate (ColumnType (SqlStdType), HasColumnType (..))
-import Database.Beam.Backend (BeamBackend, FromBackendRow (..), HasSqlValueSyntax (..), varCharType)
+import Database.Beam.Backend (BeamBackend, FromBackendRow (..), HasSqlValueSyntax (..))
 import Servant.Docs (ToSample (..), singleSample)
 import qualified Text.ParserCombinators.ReadP as RP (get)
 import qualified Text.ParserCombinators.ReadPrec as RP (lift)
@@ -59,7 +58,3 @@ instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be Email whe
 
 instance (HasSqlValueSyntax be Text) => HasSqlValueSyntax be Email where
   sqlValueSyntax = sqlValueSyntax . encode . unEmail
-
-instance HasColumnType Email where
-  defaultColumnType _ = SqlStdType $ varCharType Nothing Nothing
-  defaultTypeCast _ = Just "character varying"

@@ -21,7 +21,6 @@ import Universum
 import UnliftIO (MonadUnliftIO (..), toIO)
 import qualified UnliftIO (bracket)
 import UnliftIO.Pool (createPool, destroyAllResources)
-import Utils.Migration (doMigration, showMigration)
 import Utils.Types (Env (Env))
 
 server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => Counter -> m ()
@@ -40,10 +39,7 @@ server ekgCounter = do
     >>= logInfo . fromString
       ||| flip
         withPool
-        ( -- tLog "show Migration: " . showMigration >=>
-          -- tLog "do Migration: " . doMigration >=>
-          liftIO . runSettings settings . errorMwDefJson . server'
-        )
+        (liftIO . runSettings settings . errorMwDefJson . server')
   where
     tLog context io =
       liftIO (stopwatch io)

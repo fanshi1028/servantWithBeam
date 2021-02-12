@@ -22,7 +22,6 @@ import Data.Aeson (FromJSON (..), ToJSON (..))
 import Data.Generics.Labels ()
 import Data.Password.Argon2 (Argon2, PasswordHash (..))
 import Database.Beam (FromBackendRow (..), HasSqlEqualityCheck)
-import Database.Beam.AutoMigrate (HasColumnType, PgEnum)
 import Database.Beam.Backend (SqlSerial(..), BeamBackend, BeamSqlBackend, HasSqlValueSyntax (..))
 import Servant.Auth.Server (SetCookie, def)
 import Servant.Docs (ToSample (..), singleSample)
@@ -32,7 +31,7 @@ import Data.Char (isPrint)
 
 -- | Codename
 newtype Codename = Codename {unCodename :: Text}
-  deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving newtype (ToJSON, Show, FromJSON)
   deriving (Generic)
 
 deriving newtype instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be Codename
@@ -55,7 +54,7 @@ instance Validity Codename where
 
 -- | FirstName
 newtype FirstName = FirstName {unFirstName :: Text}
-  deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving newtype (ToJSON, Show, FromJSON)
   deriving Validity via Codename
   deriving (Generic)
 
@@ -68,7 +67,7 @@ instance ToSample FirstName where
 
 -- | LastName
 newtype LastName = LastName {unLastName :: Text}
-  deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving newtype (ToJSON, Show, FromJSON)
   deriving Validity via Codename
   deriving (Generic)
 
@@ -81,7 +80,7 @@ instance ToSample LastName where
 
 -- | MarkDescription
 newtype MarkDescription = MarkDescription {unMarkDescription :: Text}
-  deriving newtype (ToJSON, Show, FromJSON, HasColumnType)
+  deriving newtype (ToJSON, Show, FromJSON)
   deriving Validity via Codename
   deriving (Generic)
 
@@ -95,7 +94,6 @@ instance ToSample MarkDescription where
 -- | MarkStatus
 data MarkStatus = Active | Erased | Cancelled
   deriving (Generic, FromJSON, Enum, Read, Show, Bounded, Typeable, ToSample, Validity)
-  deriving (HasColumnType) via (PgEnum MarkStatus)
 
 instance (BeamBackend be, FromBackendRow be Text) => FromBackendRow be MarkStatus where
   fromBackendRow = (readEither @Text @MarkStatus <$> fromBackendRow) >>= fail . toString ||| return
@@ -106,9 +104,6 @@ instance HasSqlValueSyntax expr Text => HasSqlValueSyntax expr MarkStatus where
 -- | SetCookie
 instance ToSample SetCookie where
   toSamples _ = singleSample def
-
--- | PasswordHash
-deriving newtype instance HasColumnType (PasswordHash Argon2)
 
 -- | SqlSerial
 deriving newtype instance Validity (SqlSerial Int32)
