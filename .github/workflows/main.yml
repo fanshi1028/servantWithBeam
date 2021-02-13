@@ -32,7 +32,7 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - run: nix-build --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true -A servant-with-beam.components.exes.app
-            - run: nix-shell --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization false --run echo ok
+            - run: nix-shell --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization false --run "echo ok"
 # https://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml
 # https://kodimensional.dev/github-actions
     build:
