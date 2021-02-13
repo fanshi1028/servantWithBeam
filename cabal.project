@@ -1,0 +1,4 @@
+verbose: 2
+jobs: $ncpus
+optimization: 2
+cabal-lib-version: 3.2.0.0
