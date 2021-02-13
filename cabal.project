@@ -1,3 +1,4 @@
+packages: .
 verbose: 2
 jobs: $ncpus
 optimization: 2

@@ -1,4 +1,4 @@
-{ compiler ? "ghc8103", pkgs ? import ./default.nix { inherit compiler; } }:
+{ compiler ? "ghc8102", pkgs ? import ./default.nix { inherit compiler; } }:
 pkgs.shellFor {
   # Include only the *local* packages of your project.
   packages = ps: with ps; [ servant-with-beam ];
