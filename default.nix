@@ -22,9 +22,14 @@ let
       includedFiles || baseNameOf path == "${name}.cabal";
     src = baseSrc;
   };
-in pkgs.haskell-nix.project {
-  inherit src;
   compiler-nix-name = compiler;
+in pkgs.haskell-nix.project {
+  inherit src compiler-nix-name;
+  cabal-install = pkgs.haskell-nix.hackage-package {
+    inherit compiler-nix-name;
+    name = "cabal-install";
+    version = "3.2.0.0";
+  };
   modules = [{
     # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
     reinstallableLibGhc = true;
