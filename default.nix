@@ -1,4 +1,4 @@
-{ compiler ? "ghc8102", pkgs ? import ./nix/pkgs.nix { inherit compiler; }
+{ compiler ? "ghc8103", pkgs ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false }:
 let
   hLib = pkgs.haskell-nix.haskellLib;
