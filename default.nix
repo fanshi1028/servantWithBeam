@@ -25,14 +25,17 @@ let
   compiler-nix-name = compiler;
 in pkgs.haskell-nix.project {
   inherit src compiler-nix-name;
-  # cabal-install = pkgs.haskell-nix.hackage-package {
-  #   inherit compiler-nix-name;
-  #   name = "cabal-install";
-  #   version = "3.2.0.0";
-  # };
+  # NOTE https://github.com/input-output-hk/haskell.nix/issues/979#issuecomment-748483501
+  # NOTE https://github.com/input-output-hk/tools/blob/95f44de0fb1d2ee6408ea0e2ca27cfd6967c02af/arm-test/default.nix#L45-L72
+  cabal-install = (pkgs.haskell-nix.hackage-package {
+    inherit compiler-nix-name;
+    name = "cabal-install";
+    version = "3.2.0.0";
+  }).components.exes.cabal;
   modules = [{
     # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
     reinstallableLibGhc = true;
+    # packages.Cabal.reinstallableLibGhc = true;
     packages.servant-with-beam.dontStrip = false;
     # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
     packages.ekg.enableSeparateDataOutput = true;
