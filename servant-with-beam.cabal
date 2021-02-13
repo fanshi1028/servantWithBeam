@@ -208,7 +208,7 @@ executable scripts
       import:        migration
       build-depends: servant-with-beam
 
-    buildable: false
+    buildable: False
     other-modules:
       Migration.Databases.HitmenBusiness
       Migration.Databases.HitmenBusiness.Handlers
