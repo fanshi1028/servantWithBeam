@@ -65,9 +65,9 @@ jobs:
                 key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
             - name: Install dependencies
               run: |
-                cabal build exe:app --only-dependencies
+                cabal build servant-with-beam:exe:app --only-dependencies
             - name: Build
               run: |
-                cabal build exe:app
+                cabal build servant-with-beam:exe:app
             #   run: |
             #     cabal test all
