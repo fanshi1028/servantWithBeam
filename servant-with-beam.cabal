@@ -207,6 +207,9 @@ executable scripts
     import:        migration
     build-depends: servant-with-beam
 
+  if !os(windows)
+    buildable: false
+
   main-is:        Main.hs
   hs-source-dirs: scripts
   other-modules:
