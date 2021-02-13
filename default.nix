@@ -31,10 +31,14 @@ in pkgs.haskell-nix.project {
     inherit compiler-nix-name;
     name = "cabal-install";
     version = "3.2.0.0";
+    # https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
+    modules = [{
+      reinstallableLibGhc = true;
+    }];
   }).components.exes.cabal;
   modules = [{
     # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
-    reinstallableLibGhc = true;
+    # reinstallableLibGhc = true;
     # packages.Cabal.reinstallableLibGhc = true;
     packages.servant-with-beam.dontStrip = false;
     # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
