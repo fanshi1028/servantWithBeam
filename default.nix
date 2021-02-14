@@ -60,7 +60,7 @@ let
         # is set in the package plan, so override this
         packages.haskeline.flags.terminfo = false;
       };
-      index-state = "2021-01-05T00:00:00Z";
+      index-state = "2021-02-13T23:31:09Z";
     };
   # app = pkgs: sha256:
   #   (mkProject pkgs sha256).servant-with-beam.components.exes.app;
