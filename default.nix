@@ -67,7 +67,7 @@ let
           optional pkgs.hostPlatform.isWindows [
             (pkgs.runCommand "libpq_paths.patch" { } ''
               substitute ${
-                ../nix/libpq_paths.patch
+                ./nix/libpq_paths.patch
               } $out --subst-var-by libpq ${pkgs.libpq.out}
             '')
           ];
