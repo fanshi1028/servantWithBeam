@@ -32,4 +32,15 @@ let
   #   osx-pkgs = import nixpkgsSrc (args // { system = "x86_64-darwin"; });
   # }
   pkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; });
-in { inherit pkgs static-pkgs; }
+
+  # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/release.nix#L5
+  windowOverlays = [
+    (self: super: {
+      libpq = super.callPackage ./postgresql-prebuild.nix {
+        inherit (super.buildPackages) fetchurl unzip;
+      };
+    })
+  ];
+
+  win64-pkgs = import nixpkgsSrc (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
+in { inherit pkgs static-pkgs win64-pkgs; }

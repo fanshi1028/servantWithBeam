@@ -1,10 +1,12 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
-# , pkgs ? import ./nix/pkgs.nix { inherit compiler; }
+  # , pkgs ? import ./nix/pkgs.nix { inherit compiler; }
 , pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false }:
 let
-  inherit (pkgSets) pkgs static-pkgs;
-  inherit (pkgs.pkgsCross) mingwW64;
+  inherit (pkgSets) pkgs static-pkgs win64-pkgs;
+  # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
+  inherit (win64-pkgs.pkgsCross) mingwW64;
+  # inherit (pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
 
@@ -56,13 +58,24 @@ let
         packages.servant-with-beam.dontStrip = false;
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
-      }];
-      # ++ optional pkgs.hostPlatform.isMusl {
-      #   packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
-      #   # terminfo is disabled on musl by haskell.nix, but still the flag
-      #   # is set in the package plan, so override this
-      #   packages.haskeline.flags.terminfo = false;
-      # };
+      }]
+        # ++ optional pkgs.hostPlatform.isMusl {
+        #   packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
+        #   # terminfo is disabled on musl by haskell.nix, but still the flag
+        #   # is set in the package plan, so override this
+        #   packages.haskeline.flags.terminfo = false;
+        # };
+        #
+        # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/default.nix#L17
+        ++ optional pkgs.hostPlatform.isWindows {
+          packages."postgresql-libpq".patches = [
+            (pkgs.runCommand "libpq_paths.patch" { } ''
+              substitute ${
+                ./nix/libpq_paths.patch
+              } $out --subst-var-by libpq ${pkgs.libpq.out}
+            '')
+          ];
+        };
       index-state = "2021-02-13T23:31:09Z";
     };
   # app = pkgs: sha256:
