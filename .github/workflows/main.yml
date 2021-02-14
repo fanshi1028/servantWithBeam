@@ -8,7 +8,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 883, 8102]
+                ghc: [865, 884, 8104]
                 sedArg: ["", "''"]
                 release: ["linux", "osx", "windows", "static"]
                 exclude:

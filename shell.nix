@@ -1,4 +1,4 @@
-{ compiler ? "ghc8102", platform ? "osx", default ? false, pkgs ?
+{ compiler ? "ghc8104", platform ? "osx", default ? false, pkgs ?
   import ./default.nix {
     inherit platform compiler default checkMaterialization;
   }, checkMaterialization ? false }:

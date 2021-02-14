@@ -1,4 +1,4 @@
-{ compiler ? "ghc8102", platform ? "osx", default ? true
+{ compiler ? "ghc8104", platform ? "osx", default ? true
 , pkgs ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false }:
 let
