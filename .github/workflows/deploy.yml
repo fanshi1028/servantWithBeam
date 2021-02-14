@@ -27,7 +27,7 @@ jobs:
       # - name:
       #   run: git config user.name "Heroku-Deploy" && git config user.email "deploy-no-reply@github.com"
       - name: build docker with nix
-        run: nix-build -j4 ./release.nix
+        run: nix-build -j4 -O2 ./release.nix
       # https://github.com/AkhileshNS/heroku-deploy/issues/45
       - uses: akhileshns/heroku-deploy@v3.9.9
         with:
