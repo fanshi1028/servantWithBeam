@@ -61,24 +61,24 @@ let
         };
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
-      }]
-        # ++ optional pkgs.hostPlatform.isMusl {
-        #   packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
-        #   # terminfo is disabled on musl by haskell.nix, but still the flag
-        #   # is set in the package plan, so override this
-        #   packages.haskeline.flags.terminfo = false;
-        # };
-        #
+
         # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/default.nix#L17
-        ++ optional pkgs.hostPlatform.isWindows {
-          packages."postgresql-libpq".patches = [
+        packages."postgresql-libpq".patches =
+          optional pkgs.hostPlatform.isWindows [
             (pkgs.runCommand "libpq_paths.patch" { } ''
               substitute ${
-                ./nix/libpq_paths.patch
+                ../nix/libpq_paths.patch
               } $out --subst-var-by libpq ${pkgs.libpq.out}
             '')
           ];
-        };
+      }];
+      # ++ optional pkgs.hostPlatform.isMusl {
+      #   packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
+      #   # terminfo is disabled on musl by haskell.nix, but still the flag
+      #   # is set in the package plan, so override this
+      #   packages.haskeline.flags.terminfo = false;
+      # };
+      #
       index-state = "2021-02-13T23:31:09Z";
     };
   # app = pkgs: sha256:

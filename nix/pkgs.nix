@@ -22,9 +22,9 @@ let
   # normalPkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; });
   # staticHaskellNix = import "${sources.static-haskell-nix}/survey" { inherit normalPkgs compiler; };
   normalPkgs = import nixpkgsSrc nixpkgsArgs;
-  static-pkgs = import "${sources.static-haskell-nix}/survey" {
+  static-pkgs = (import "${sources.static-haskell-nix}/survey" {
     inherit normalPkgs compiler overlays;
-  };
+  }).pkgs;
   # in import nixpkgsSrc (nixpkgsArgs // { inherit overlays; })
   #   args = nixpkgsArgs // { inherit overlays; };
   # in {
@@ -42,5 +42,6 @@ let
     })
   ];
 
-  win64-pkgs = import nixpkgsSrc (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
+  win64-pkgs = import nixpkgsSrc
+    (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
 in { inherit pkgs static-pkgs win64-pkgs; }
