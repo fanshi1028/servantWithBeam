@@ -2,12 +2,10 @@
 
 module Databases.HitmenBusiness.Utils.Chronos where
 
-import Chronos (Date (Date), Datetime (Datetime), DatetimeFormat (DatetimeFormat), DayOfMonth (DayOfMonth, getDayOfMonth), Month (getMonth), SubsecondPrecision (SubsecondPrecisionFixed), TimeOfDay (TimeOfDay), Year (Year, getYear), builderUtf8_YmdHMS, datetimeToTime, decode_YmdHMS_lenient)
-import Data.Aeson (FromJSON (..))
-import Data.Time (LocalTime)
+import Chronos (Date (Date), Datetime (Datetime), DatetimeFormat (DatetimeFormat), DayOfMonth (DayOfMonth, getDayOfMonth), Month (getMonth), SubsecondPrecision (SubsecondPrecisionFixed), TimeOfDay (TimeOfDay), Year (Year, getYear), builderUtf8_YmdHMS, decode_YmdHMS_lenient)
 import Data.Validity (Validity (..), declare)
 import Database.Beam (FromBackendRow, QGenExpr (..))
-import Database.Beam.Backend (BeamSqlBackend, HasSqlValueSyntax (..), currentTimestampE, timestampType)
+import Database.Beam.Backend (BeamSqlBackend, HasSqlValueSyntax (..), currentTimestampE)
 import Database.Beam.Postgres (Postgres, ResultError (ConversionFailed, Incompatible, UnexpectedNull))
 import Database.Beam.Postgres.Syntax (PgValueSyntax, defaultPgValueSyntax)
 import Database.PostgreSQL.Simple.FromField (FromField (..), returnError, typeOid)
@@ -20,9 +18,6 @@ instance ToField Datetime where
 
 instance HasSqlValueSyntax PgValueSyntax Datetime where
   sqlValueSyntax = defaultPgValueSyntax
-
-instance FromJSON Datetime where
-  parseJSON v = parseJSON v >>= (maybe (fail "parse Datetime failed") return . decode_YmdHMS_lenient)
 
 instance FromField Datetime where
   fromField f
