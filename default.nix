@@ -1,6 +1,6 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
   # , pkgs ? import ./nix/pkgs.nix { inherit compiler; }
-, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
+, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, optimization ? "0"
 , checkMaterialization ? false }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs;
@@ -55,7 +55,10 @@ let
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
         # reinstallableLibGhc = true;
         # packages.Cabal.reinstallableLibGhc = true;
-        packages.servant-with-beam.dontStrip = false;
+        packages.servant-with-beam = {
+          dontStrip = false;
+          configureFlags = [ "--ghc-option=-O${optimization}" ];
+        };
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
       }]

@@ -1,7 +1,7 @@
-{ compiler ? "ghc8104", platform ? "osx", default ? false, pkgs ?
-  import ./default.nix {
-    inherit platform compiler default checkMaterialization;
-  }, checkMaterialization ? false }:
+{ compiler ? "ghc8104", platform ? "osx", optimization ? "0", default ? false
+, pkgs ? import ./default.nix {
+  inherit platform compiler default checkMaterialization optimization;
+}, checkMaterialization ? false }:
 with pkgs;
 shells.${platform} {
   # shellFor {
