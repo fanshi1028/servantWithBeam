@@ -4,7 +4,7 @@
 let
   # inherit (pkgsSets) pkgs osx-pkgs;
   inherit (pkgs.pkgsCross) mingwW64 musl64;
-  inherit (pkgs.attrsets) mapAttrs;
+  inherit (pkgs.lib.attrsets) mapAttrs;
 
   includedFiles = [ "app" "src" "tests" ];
 
