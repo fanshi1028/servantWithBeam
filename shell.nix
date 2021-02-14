@@ -18,14 +18,14 @@ shells.${platform} {
   tools = {
     cabal = "3.2.0.0";
     hlint = "3.2.2";
-    haskell-language-server = "0.8.0";
+    haskell-language-server = "0.9.0.0";
     ormolu = "0.1.4.1";
     ghcid = "0.8.7";
     implicit-hie = "0.1.2.3";
     retrie = "0.1.1.1";
     doctest = "0.17";
     cabal-fmt = {
-      version = "0.1.5";
+      version = "0.1.5.1";
       cabalProject = ''
         packages: .
                '';
