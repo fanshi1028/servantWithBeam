@@ -18,4 +18,18 @@ let
       };
     })
   ];
-in import nixpkgsSrc (nixpkgsArgs // { inherit overlays; })
+  # staticHaskellNix = import "${sources.static-haskell-nix}/survey" { inherit compiler overlays; };
+  # normalPkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; });
+  # staticHaskellNix = import "${sources.static-haskell-nix}/survey" { inherit normalPkgs compiler; };
+  normalPkgs = import nixpkgsSrc nixpkgsArgs;
+  static-pkgs = import "${sources.static-haskell-nix}/survey" {
+    inherit normalPkgs compiler overlays;
+  };
+  # in import nixpkgsSrc (nixpkgsArgs // { inherit overlays; })
+  #   args = nixpkgsArgs // { inherit overlays; };
+  # in {
+  #   pkgs = import nixpkgsSrc args;
+  #   osx-pkgs = import nixpkgsSrc (args // { system = "x86_64-darwin"; });
+  # }
+  pkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; });
+in { inherit pkgs static-pkgs; }

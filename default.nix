@@ -1,9 +1,11 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
-, pkgs ? import ./nix/pkgs.nix { inherit compiler; }
+# , pkgs ? import ./nix/pkgs.nix { inherit compiler; }
+, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false }:
 let
-  # inherit (pkgsSets) pkgs osx-pkgs;
-  inherit (pkgs.pkgsCross) mingwW64 musl64;
+  inherit (pkgSets) pkgs static-pkgs;
+  inherit (pkgs.pkgsCross) mingwW64;
+  # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
 
   includedFiles = [ "app" "src" "tests" ];
@@ -54,12 +56,13 @@ let
         packages.servant-with-beam.dontStrip = false;
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
-      }] ++ optional pkgs.hostPlatform.isMusl {
-        packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
-        # terminfo is disabled on musl by haskell.nix, but still the flag
-        # is set in the package plan, so override this
-        packages.haskeline.flags.terminfo = false;
-      };
+      }];
+      # ++ optional pkgs.hostPlatform.isMusl {
+      #   packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
+      #   # terminfo is disabled on musl by haskell.nix, but still the flag
+      #   # is set in the package plan, so override this
+      #   packages.haskeline.flags.terminfo = false;
+      # };
       index-state = "2021-02-13T23:31:09Z";
     };
   # app = pkgs: sha256:
@@ -78,7 +81,8 @@ let
     linux = def;
     osx = def;
     windows = mkProject mingwW64 "temp";
-    static = mkProject musl64 "temp";
+    # static = mkProject musl64 "temp";
+    static = mkProject static-pkgs "temp";
   };
   exes = mapAttrs (name: value: value.servant-with-beam.components.exes.app)
     releases;
