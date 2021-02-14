@@ -1,7 +1,12 @@
-{ compiler ? "ghc8102", pkgs ? import ./default.nix { inherit compiler; } }:
-pkgs.shellFor {
+{ compiler ? "ghc8102", platform ? "osx", default ? false, pkgs ?
+  import ./default.nix {
+    inherit platform compiler default checkMaterialization;
+  }, checkMaterialization ? false }:
+with pkgs;
+shells.${platform} {
+  # shellFor {
   # Include only the *local* packages of your project.
-  packages = ps: with ps; [ servant-with-beam ];
+  packages = hs: with hs; [ servant-with-beam ];
 
   # Builds a Hoogle documentation index of all dependencies,
   # and provides a "hoogle" command to search the index.
@@ -29,10 +34,7 @@ pkgs.shellFor {
   # See overlays/tools.nix for more details
 
   # Some you may need to get some other way.
-  buildInputs = with pkgs; [
-    postgresql
-    heroku
-  ];
+  buildInputs = [ postgresql heroku ];
 
   # Prevents cabal from choosing alternate plans, so that
   # *all* dependencies are provided by Nix.

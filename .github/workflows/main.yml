@@ -3,17 +3,27 @@ on:
     [ pull_request ]
 jobs:
     nix-build:
-        name: ${{matrix.os}} / ghc ${{matrix.ghc}}
+        name: ${{matrix.os}} / ${{matrix.release}} / ghc ${{matrix.ghc}}
         strategy:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
                 ghc: [865, 883, 8102]
-                include:
+                sedArg: ["", "''"]
+                release: ["linux", "osx", "windows", "static"]
+                exclude:
                   - os: ubuntu-latest
-                    sedArg: ""
-                  - os: macos-latest
                     sedArg: "''"
+                  - os: macos-latest
+                    sedArg: ""
+                  - os: ubuntu-latest
+                    release: "osx"
+                  - os: macos-latest
+                    release: "linux"
+                  - os: macos-latest
+                    release: "static"
+                  - os: macos-latest
+                    release: "windows"
 
         runs-on: ${{matrix.os}}
         steps:
@@ -31,8 +41,8 @@ jobs:
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-            - run: nix-build --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true -A servant-with-beam.components.exes.app
-            - run: nix-shell --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization false --run "echo ok"
+            - run: nix-build --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}}
+            - run: nix-shell --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}}  --run "echo ok"
 # FIXME dependencies text-icu can't build on windows and fuck this up
 # NOTEhttps://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml
 # NOTE https://kodimensional.dev/github-actions
