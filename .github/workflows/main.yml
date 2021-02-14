@@ -41,7 +41,7 @@ jobs:
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-            - name: nix-buld
+            - name: nix-build
               run: nix-build --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}}
             - name: nix-shell
               if: matrix.release != 'windows'
