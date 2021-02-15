@@ -40,6 +40,7 @@ let
         inherit (super.buildPackages) fetchurl unzip;
       };
       icuin = self.icu;
+      icudt = self.icu;
     })
   ];
 

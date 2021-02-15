@@ -25,6 +25,7 @@ shells.${platform} {
     retrie = "0.1.1.1";
     doctest = "0.17";
     cabal-fmt = {
+      compiler-nix-name = "ghc8104"; # seems different cabal version come with ghc fuck this up and I don't know how to override that cabal
       version = "0.1.5.1";
       cabalProject = ''
         packages: .

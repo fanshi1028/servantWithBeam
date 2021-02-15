@@ -40,6 +40,7 @@ let
       inherit src compiler-nix-name;
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/979#issuecomment-748483501
       # NOTE https://github.com/input-output-hk/tools/blob/95f44de0fb1d2ee6408ea0e2ca27cfd6967c02af/arm-test/default.nix#L45-L72
+      # NOTE https://github.com/haskell/cabal/issues/6770#issue-615196643
       # cabal-install = (pkgs.haskell-nix.hackage-package {
       #   inherit compiler-nix-name;
       #   name = "cabal-install";
@@ -52,7 +53,7 @@ let
       # plan-sha256 = sha256;
       modules = [{
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
-        reinstallableLibGhc = true;
+        # packages.cabal-install.reinstallableLibGhc = true;
         packages.servant-with-beam = {
           dontStrip = false;
           configureFlags = [ "--ghc-option=-O${optimization}" ];
@@ -60,17 +61,27 @@ let
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
 
-      }] ++
         # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/default.nix#L17
-        optional pkgs.hostPlatform.isWindows {
-          packages."postgresql-libpq".patches = [
+        packages."postgresql-libpq".patches =
+          optional pkgs.hostPlatform.isWindows [
             (pkgs.runCommand "libpq_paths.patch" { } ''
               substitute ${
                 ./nix/libpq_paths.patch
               } $out --subst-var-by libpq ${pkgs.libpq.out}
             '')
           ];
-        }
+
+      }]
+        # ++
+        # optional pkgs.hostPlatform.isWindows {
+        #   packages."postgresql-libpq".patches = [
+        #     (pkgs.runCommand "libpq_paths.patch" { } ''
+        #       substitute ${
+        #         ./nix/libpq_paths.patch
+        #       } $out --subst-var-by libpq ${pkgs.libpq.out}
+        #     '')
+        #   ];
+        # }
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/86#issuecomment-472748457
         # NOTE https://github.com/entropia/tip-toi-reveng/blob/2a30c2500b804b31ed4536a186d3f123e18651ae/default.nix#L41
         ++ optional pkgs.hostPlatform.isMusl {
