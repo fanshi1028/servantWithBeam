@@ -49,12 +49,10 @@ let
       #     reinstallableLibGhc = true;
       #   }];
       # }).components.exes.cabal;
-      #
       # plan-sha256 = sha256;
       modules = [{
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
-        # reinstallableLibGhc = true;
-        # packages.Cabal.reinstallableLibGhc = true;
+        reinstallableLibGhc = true;
         packages.servant-with-beam = {
           dontStrip = false;
           configureFlags = [ "--ghc-option=-O${optimization}" ];
@@ -62,36 +60,29 @@ let
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
 
+      }] ++
         # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/default.nix#L17
-        packages."postgresql-libpq".patches =
-          optional pkgs.hostPlatform.isWindows [
+        optional pkgs.hostPlatform.isWindows {
+          packages."postgresql-libpq".patches = [
             (pkgs.runCommand "libpq_paths.patch" { } ''
               substitute ${
                 ./nix/libpq_paths.patch
               } $out --subst-var-by libpq ${pkgs.libpq.out}
             '')
           ];
-      }];
-      # ++ optional pkgs.hostPlatform.isMusl {
-      #   packages.servant-with-beam.configureFlags = [ "--ghc-option=-static" ];
-      #   # terminfo is disabled on musl by haskell.nix, but still the flag
-      #   # is set in the package plan, so override this
-      #   packages.haskeline.flags.terminfo = false;
-      # };
-      #
+        }
+        # NOTE https://github.com/input-output-hk/haskell.nix/issues/86#issuecomment-472748457
+        # NOTE https://github.com/entropia/tip-toi-reveng/blob/2a30c2500b804b31ed4536a186d3f123e18651ae/default.nix#L41
+        ++ optional pkgs.hostPlatform.isMusl {
+          packages.servant-with-beam.configureFlags =
+            [ "--ghc-option=-static" ];
+          # terminfo is disabled on musl by haskell.nix, but still the flag
+          # is set in the package plan, so override this
+          packages.haskeline.flags.terminfo = false;
+        };
+
       index-state = "2021-02-13T23:31:09Z";
     };
-  # app = pkgs: sha256:
-  #   (mkProject pkgs sha256).servant-with-beam.components.exes.app;
-  # osx-exe = app osx-pkgs "temp";
-  # exe = app pkgs "temp";
-  # releases = {
-  #   servant-with-beam = exe;
-  #   servant-with-beam-linux = exe;
-  #   servant-with-beam-osx = exe;
-  #   servant-with-beam-windows = app mingwW64 "temp";
-  #   servant-with-beam-static = app musl64 "temp";
-  # };
   def = mkProject pkgs "tmep";
   releases = {
     linux = def;

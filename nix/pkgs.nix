@@ -39,6 +39,7 @@ let
       libpq = super.callPackage ./postgresql-prebuild.nix {
         inherit (super.buildPackages) fetchurl unzip;
       };
+      icuin = self.icu;
     })
   ];
 
