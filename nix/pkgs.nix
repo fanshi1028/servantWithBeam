@@ -1,5 +1,4 @@
-{ compiler ? "ghc8102" # unused here
-, sources ? import ./sources.nix }:
+{ compiler ? "ghc8102", sources ? import ./sources.nix }:
 let
   haskellNix = import sources.haskell-nix { };
   nixpkgsSrc = haskellNix.sources.nixpkgs-2009;
@@ -21,9 +20,18 @@ let
 
   pkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; });
 
+  # NOTE https://github.com/NixOS/nixpkgs/issues/85924#issuecomment-640277067
+  # NOTE https://github.com/NixOS/nixpkgs/issues/89769
+  # static-pkgs = (import "${sources.static-haskell-nix}/survey" {
+  #   inherit compiler;
+  #   normalPkgs = pkgs;
+  # }).pkgs;
+  # NOTE try using nixpkgs pin from static-haskell-nix
   static-pkgs = (import "${sources.static-haskell-nix}/survey" {
     inherit compiler;
-    normalPkgs = pkgs;
+    normalPkgs =
+      (import "${sources.static-haskell-nix}/nixpkgs.nix").appendOverlays
+      ([ (_: _: nixpkgsArgs) ] ++ overlays);
   }).pkgs;
   # staticHaskellNix = import "${sources.static-haskell-nix}/survey" { inherit compiler overlays; };
   # static-pkgs = (import "${sources.static-haskell-nix}/survey" {

@@ -8,7 +8,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 884, 8104]
+                ghc: [865, 881, 884, 8104]
                 sedArg: ["", "''"]
                 release: ["linux", "osx", "windows", "static"]
                 exclude:
@@ -16,14 +16,36 @@ jobs:
                     sedArg: "''"
                   - os: macos-latest
                     sedArg: ""
+                    # no osx on ubuntu
                   - os: ubuntu-latest
                     release: "osx"
+                    # only osx on macos
                   - os: macos-latest
                     release: "linux"
                   - os: macos-latest
                     release: "static"
                   - os: macos-latest
                     release: "windows"
+                    # only 865 881 for static
+                  - release: "static"
+                    ghc: 884
+                  - release: "static"
+                    ghc: 8104
+                    # no 881 for osx and linux
+                  - release: "linux"
+                    ghc: 881
+                  - release: "osx"
+                    ghc: 881
+                    # seems only 8104 compile on windows right now
+                  - release: "windows"
+                    ghc: 865
+                  - release: "windows"
+                    ghc: 881
+                  - release: "windows"
+                    ghc: 884
+                include:
+                  - release: "static"
+                    cache: "static-haskell-nix"
 
         runs-on: ${{matrix.os}}
         steps:
@@ -33,10 +55,12 @@ jobs:
               #   install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-2.4pre20201221_9fab14a/install
               #   extra_nix_config: |
               #     experimental-features = nix-command flakes
+              #
             - uses: cachix/cachix-action@v8
               with:
                   name: servant-with-beam
                   authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+                  extraPullNames: ${{ matrix.cache }}
             - name: add haskell.nix pub keys, add haskell.nix substituters
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
