@@ -72,16 +72,6 @@ let
           ];
 
       }]
-        # ++
-        # optional pkgs.hostPlatform.isWindows {
-        #   packages."postgresql-libpq".patches = [
-        #     (pkgs.runCommand "libpq_paths.patch" { } ''
-        #       substitute ${
-        #         ./nix/libpq_paths.patch
-        #       } $out --subst-var-by libpq ${pkgs.libpq.out}
-        #     '')
-        #   ];
-        # }
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/86#issuecomment-472748457
         # NOTE https://github.com/entropia/tip-toi-reveng/blob/2a30c2500b804b31ed4536a186d3f123e18651ae/default.nix#L41
         ++ optional pkgs.hostPlatform.isMusl {
