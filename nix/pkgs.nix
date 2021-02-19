@@ -27,12 +27,16 @@ let
   #   normalPkgs = pkgs;
   # }).pkgs;
   # NOTE try using nixpkgs pin from static-haskell-nix
+  # static-pkgs = (import "${sources.static-haskell-nix}/survey" {
+  #   inherit compiler;
+  #   normalPkgs =
+  #     (import "${sources.static-haskell-nix}/nixpkgs.nix").appendOverlays
+  #     ([ (_: _: nixpkgsArgs) ] ++ overlays);
+  # }).pkgs;
   static-pkgs = (import "${sources.static-haskell-nix}/survey" {
     inherit compiler;
-    normalPkgs =
-      (import "${sources.static-haskell-nix}/nixpkgs.nix").appendOverlays
-      ([ (_: _: nixpkgsArgs) ] ++ overlays);
-  }).pkgs;
+    normalPkgs = import nixpkgsSrc nixpkgsArgs;
+  }).pkgs.appendOverlays overlays;
   # staticHaskellNix = import "${sources.static-haskell-nix}/survey" { inherit compiler overlays; };
   # static-pkgs = (import "${sources.static-haskell-nix}/survey" {
   #   inherit normalPkgs compiler overlays;
