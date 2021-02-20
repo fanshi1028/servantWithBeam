@@ -26,21 +26,20 @@ jobs:
                     release: "static"
                   - os: macos-latest
                     release: "windows"
-                    # only 865 881 for static
+                    # only 865 8102 for static
                   - release: "static"
                     ghc: 884
                   - release: "static"
                     ghc: 8104
-                    # no 881 for osx and linux
+                    # no 8102 for osx and linux
                   - release: "linux"
                     ghc: 8102
                   - release: "osx"
                     ghc: 8102
-                    # seems only 8104 compile on windows right now
-                  - release: "windows"
-                    ghc: 865
-                  - release: "windows"
-                    ghc: 884
+                  # - release: "windows"
+                  #   ghc: 865
+                  # - release: "windows"
+                  #   ghc: 884
                   - release: "windows"
                     ghc: 8102
                 include:
