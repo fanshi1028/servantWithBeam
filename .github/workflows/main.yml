@@ -26,7 +26,9 @@ jobs:
                     release: "static"
                   - os: macos-latest
                     release: "windows"
-                    # only 865 8102 for static
+                    # only 8102 for static
+                  - release: "static"
+                    ghc: 865
                   - release: "static"
                     ghc: 884
                   - release: "static"
@@ -36,10 +38,10 @@ jobs:
                     ghc: 8102
                   - release: "osx"
                     ghc: 8102
-                  # - release: "windows"
-                  #   ghc: 865
-                  # - release: "windows"
-                  #   ghc: 884
+                  - release: "windows"
+                    ghc: 865
+                  - release: "windows"
+                    ghc: 884
                   - release: "windows"
                     ghc: 8102
                 include:
@@ -66,9 +68,9 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}}
-            # - name: nix-shell
-            #   if: matrix.release != 'windows'
-            #   run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}}  --run "echo ok"
+            - name: nix-shell
+              if: matrix.release == 'osx' && matrix.ghc == '8104'
+              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}}  --run "echo ok"
 
 # FIXME dependencies text-icu can't build on windows and fuck this up
 # NOTEhttps://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml

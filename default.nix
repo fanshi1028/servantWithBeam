@@ -1,5 +1,4 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
-  # , pkgs ? import ./nix/pkgs.nix { inherit compiler; }
 , pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, optimization ? "0"
 , checkMaterialization ? false }:
 let
@@ -10,6 +9,7 @@ let
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
 
+  #NOTE https://github.com/input-output-hk/haskell.nix/issues/864#issuecomment-702971226
   includedFiles = [ "app" "src" "tests" ];
 
   name = "servant-with-beam";

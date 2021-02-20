@@ -6,8 +6,8 @@ copyright:     Francis Chan (c) 2020-2021
 maintainer:    jackychany321@gmail.com
 author:        Francis Chan
 homepage:      https://github.com/fanshi1028/servantWithBeam
-synopsis:      Toy web app
-description:   Toy web app
+synopsis:      Web app
+description:   Web app
 category:      Web
 build-type:    Simple
 
