@@ -179,19 +179,19 @@ library
     Utils.QueryRunner
     Utils.Types
 
-  hs-source-dirs:  src
+  hs-source-dirs:  backend/src
 
 executable app
   if flag(ghcid)
     import:         libdeps
-    hs-source-dirs: src
+    hs-source-dirs: backend/src
 
   else
     import:        app-depends
     build-depends: servant-with-beam
 
   main-is:        Main.hs
-  hs-source-dirs: app
+  hs-source-dirs: backend/app
   build-depends:
     , ekg   ^>=0.4
     , warp  ^>=3.3.10
@@ -202,7 +202,7 @@ executable scripts
   if !os(windows)
     if flag(ghcid)
       import:         libdeps, migration
-      hs-source-dirs: src
+      hs-source-dirs: backend/src
 
     else
       import:        migration
@@ -222,7 +222,7 @@ executable scripts
 test-suite test
   if flag(ghcid)
     import:         libdeps
-    hs-source-dirs: src app
+    hs-source-dirs: backend/src backend/app
 
   else
     import:        app-depends, client

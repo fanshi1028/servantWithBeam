@@ -9,8 +9,8 @@ let
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
 
-  #NOTE https://github.com/input-output-hk/haskell.nix/issues/864#issuecomment-702971226
-  includedFiles = [ "app" "src" "tests" ];
+  # NOTE https://github.com/input-output-hk/haskell.nix/issues/864#issuecomment-702971226
+  includedFiles = [ "backend" ];
 
   name = "servant-with-beam";
   baseSrc = ./.;

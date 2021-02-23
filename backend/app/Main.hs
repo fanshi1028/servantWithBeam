@@ -60,3 +60,9 @@ main =
         logInfo "Using Backgroud Loggers"
         server counter
 
+-- TODO or brick ui commandline?
+-- TODO try capability NOTE ReaderT wrap IO make fork style concurrency easy, fail to build with ghc 8.10
+-- TODO try fused-effect NOTE flexibility to reinterpret effect
+-- TODO try eff NOTE still a WIP
+-- TODO nothunk? NOTE https://github.com/input-output-hk/nothunks
+-- TODO hasktorch NOTE https://www.reddit.com/r/haskell/comments/kyrpf4/machine_learning/
