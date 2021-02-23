@@ -1,6 +1,6 @@
 name: "Nix Build"
 on:
-    [ pull_request ]
+    [ pull_request, push ]
 jobs:
     nix-build:
         name: ${{matrix.release}} / ghc ${{matrix.ghc}}
