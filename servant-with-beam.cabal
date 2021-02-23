@@ -31,6 +31,7 @@ common prelude
   ghc-options:
     -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
     -Wcompat -Wnoncanonical-monad-instances -O2
+
   build-depends:
 
 common monitor
@@ -44,14 +45,14 @@ common app-depends
     monitor
 
   build-depends:
-    , base       >=4.12 && <4.17
-    , universum  ^>=1.7
+    , base                 >=4.12     && <4.17
     , chronos              ^>=1.1
     , envy                 ^>=2.1.0.0
     , postgresql-simple    ^>=0.6
     , servant-auth-server  ^>=0.4.6.0
     , servant-errors       ^>=0.1.6.0
     , sqlite-simple        ^>=0.4.0.0
+    , universum            ^>=1.7
     , unliftio             ^>=0.2.13.1
     , unliftio-pool        ^>=0.2.1.1
 
@@ -122,8 +123,7 @@ common migration
     sql
 
   build-depends:
-    , base       >=4.12 && <4.17
-    , universum  ^>=1.7
+    , base               >=4.12     && <4.17
     , beam-automigrate   ^>=0.1.1.0
     , beam-migrate       ^>=0.5.0.0
     , chronos            ^>=1.1
@@ -133,6 +133,7 @@ common migration
     , password           ^>=2.1
     , postgresql-simple  ^>=0.6
     , time               ^>=1.9
+    , universum          ^>=1.7
     , unliftio           ^>=0.2.13.1
     , unliftio-pool      ^>=0.2.1.1
 
@@ -212,8 +213,8 @@ executable frontend
   main-is:        Main.hs
   hs-source-dirs: frontend
   build-depends:
-    , base       >=4.12 && <4.17
-    , reflex     ^>=0.8.0.0
+    , base    >=4.12    && <4.17
+    , reflex  ^>=0.8.0.0
 
   ghcjs-options:  -dedupe
 
@@ -227,7 +228,7 @@ executable scripts
       import:        migration
       build-depends: servant-with-beam
 
-    buildable: False
+    buildable:     False
     other-modules:
       Migration.Databases.HitmenBusiness
       Migration.Databases.HitmenBusiness.Handlers
