@@ -1,6 +1,6 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
-, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, optimization ? "0"
-, checkMaterialization ? false }:
+, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, frontend ? false
+, optimization ? "0", checkMaterialization ? false }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
@@ -10,15 +10,17 @@ let
   inherit (pkgs.lib.attrsets) mapAttrs;
 
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/864#issuecomment-702971226
-  includedFiles = [ "backend" ];
+  backendFiles = [ "backend" ];
+  frontendFiles = [ "frontend" ];
 
   name = "servant-with-beam";
   baseSrc = ./.;
 
   compiler-nix-name = compiler;
 
-  mkProject = pkgs: sha256:
+  mkProject = raw-pkgs: sha256:
     let
+      pkgs = if (frontend) then raw-pkgs.pkgsCross.ghcjs else raw-pkgs;
       inherit (pkgs.haskell-nix) haskellLib project;
       inherit (pkgs.lib) any strings optional attrsets;
       # 'cleanGit' cleans a source directory based on the files known by git
@@ -30,8 +32,9 @@ let
       filter = path: type:
         any (f:
           let p = toString (baseSrc + ("/" + f));
-          in p == path || (strings.hasPrefix (p + "/") path)) includedFiles
-        || baseNameOf path == "${name}.cabal";
+          in p == path || (strings.hasPrefix (p + "/") path))
+        (if (frontend) then frontendFiles else backendFiles) || baseNameOf path
+        == "${name}.cabal";
       src = haskellLib.cleanSourceWith {
         inherit name filter;
         src = baseSrc;
@@ -92,8 +95,11 @@ let
     # static = mkProject musl64 "temp";
     static = mkProject static-pkgs "temp";
   };
-  exes = mapAttrs (name: value: value.servant-with-beam.components.exes.app)
-    releases;
+  exes = mapAttrs (name: value:
+    value.servant-with-beam.components.exes."${if (frontend) then
+      "frontend"
+    else
+      "app"}") releases;
   shells = mapAttrs (name: value: value.shellFor) releases;
 in if (default) then
   exes.${platform}

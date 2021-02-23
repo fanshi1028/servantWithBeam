@@ -1,7 +1,7 @@
 { compiler ? "ghc8104", platform ? "osx", optimization ? "0", default ? false
 , pkgs ? import ./default.nix {
-  inherit platform compiler default checkMaterialization optimization;
-}, checkMaterialization ? false }:
+  inherit platform compiler default checkMaterialization optimization frontend;
+}, frontend ? false, checkMaterialization ? false }:
 with pkgs;
 shells.${platform} {
   # shellFor {
@@ -25,7 +25,8 @@ shells.${platform} {
     retrie = "0.1.1.1";
     doctest = "0.17";
     cabal-fmt = {
-      compiler-nix-name = "ghc8104"; # seems different cabal version come with ghc fuck this up and I don't know how to override that cabal
+      compiler-nix-name =
+        "ghc8104"; # seems different cabal version come with ghc fuck this up and I don't know how to override that cabal
       version = "0.1.5.1";
       cabalProject = ''
         packages: .

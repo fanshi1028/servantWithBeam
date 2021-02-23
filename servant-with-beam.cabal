@@ -180,6 +180,9 @@ library
 
   hs-source-dirs:  backend/src
 
+  if impl(ghcjs)
+    buildable: False
+
 executable app
   if flag(ghcid)
     import:         libdeps
@@ -189,6 +192,9 @@ executable app
     import:        app-depends
     build-depends: servant-with-beam
 
+  if impl(ghcjs)
+    buildable: False
+
   main-is:        Main.hs
   hs-source-dirs: backend/app
   build-depends:
@@ -196,6 +202,20 @@ executable app
     , warp  ^>=3.3.10
 
   ghc-options:    -threaded
+
+executable frontend
+  import:         prelude
+
+  if !impl(ghcjs)
+    buildable: False
+
+  main-is:        Main.hs
+  hs-source-dirs: frontend
+  build-depends:
+    , base       >=4.12 && <4.17
+    , reflex     ^>=0.8.0.0
+
+  ghcjs-options:  -dedupe
 
 executable scripts
   if !os(windows)
@@ -214,6 +234,9 @@ executable scripts
       Migration.Utils.Chronos
       Migration.Utils.Types
 
+  if impl(ghcjs)
+    buildable: False
+
   main-is:        Main.hs
   hs-source-dirs: scripts
   ghc-options:    -threaded
@@ -226,6 +249,9 @@ test-suite test
   else
     import:        app-depends, client
     build-depends: servant-with-beam
+
+  if impl(ghcjs)
+    buildable: False
 
   type:           exitcode-stdio-1.0
   main-is:        Main.hs
