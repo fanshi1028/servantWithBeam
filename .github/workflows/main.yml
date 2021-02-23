@@ -3,7 +3,7 @@ on:
     [ pull_request, push ]
 jobs:
     nix-build:
-        name: ${{matrix.release}} / ghc ${{matrix.ghc}} / ${{app}}end
+        name: ${{matrix.release}} / ghc ${{matrix.ghc}} / ${{matrix.app}}end
         strategy:
             fail-fast: false
             matrix:
