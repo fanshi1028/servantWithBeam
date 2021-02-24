@@ -32,8 +32,6 @@ common prelude
     -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
     -Wcompat -Wnoncanonical-monad-instances -O2
 
-  build-depends:
-
 common monitor
   build-depends:
     , co-log    ^>=0.4.0.1
@@ -213,8 +211,10 @@ executable frontend
   main-is:        Main.hs
   hs-source-dirs: frontend
   build-depends:
-    , base    >=4.12    && <4.17
-    , reflex  ^>=0.8.0.0
+    , base
+    , universum
+    , ghcjs-base
+    , reflex-dom
 
   ghcjs-options:  -dedupe
 
