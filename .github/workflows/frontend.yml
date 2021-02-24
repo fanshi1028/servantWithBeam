@@ -3,7 +3,7 @@ on:
     [ pull_request, push ]
 jobs:
     nix-build:
-        name: ${{matrix.release}} / ghc ${{matrix.ghc}} / ${{matrix.app}}end
+        name: ${{matrix.release}} / ghc ${{matrix.ghc}}
         strategy:
             fail-fast: false
             matrix:
@@ -11,7 +11,6 @@ jobs:
                 ghc: [865, 884, 8104]
                 sedArg: ["", "''"]
                 release: ["linux", "osx", "windows", "static"]
-                app: ["front", "back"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -27,21 +26,9 @@ jobs:
                     release: "static"
                   - os: macos-latest
                     release: "windows"
-                    # static don't work
+                include:
                   - release: "static"
-                    ghc: 865
-                  - release: "static"
-                    ghc: 884
-                  - release: "static"
-                    ghc: 8104
-                    # no 8102 for osx and linux
-                  - release: "windows"
-                    ghc: 865
-                  - release: "windows"
-                    ghc: 884
-                # include:
-                #   - release: "static"
-                #     cache: "static-haskell-nix"
+                    cache: "static-haskell-nix"
 
         runs-on: ${{matrix.os}}
         steps:
@@ -56,16 +43,16 @@ jobs:
               with:
                   name: servant-with-beam
                   authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-                  # extraPullNames: ${{ matrix.cache }}
+                  extraPullNames: "${{ matrix.cache }}"
             - name: add haskell.nix pub keys, add haskell.nix substituters
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
-              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false --arg frontend ${{matrix.app == 'front'}} -A servant-with-beam.${{matrix.release}}
+              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false --arg frontend true -A servant-with-beam.${{matrix.release}}
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '8104'
-              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg frontend ${{matrix.app == 'front'}} --run "echo ok"
+              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg frontend true --run "echo ok"
 
 # FIXME dependencies text-icu can't build on windows and fuck this up
 # NOTEhttps://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml
