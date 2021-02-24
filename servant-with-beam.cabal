@@ -212,8 +212,6 @@ executable frontend
   hs-source-dirs: frontend
   build-depends:
     , base
-    , universum
-    , ghcjs-base
     , reflex-dom
 
   ghcjs-options:  -dedupe
