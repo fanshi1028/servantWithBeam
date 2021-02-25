@@ -32,6 +32,10 @@ common prelude
     -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
     -Wcompat -Wnoncanonical-monad-instances -O2
 
+  build-depends:
+    , base                 >=4.12     && <4.17
+    , universum            ^>=1.7
+
 common monitor
   build-depends:
     , co-log    ^>=0.4.0.1
@@ -43,14 +47,12 @@ common app-depends
     monitor
 
   build-depends:
-    , base                 >=4.12     && <4.17
     , chronos              ^>=1.1
     , envy                 ^>=2.1.0.0
     , postgresql-simple    ^>=0.6
     , servant-auth-server  ^>=0.4.6.0
     , servant-errors       ^>=0.1.6.0
     , sqlite-simple        ^>=0.4.0.0
-    , universum            ^>=1.7
     , unliftio             ^>=0.2.13.1
     , unliftio-pool        ^>=0.2.1.1
 
@@ -121,7 +123,6 @@ common migration
     sql
 
   build-depends:
-    , base               >=4.12     && <4.17
     , beam-automigrate   ^>=0.1.1.0
     , beam-migrate       ^>=0.5.0.0
     , chronos            ^>=1.1
@@ -131,7 +132,6 @@ common migration
     , password           ^>=2.1
     , postgresql-simple  ^>=0.6
     , time               ^>=1.9
-    , universum          ^>=1.7
     , unliftio           ^>=0.2.13.1
     , unliftio-pool      ^>=0.2.1.1
 
@@ -206,10 +206,12 @@ executable frontend
   import:         prelude
   main-is:        Main.hs
   hs-source-dirs: frontend
+  if impl(ghc >= 8.10.1)
+    buildable: False
   build-depends:
-    , base
-    , universum
-    , reflex-dom
+    , hashable ^>=1.2
+    , reflex   ^>=0.8
+    , reflex-dom ^>=0.6
 
   ghcjs-options:  -dedupe
 

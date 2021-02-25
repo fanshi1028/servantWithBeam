@@ -5,7 +5,6 @@ let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
   inherit (win64-pkgs.pkgsCross) mingwW64;
-  # inherit (pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
 
@@ -92,7 +91,6 @@ let
     linux = def;
     osx = def;
     windows = mkProject mingwW64 "temp";
-    # static = mkProject musl64 "temp";
     static = mkProject static-pkgs "temp";
   };
   exes = mapAttrs (name: value:
@@ -109,6 +107,6 @@ else {
   # For docker release
     dockerTool busybox
     # For nix-shell
-    heroku postgresql;
+    heroku postgresql niv;
   inherit shells;
 }

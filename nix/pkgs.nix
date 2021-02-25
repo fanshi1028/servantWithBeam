@@ -56,4 +56,5 @@ let
 
   win64-pkgs = import nixpkgsSrc
     (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
+
 in { inherit pkgs static-pkgs win64-pkgs; }
