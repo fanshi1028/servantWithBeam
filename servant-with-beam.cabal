@@ -204,14 +204,11 @@ executable app
 
 executable frontend
   import:         prelude
-
-  if !impl(ghcjs)
-    buildable: False
-
   main-is:        Main.hs
   hs-source-dirs: frontend
   build-depends:
     , base
+    , universum
     , reflex-dom
 
   ghcjs-options:  -dedupe

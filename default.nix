@@ -83,11 +83,6 @@ let
           # terminfo is disabled on musl by haskell.nix, but still the flag
           # is set in the package plan, so override this
           packages.haskeline.flags.terminfo = false;
-        }
-
-        # NOTE try fixing ghcjs8.8
-        ++ optional (compiler == "ghc884" && frontend == true) {
-          packages.reflex.flags.use-template-haskell = false;
         };
 
       index-state = "2021-02-13T23:31:09Z";

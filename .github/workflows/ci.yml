@@ -72,7 +72,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 884]
+                ghc: [865]
                 sedArg: ["", "''"]
                 release: ["linux", "osx", "windows" ]
                 exclude:
@@ -104,7 +104,7 @@ jobs:
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false --arg frontend true -A servant-with-beam.${{matrix.release}}
             - name: nix-shell
-              if: matrix.release == 'osx' && matrix.ghc == '8104'
+              if: matrix.release == 'osx' && matrix.ghc == '865'
               run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg frontend true --run "echo ok"
 
 # FIXME dependencies text-icu can't build on windows and fuck this up
