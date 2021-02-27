@@ -2,7 +2,7 @@
 , pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, js ? false
 , optimization ? "0", checkMaterialization ? false }:
 let
-  inherit (pkgSets) pkgs static-pkgs win64-pkgs ghcjs-base-src;
+  inherit (pkgSets) pkgs static-pkgs win64-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
@@ -72,9 +72,6 @@ let
               } $out --subst-var-by libpq ${pkgs.libpq.out}
             '')
           ];
-        # NOTE https://github.com/ghcjs/ghcjs-base/commit/18f31dec5d9eae1ef35ff8bbf163394942efd227
-        # NOTE ghcjs-base on hackage not up to date with this need version bump, ghc >= 8.8 needed hashable >= 1.3.
-        packages.ghcjs-base.src = ghcjs-base-src.outPath;
       }]
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/86#issuecomment-472748457
         # NOTE https://github.com/entropia/tip-toi-reveng/blob/2a30c2500b804b31ed4536a186d3f123e18651ae/default.nix#L41
