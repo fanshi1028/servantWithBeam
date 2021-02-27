@@ -1,5 +1,5 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
-, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, frontend ? false
+, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, js ? false
 , optimization ? "0", checkMaterialization ? false }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs ghcjs-base-src;
@@ -19,7 +19,7 @@ let
 
   mkProject = raw-pkgs: sha256:
     let
-      pkgs = if (frontend) then raw-pkgs.pkgsCross.ghcjs else raw-pkgs;
+      pkgs = if (js) then raw-pkgs.pkgsCross.ghcjs else raw-pkgs;
       inherit (pkgs.haskell-nix) haskellLib project;
       inherit (pkgs.lib) any strings optional attrsets;
       # 'cleanGit' cleans a source directory based on the files known by git
@@ -32,7 +32,7 @@ let
         any (f:
           let p = toString (baseSrc + ("/" + f));
           in p == path || (strings.hasPrefix (p + "/") path))
-        (if (frontend) then frontendFiles else backendFiles) || baseNameOf path
+        (if (js) then frontendFiles else backendFiles) || baseNameOf path
         == "${name}.cabal";
       src = haskellLib.cleanSourceWith {
         inherit name filter;
@@ -96,7 +96,7 @@ let
     static = mkProject static-pkgs "temp";
   };
   exes = mapAttrs (name: value:
-    value.servant-with-beam.components.exes."${if (frontend) then
+    value.servant-with-beam.components.exes."${if (js) then
       "frontend"
     else
       "app"}") releases;

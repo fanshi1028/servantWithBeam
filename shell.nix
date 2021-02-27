@@ -1,7 +1,7 @@
 { compiler ? "ghc8104", platform ? "osx", optimization ? "0", default ? false
-, pkgs ? import ./default.nix {
-  inherit platform compiler default checkMaterialization optimization frontend;
-}, frontend ? false, checkMaterialization ? false }:
+, js ? false, checkMaterialization ? false, pkgs ? import ./default.nix {
+  inherit platform compiler default checkMaterialization optimization js;
+} }:
 with pkgs;
 shells.${platform} {
   # shellFor {
