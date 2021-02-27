@@ -1,4 +1,16 @@
 {
+    "ghcjs-base": {
+        "branch": "master",
+        "description": "base library for GHCJS for JavaScript interaction and marshalling, used by higher level libraries like JSC",
+        "homepage": "",
+        "owner": "ghcjs",
+        "repo": "ghcjs-base",
+        "rev": "18f31dec5d9eae1ef35ff8bbf163394942efd227",
+        "sha256": "09h3rc639n4768y75v0dbrys9pnd4da538cdgzx11dzrjm971f60",
+        "type": "tarball",
+        "url": "https://github.com/ghcjs/ghcjs-base/archive/18f31dec5d9eae1ef35ff8bbf163394942efd227.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "haskell-nix": {
         "branch": "master",
         "description": "Alternative Haskell Infrastructure for Nixpkgs",

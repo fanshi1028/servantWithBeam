@@ -209,7 +209,7 @@ executable frontend
   if impl(ghc >= 8.10.1)
     buildable: False
   build-depends:
-    , hashable ^>=1.2
+    , hashable
     , reflex   ^>=0.8
     , reflex-dom ^>=0.6
 
