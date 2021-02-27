@@ -1,6 +1,6 @@
 { compiler ? "ghc8104", platform ? "osx", default ? true
 , pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, js ? false
-, optimization ? "0", checkMaterialization ? false }:
+, optimization ? "0", frontend ? js, checkMaterialization ? false }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
@@ -32,7 +32,7 @@ let
         any (f:
           let p = toString (baseSrc + ("/" + f));
           in p == path || (strings.hasPrefix (p + "/") path))
-        (if (js) then frontendFiles else backendFiles) || baseNameOf path
+        (if (frontend) then frontendFiles else backendFiles) || baseNameOf path
         == "${name}.cabal";
       src = haskellLib.cleanSourceWith {
         inherit name filter;

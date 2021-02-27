@@ -8,3 +8,4 @@ dblog
 /.tasty-rerun-log
 /materialized/
 /result
+/frontend/.envrc

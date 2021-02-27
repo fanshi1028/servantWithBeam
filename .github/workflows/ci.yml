@@ -62,9 +62,12 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}}
-            - name: nix-shell
+            - name: nix-shell for backend
               if: matrix.release == 'osx' && matrix.ghc == '8104'
               run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --run "echo ok"
+            - name: nix-shell for frontend
+              if: matrix.release == 'osx' && matrix.ghc == '884'
+              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg frontend true --run "echo ok"
 
     frontend:
         name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
@@ -103,9 +106,9 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
-            - name: nix-shell
-              if: matrix.release == 'osx'
-              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg js true --run "echo ok"
+            # - name: nix-shell
+            #   if: matrix.release == 'osx'
+            #   run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg js true --run "echo ok"
 
 # FIXME dependencies text-icu can't build on windows and fuck this up
 # NOTEhttps://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml
