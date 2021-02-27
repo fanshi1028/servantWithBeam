@@ -40,7 +40,10 @@ let
       };
     in project {
       inherit src compiler-nix-name;
-      cabalProject = readFile "${baseSrc}/cabal${if (js) then ".js" else ""}.project";
+
+      cabalProject = readFile "${baseSrc}/cabal${
+          if (js && compiler != "ghc865") then ".js" else ""
+        }.project";
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/979#issuecomment-748483501
       # NOTE https://github.com/input-output-hk/tools/blob/95f44de0fb1d2ee6408ea0e2ca27cfd6967c02af/arm-test/default.nix#L45-L72
       # NOTE https://github.com/haskell/cabal/issues/6770#issue-615196643
