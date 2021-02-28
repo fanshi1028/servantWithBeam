@@ -205,7 +205,7 @@ executable app
 executable frontend
   import:         prelude
   main-is:        Main.hs
-  hs-source-dirs: frontend
+  hs-source-dirs: frontend/app
 
   if impl(ghc >=8.10.1)
     buildable: False

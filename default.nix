@@ -29,8 +29,10 @@ let
       # NOTE use less good nix-gitignore instead for now
       # src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/1013
+      ignore = path:
+        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix";
       filter = path: type:
-        any (f:
+        ignore path && any (f:
           let p = toString (baseSrc + ("/" + f));
           in p == path || (strings.hasPrefix (p + "/") path))
         (if (frontend) then frontendFiles else backendFiles) || baseNameOf path
