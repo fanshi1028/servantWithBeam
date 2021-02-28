@@ -8,7 +8,10 @@ source-repository-package
   tag:  18f31dec5d9eae1ef35ff8bbf163394942efd227
   --sha256: 09h3rc639n4768y75v0dbrys9pnd4da538cdgzx11dzrjm971f60
 
-package reflex
+-- package reflex
+--   flags: -use-template-haskell
+
+package reflex-dom-core
   flags: -use-template-haskell
 
 verbose: 2

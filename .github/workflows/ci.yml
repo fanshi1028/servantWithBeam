@@ -39,8 +39,8 @@ jobs:
                   - release: "windows"
                     ghc: 884
                 # include:
-                #   - release: "static"
-                #     cache: "static-haskell-nix"
+                  # - release: "static"
+                  #   cache: "static-haskell-nix"
 
         runs-on: ${{matrix.os}}
         steps:
@@ -67,7 +67,7 @@ jobs:
               run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --run "echo ok"
             - name: nix-shell with frontend
               if: matrix.release == 'osx' && matrix.ghc != '8104'
-              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg frontend true --run "echo ok"
+              run: nix-shell -j4 --argstr compiler ghc${{matrix.ghc}} --argstr platform ${{matrix.release}} --arg frontend true --arg userWarp true --run "echo ok"
 
     frontend:
         name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
