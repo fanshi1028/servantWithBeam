@@ -1,2 +1,1 @@
-{ compiler ? "ghc865", frontend ? true, useWarp ? true }:
-import ../shell.nix { inherit compiler frontend useWarp; }
+import ../shell.nix { frontend = true; }

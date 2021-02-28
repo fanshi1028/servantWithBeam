@@ -1,7 +1,8 @@
 import Reflex.Dom
-import Prelude
 -- import Universum
+import Prelude
 
+main :: IO ()
 main = mainWidget $ el "div" $ do
  el "p" $ text "Reflex is:"
  el "ul" $ do

@@ -210,14 +210,6 @@ executable frontend
   if impl(ghc >=8.10.1)
     buildable: False
 
-  if flag(ghcid)
-    build-depends:
-      , jsaddle
-      , jsaddle-warp
-      , transformers
-      , warp
-      , websockets
-
   build-depends:
     , hashable
     , reflex      ^>=0.8

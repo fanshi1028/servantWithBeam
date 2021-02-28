@@ -1,7 +1,7 @@
-{ compiler ? "ghc8104", platform ? "osx", default ? true
-, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }, js ? false
-, optimization ? "0", frontend ? js, checkMaterialization ? false
-, useWarp ? false }:
+{ js ? false, optimization ? "0", frontend ? js
+, compiler ? if frontend then "ghc865" else "ghc8104", platform ? "osx"
+, default ? true, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
+, checkMaterialization ? false, useWarp ? frontend && !js }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
