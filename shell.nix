@@ -1,11 +1,10 @@
 { js ? false, optimization ? "0", frontend ? js
 , compiler ? if frontend then "ghc865" else "ghc8104", platform ? "osx"
-, default ? false, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
-, checkMaterialization ? false, useWarp ? frontend && !js, pkgs ?
-  import ./default.nix {
-    inherit platform compiler default checkMaterialization optimization js
-      frontend useWarp;
-  } }:
+, default ? false, checkMaterialization ? false, useWarp ? frontend && !js
+, pkgs ? import ./default.nix {
+  inherit platform compiler default checkMaterialization optimization js
+    frontend useWarp;
+} }:
 with pkgs;
 shells.${platform} {
   # shellFor {
@@ -41,7 +40,7 @@ shells.${platform} {
   # See overlays/tools.nix for more details
 
   # Some you may need to get some other way.
-  buildInputs = (if frontend then [] else [ postgresql heroku ]) ++ [ niv ];
+  buildInputs = (if frontend then [ ] else [ postgresql heroku ]) ++ [ niv ];
 
   # Prevents cabal from choosing alternate plans, so that
   # *all* dependencies are provided by Nix.

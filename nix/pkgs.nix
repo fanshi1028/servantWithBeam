@@ -9,11 +9,9 @@ let
       haskell-nix = super.haskell-nix // {
         toolPackageName = super.haskell-nix.toolPackageName // {
           gen-hie = "implicit-hie";
-          haskell-language-server-wrapper = "haskell-language-server";
         };
         packageToolName = super.haskell-nix.packageToolName // {
           implicit-hie = "gen-hie";
-          haskell-language-server = "haskell-language-server-wrapper";
         };
       };
     })
