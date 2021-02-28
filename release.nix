@@ -1,11 +1,17 @@
-{ compiler ? "ghc8104", platform ? "linux", optimization ? "2", default ? false
-, pkgs ? import ./default.nix {
-  inherit compiler platform default checkMaterialization optimization;
-}, checkMaterialization ? false }:
+{ js ? false, frontend ? js, compiler ? if js then "ghc865" else "ghc8104"
+, platform ? "linux", optimization ? "2", default ? false
+, checkMaterialization ? false, pkgs ? import ./default.nix {
+  inherit compiler platform default checkMaterialization optimization js
+    frontend;
+} }:
 with pkgs;
-dockerTools.buildImage {
-  name = "servant-with-beam";
-  tag = "latest";
-  contents = [ servant-with-beam."${platform}" busybox ];
-  config = { Cmd = [ "bin/app" ]; };
-}
+let app = servant-with-beam."${platform}";
+in if (js) then
+  app
+else
+  dockerTools.buildImage {
+    name = "servant-with-beam";
+    tag = "latest";
+    contents = [ app busybox ];
+    config = { Cmd = [ "bin/app" ]; };
+  }
