@@ -20,18 +20,18 @@ shells.${platform} {
 
   # Some common tools can be added with the `tools` argument
   tools = {
-    cabal = "3.2.0.0";
-    hlint = "3.2.2";
-    haskell-language-server = "0.9.0.0";
-    ormolu = "0.1.4.1";
-    ghcid = "0.8.7";
-    implicit-hie = "0.1.2.3";
-    retrie = "0.1.1.1";
-    doctest = "0.17";
+    cabal = "latest";
+    hlint = "latest";
+    haskell-language-server = "latest";
+    ormolu = "latest";
+    ghcid = "latest";
+    implicit-hie = "latest";
+    retrie = "latest";
+    doctest = "latest";
     cabal-fmt = {
       compiler-nix-name =
         "ghc8104"; # seems different cabal version come with ghc fuck this up and I don't know how to override that cabal
-      version = "0.1.5.1";
+      version = "latest";
       cabalProject = ''
         packages: .
                '';
