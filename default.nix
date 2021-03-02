@@ -30,7 +30,7 @@ let
       # src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/1013
       ignore = path:
-        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix";
+        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix" || baseNameOf path != "hie.yaml";
       filter = path: type:
         ignore path && any (f:
           let p = toString (baseSrc + ("/" + f));
@@ -65,7 +65,7 @@ let
         # packages.cabal-install.reinstallableLibGhc = true;
         packages.servant-with-beam = {
           dontStrip = false;
-          configureFlags = [ "--ghc-option=-O${optimization}" ];
+          configureFlags = [ "--ghc-option=-O${optimization}"  ] ++ optional frontend "-ffrontend";
         };
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
@@ -94,7 +94,7 @@ let
 
       index-state = "2021-02-13T23:31:09Z";
     };
-  def = mkProject pkgs "tmep";
+  def = mkProject pkgs "temp";
   releases = {
     linux = def;
     osx = def;
