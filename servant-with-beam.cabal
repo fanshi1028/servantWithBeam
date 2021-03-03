@@ -183,7 +183,7 @@ library
 
   hs-source-dirs:  backend/src
 
-  if impl(ghcjs) || flag(frontend)
+  if flag(frontend)
     buildable: False
 
 executable app
@@ -195,7 +195,7 @@ executable app
     import:        app-depends
     build-depends: servant-with-beam
 
-  if impl(ghcjs) || flag(frontend)
+  if flag(frontend)
     buildable: False
 
   main-is:        Main.hs
@@ -211,7 +211,7 @@ executable frontend
   main-is:        Main.hs
   hs-source-dirs: frontend/app
 
-  if impl(ghc >=8.10.1)
+  if impl(ghc >=8.10.1) || !flag(frontend)
     buildable: False
 
   build-depends:
@@ -238,7 +238,7 @@ executable scripts
       Migration.Utils.Chronos
       Migration.Utils.Types
 
-  if impl(ghcjs) || flag(frontend)
+  if flag(frontend)
     buildable: False
 
   main-is:        Main.hs
@@ -254,7 +254,7 @@ test-suite test
     import:        app-depends, client
     build-depends: servant-with-beam
 
-  if impl(ghcjs) || flag(frontend)
+  if flag(frontend)
     buildable: False
 
   type:           exitcode-stdio-1.0
