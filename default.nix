@@ -18,10 +18,13 @@ let
 
   compiler-nix-name = compiler;
 
-  mkProject = raw-pkgs: raw-sha256:
+  mkProject = raw-pkgs:
+    # this sha256 is not used
+    raw-sha256:
     let
       pkgs = if (js) then raw-pkgs.pkgsCross.ghcjs else raw-pkgs;
-      plan-sha256 = if (sha256 == "") then raw-sha256 else sha256;
+      # plan-sha256 = if (sha256 == "") then raw-sha256 else sha256;
+      plan-sha256 = if (sha256 == "") then null else sha256;
       inherit (pkgs.haskell-nix) haskellLib project;
       inherit (pkgs.lib) any strings optional attrsets readFile;
       # 'cleanGit' cleans a source directory based on the files known by git
@@ -47,7 +50,13 @@ let
     in project {
       inherit src compiler-nix-name plan-sha256 checkMaterialization;
 
-      materialized = if frontend then ./project.frontend.materialized else ./project.materialized;
+      materialized = if (plan-sha256 != null) then
+        (if frontend then
+          ./project.frontend.materialized
+        else
+          ./project.materialized)
+      else
+        null;
 
       cabalProject = readFile "${baseSrc}/${cabalProjectFile}";
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/979#issuecomment-748483501
@@ -97,12 +106,14 @@ let
 
       index-state = "2021-02-13T23:31:09Z";
     };
-  def = mkProject pkgs "0lx3n9zhfss2n05wvfcn16fp6hw4fwvf3778yr5afzwh90i1njiz";
+  def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
   releases = {
     linux = def;
     osx = def;
-    windows = mkProject mingwW64 "0000000000000000000000000000000000000000000000000000";
-    static = mkProject static-pkgs "0000000000000000000000000000000000000000000000000000";
+    windows =
+      mkProject mingwW64 "0000000000000000000000000000000000000000000000000000";
+    static = mkProject static-pkgs
+      "0000000000000000000000000000000000000000000000000000";
   };
   exes = mapAttrs (name: value:
     value.servant-with-beam.components.exes."${if (js) then
