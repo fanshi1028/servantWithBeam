@@ -1,7 +1,7 @@
 { js ? false, optimization ? "0", frontend ? js
 , compiler ? if frontend then "ghc865" else "ghc8104", platform ? "osx"
 , default ? true, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
-, checkMaterialization ? false, useWarp ? frontend && !js }:
+, checkMaterialization ? false, useWarp ? frontend && !js, sha256 ? "" }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
@@ -18,9 +18,10 @@ let
 
   compiler-nix-name = compiler;
 
-  mkProject = raw-pkgs: sha256:
+  mkProject = raw-pkgs: raw-sha256:
     let
       pkgs = if (js) then raw-pkgs.pkgsCross.ghcjs else raw-pkgs;
+      plan-sha256 = if (sha256 == "") then raw-sha256 else sha256;
       inherit (pkgs.haskell-nix) haskellLib project;
       inherit (pkgs.lib) any strings optional attrsets readFile;
       # 'cleanGit' cleans a source directory based on the files known by git
@@ -30,7 +31,7 @@ let
       # src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/1013
       ignore = path:
-        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix" || baseNameOf path != "hie.yaml";
+        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix";
       filter = path: type:
         ignore path && any (f:
           let p = toString (baseSrc + ("/" + f));
@@ -41,11 +42,12 @@ let
         inherit name filter;
         src = baseSrc;
       };
-      cabalProjectFile = "cabal.project${
-          if (frontend) then ".frontend" else ""
-        }";
+      cabalProjectFile =
+        "cabal.project${if (frontend) then ".frontend" else ""}";
     in project {
-      inherit src compiler-nix-name;
+      inherit src compiler-nix-name plan-sha256 checkMaterialization;
+
+      materialized = if frontend then ./project.frontend.materialized else ./project.materialized;
 
       cabalProject = readFile "${baseSrc}/${cabalProjectFile}";
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/979#issuecomment-748483501
@@ -60,13 +62,13 @@ let
       #     reinstallableLibGhc = true;
       #   }];
       # }).components.exes.cabal;
-      # plan-sha256 = sha256;
+
       modules = [{
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/720#issuecomment-745397468
         # packages.cabal-install.reinstallableLibGhc = true;
         packages.servant-with-beam = {
           dontStrip = false;
-          configureFlags = [ "--ghc-option=-O${optimization}"  ];
+          configureFlags = [ "--ghc-option=-O${optimization}" ];
         };
         # NOTE https://github.com/input-output-hk/haskell.nix/pull/336#discussion_r501772226
         packages.ekg.enableSeparateDataOutput = true;
@@ -94,14 +96,13 @@ let
         ++ optional useWarp { packages.reflex-deom.flags.use-warp = true; };
 
       index-state = "2021-02-13T23:31:09Z";
-      shellHook = "cabal new-configure --project-file=${cabalProjectFile}";
     };
-  def = mkProject pkgs "temp";
+  def = mkProject pkgs "0lx3n9zhfss2n05wvfcn16fp6hw4fwvf3778yr5afzwh90i1njiz";
   releases = {
     linux = def;
     osx = def;
-    windows = mkProject mingwW64 "temp";
-    static = mkProject static-pkgs "temp";
+    windows = mkProject mingwW64 "0000000000000000000000000000000000000000000000000000";
+    static = mkProject static-pkgs "0000000000000000000000000000000000000000000000000000";
   };
   exes = mapAttrs (name: value:
     value.servant-with-beam.components.exes."${if (js) then

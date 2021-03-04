@@ -61,18 +61,13 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
-              if: matrix.release != 'osx' || matrix.ghc == '884'
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}}
-            - name: nix-build with frontend nix-shell
+            - name: frontend nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
-              run:
-                nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}} \
-                & nix-shell -j4 --arg frontend true
-            - name: nix-build with backend nix-shell
+              run: nix-shell -j4 --arg frontend true
+            - name: backend nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '8104'
-              run:
-                nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}} \
-                & nix-shell -j4
+              run: nix-shell -j4
 
     frontend:
         name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
