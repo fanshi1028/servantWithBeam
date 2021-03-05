@@ -47,18 +47,17 @@ let
         src = baseSrc;
       };
       cabalProjectFile = "cabal.project${
-          if useWarp then
-            ".useWarp"
-          else if frontend then
-            ".frontend"
-          else
-            ""
+          if useWarp then ".useWarp" else if frontend then ".frontend" else ""
         }";
     in project {
       inherit src compiler-nix-name plan-sha256 checkMaterialization;
 
       materialized = if (plan-sha256 != null) then
-        (if frontend then
+        (if js then
+          # NOTE: https://github.com/input-output-hk/haskell.nix/issues/614
+          # ./project.js.materialized
+          null
+        else if frontend then
           ./project.frontend.materialized
         else
           ./project.materialized)
@@ -132,10 +131,6 @@ in if (default) then
   exes.${platform}
 else {
   servant-with-beam = exes;
-  inherit (pkgs)
-  # For docker release
-    dockerTool busybox
-    # For nix-shell
-    heroku postgresql niv;
+  pkgSet = pkgs;
   inherit shells;
 }

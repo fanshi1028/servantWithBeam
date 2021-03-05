@@ -9,9 +9,9 @@ let app = servant-with-beam."${platform}";
 in if (js) then
   app
 else
-  dockerTools.buildImage {
+  pkgSet.dockerTools.buildImage {
     name = "servant-with-beam";
     tag = "latest";
-    contents = [ app busybox ];
+    contents = [ app pkgSet.busybox ];
     config = { Cmd = [ "bin/app" ]; };
   }

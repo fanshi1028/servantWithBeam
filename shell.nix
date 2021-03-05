@@ -50,7 +50,7 @@ shells.${platform} {
   # See overlays/tools.nix for more details
 
   # Some you may need to get some other way.
-  buildInputs = (if frontend then [ ] else [ postgresql heroku ]) ++ [ niv ];
+  buildInputs = with pkgSet; (if frontend then [ ] else [ postgresql heroku ]) ++ [ niv ];
 
   # Prevents cabal from choosing alternate plans, so that
   # *all* dependencies are provided by Nix.
