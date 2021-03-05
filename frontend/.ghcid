@@ -1,0 +1,4 @@
+-c "cabal new-repl frontend --repl-options=-w -fghcid -O2 -fno-code +RTS -N -T -RTS"
+--reload=.
+-r
+--restart=../servant-with-beam.cabal

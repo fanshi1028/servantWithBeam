@@ -34,7 +34,8 @@ let
       # src = pkgs.nix-gitignore.gitignoreSource [ ] ./.;
       # NOTE https://github.com/input-output-hk/haskell.nix/issues/1013
       ignore = path:
-        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix";
+        baseNameOf path != ".envrc" || baseNameOf path != "shell.nix"
+        || baseNameOf path != ".ghcid";
       filter = path: type:
         ignore path && any (f:
           let p = toString (baseSrc + ("/" + f));
