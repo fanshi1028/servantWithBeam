@@ -46,8 +46,14 @@ let
         inherit name filter;
         src = baseSrc;
       };
-      cabalProjectFile =
-        "cabal.project${if (frontend) then ".frontend" else ""}";
+      cabalProjectFile = "cabal.project${
+          if useWarp then
+            ".useWarp"
+          else if frontend then
+            ".frontend"
+          else
+            ""
+        }";
     in project {
       inherit src compiler-nix-name plan-sha256 checkMaterialization;
 
@@ -103,7 +109,7 @@ let
           packages.haskeline.flags.terminfo = false;
         }
 
-        ++ optional useWarp { packages.reflex-deom.flags.use-warp = true; };
+        ++ optional useWarp { packages.reflex-dom.flags.use-warp = true; };
 
       index-state = "2021-02-13T23:31:09Z";
     };
@@ -117,7 +123,7 @@ let
       "0000000000000000000000000000000000000000000000000000";
   };
   exes = mapAttrs (name: value:
-    value.servant-with-beam.components.exes."${if (js) then
+    value.servant-with-beam.components.exes."${if frontend then
       "frontend"
     else
       "app"}") releases;

@@ -1,4 +1,4 @@
 import ../shell.nix {
   frontend = true;
-  sha256 = "1pm9hgcx2bgmb5i5078y42abiinjj7b5w3vld6zrd0l7g5g1v57d";
+  sha256 = "0xp4js9dfm7ld0r4fh8br1ii6vhjqjp4216c73k9ay0ncalpd85b";
 }
