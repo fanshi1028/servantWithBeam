@@ -186,7 +186,8 @@
           depends = [
             (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."universum" or (errorHandler.buildDepError "universum"))
-            (hsPkgs."hashable" or (errorHandler.buildDepError "hashable"))
+            (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
+            (hsPkgs."generic-lens" or (errorHandler.buildDepError "generic-lens"))
             (hsPkgs."reflex" or (errorHandler.buildDepError "reflex"))
             (hsPkgs."reflex-dom" or (errorHandler.buildDepError "reflex-dom"))
             ];

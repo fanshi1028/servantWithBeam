@@ -215,7 +215,8 @@ executable frontend
     buildable: False
 
   build-depends:
-    , hashable
+    , containers  ^>=0.6
+    , generic-lens
     , reflex      ^>=0.8
     , reflex-dom  ^>=0.6
 

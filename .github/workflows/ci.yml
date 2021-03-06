@@ -61,14 +61,11 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
-              if: matrix.release != 'osx' || matrix.ghc == '884'
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false -A servant-with-beam.${{matrix.release}}
-            - name: frontend nix-shell
-              if: matrix.release == 'osx' && matrix.ghc == '865'
-              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false -A servant-with-beam.${{matrix.release}} & nix-shell -j4 --arg frontend true
-            - name: backend nix-shell
+            - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '8104'
-              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false -A servant-with-beam.${{matrix.release}} & nix-shell -j4
+              working-directory: ./backend
+              run: nix-shell -j4
 
     frontend:
         name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
@@ -107,6 +104,10 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
+            - name: nix-shell
+              if: matrix.release == 'osx' && matrix.ghc == '865'
+              working-directory: ./frontend
+              run: nix-shell -j4
 
 # FIXME dependencies text-icu can't build on windows and fuck this up
 # NOTEhttps://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml

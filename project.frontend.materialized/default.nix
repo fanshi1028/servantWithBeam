@@ -109,6 +109,7 @@
         "time-manager".revision = (((hackage."time-manager")."0.0.0").revisions).default;
         "newtype-generics".revision = (((hackage."newtype-generics")."0.6").revisions).default;
         "parallel".revision = (((hackage."parallel")."3.2.2.0").revisions).default;
+        "indexed-profunctors".revision = (((hackage."indexed-profunctors")."0.1").revisions).default;
         "deepseq".revision = (((hackage."deepseq")."1.4.4.0").revisions).default;
         "haskell-src-meta".revision = (((hackage."haskell-src-meta")."0.8.5").revisions).default;
         "random".revision = (((hackage."random")."1.1").revisions).default;
@@ -273,6 +274,7 @@
         "blaze-html".revision = (((hackage."blaze-html")."0.9.1.2").revisions).default;
         "th-extras".revision = (((hackage."th-extras")."0.0.0.4").revisions).default;
         "th-extras".flags.base4 = true;
+        "generic-lens".revision = (((hackage."generic-lens")."2.1.0.0").revisions).default;
         "MemoTrie".revision = (((hackage."MemoTrie")."0.6.10").revisions).default;
         "MemoTrie".flags.examples = false;
         "colour".revision = (((hackage."colour")."2.3.5").revisions).default;
@@ -296,6 +298,7 @@
         "microlens-mtl".revision = (((hackage."microlens-mtl")."0.2.0.1").revisions).default;
         "resourcet".revision = (((hackage."resourcet")."1.2.4.2").revisions).default;
         "pretty".revision = (((hackage."pretty")."1.1.3.6").revisions).default;
+        "generic-lens-core".revision = (((hackage."generic-lens-core")."2.1.0.0").revisions).default;
         "cabal-doctest".revision = (((hackage."cabal-doctest")."1.0.8").revisions).default;
         "microlens".revision = (((hackage."microlens")."0.4.12.0").revisions).default;
         "aeson".revision = (((hackage."aeson")."1.4.7.1").revisions).default;

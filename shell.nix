@@ -1,7 +1,7 @@
 { js ? false, optimization ? "0", frontend ? js
 , compiler ? if frontend then "ghc865" else "ghc8104", platform ? "osx"
 , default ? false, checkMaterialization ? false, useWarp ? frontend && !js
-, sha256 ? "0lx3n9zhfss2n05wvfcn16fp6hw4fwvf3778yr5afzwh90i1njiz", pkgs ? import ./default.nix {
+, sha256 ? "", pkgs ? import ./default.nix {
   inherit platform compiler default checkMaterialization optimization js
     frontend useWarp sha256;
 } }:
