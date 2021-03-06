@@ -61,13 +61,14 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
-              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false -A servant-with-beam.${{matrix.release}}
+              if: matrix.release != 'osx' || matrix.ghc == '884'
+              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false -A servant-with-beam.${{matrix.release}}
             - name: frontend nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
-              run: nix-shell -j4 --arg frontend true
+              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false -A servant-with-beam.${{matrix.release}} & nix-shell -j4 --arg frontend true
             - name: backend nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '8104'
-              run: nix-shell -j4
+              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false -A servant-with-beam.${{matrix.release}} & nix-shell -j4
 
     frontend:
         name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
@@ -105,7 +106,7 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
-              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg checkMaterialization true --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
+              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
 
 # FIXME dependencies text-icu can't build on windows and fuck this up
 # NOTEhttps://github.com/hasufell/stack2cabal/blob/master/.github/workflows/release.yaml
