@@ -8,6 +8,11 @@ let
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
+  inherit (pkgs.pkgsCross)
+    aarch64-android-prebuilt
+    # armv7a-android-prebuilt
+    iphone64 iphone64-simulator;
+    # iphone32 iphone32-simulator;
 
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/864#issuecomment-702971226
   backendFiles = [ "backend" ];
@@ -119,6 +124,10 @@ let
     windows =
       mkProject mingwW64 "0000000000000000000000000000000000000000000000000000";
     static = mkProject static-pkgs
+      "0000000000000000000000000000000000000000000000000000";
+    android = mkProject aarch64-android-prebuilt
+      "0000000000000000000000000000000000000000000000000000";
+    iphone = mkProject iphone64
       "0000000000000000000000000000000000000000000000000000";
   };
   exes = mapAttrs (name: value:

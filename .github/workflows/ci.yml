@@ -75,7 +75,7 @@ jobs:
                 os: [ubuntu-latest, macos-latest]
                 ghc: [865]
                 sedArg: ["", "''"]
-                release: ["linux", "osx", "windows" ]
+                release: ["linux", "osx", "windows", "iphone", "android"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -84,11 +84,15 @@ jobs:
                     # no osx on ubuntu
                   - os: ubuntu-latest
                     release: "osx"
+                  - os: ubuntu-latest
+                    release: "iphone"
                     # only osx on macos
                   - os: macos-latest
                     release: "linux"
                   - os: macos-latest
                     release: "windows"
+                  - os: macos-latest
+                    release: "android"
 
         runs-on: ${{matrix.os}}
         steps:
