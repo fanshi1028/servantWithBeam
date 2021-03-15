@@ -26,6 +26,7 @@
         "exceptions".revision = (((hackage."exceptions")."0.10.4").revisions).default;
         "exceptions".flags.transformers-0-4 = true;
         "binary".revision = (((hackage."binary")."0.8.6.0").revisions).default;
+        "torsor".revision = (((hackage."torsor")."0.1").revisions).default;
         "ghc-prim".revision = (((hackage."ghc-prim")."0.5.3").revisions).default;
         "utf8-string".revision = (((hackage."utf8-string")."1.0.2").revisions).default;
         "old-time".revision = (((hackage."old-time")."1.1.0.3").revisions).default;
@@ -177,6 +178,7 @@
         "base-compat".revision = (((hackage."base-compat")."0.11.2").revisions).default;
         "time-compat".revision = (((hackage."time-compat")."1.9.5").revisions).default;
         "time-compat".flags.old-locale = false;
+        "chronos".revision = (((hackage."chronos")."1.1.2").revisions).default;
         "ansi-terminal".revision = (((hackage."ansi-terminal")."0.11").revisions).default;
         "ansi-terminal".flags.example = false;
         "witherable-class".revision = (((hackage."witherable-class")."0").revisions).default;
@@ -221,6 +223,7 @@
         "wai".revision = (((hackage."wai")."3.2.3").revisions).default;
         "basement".revision = (((hackage."basement")."0.0.11").revisions).default;
         "witherable".revision = (((hackage."witherable")."0.3.5").revisions).default;
+        "clay".revision = (((hackage."clay")."0.13.3").revisions).default;
         "old-locale".revision = (((hackage."old-locale")."1.0.0.7").revisions).default;
         "StateVar".revision = (((hackage."StateVar")."1.2.1").revisions).default;
         "vault".revision = (((hackage."vault")."0.3.1.4").revisions).default;
