@@ -3,14 +3,15 @@
 , default ? true, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false, useWarp ? frontend && !js, sha256 ? "" }:
 let
-  inherit (pkgSets) pkgs static-pkgs win64-pkgs;
+  inherit (pkgSets) pkgs static-pkgs win64-pkgs allow-unfree-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
   inherit (pkgs.pkgsCross)
-    aarch64-android-prebuilt
+    aarch64-android-prebuilt;
     # armv7a-android-prebuilt
+  inherit (allow-unfree-pkgs.pkgsCross)
     iphone64 iphone64-simulator;
     # iphone32 iphone32-simulator;
 
