@@ -1,4 +1,4 @@
-cabal-version: >= 1.8
+cabal-version: >= 2.0
 name:          frontend
 version:       0.1.0.0
 license:       MIT
@@ -36,7 +36,6 @@ executable frontend
     , generic-lens
     , text        ^>=1.2
     , chronos
-    , clay
     , file-embed
     , reflex      ^>=0.8
     , reflex-dom  ^>=0.6
