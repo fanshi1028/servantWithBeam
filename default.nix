@@ -14,7 +14,7 @@ in reflexProject ({ pkgs, ... }: {
   };
   ios.frontend = {
     executableName = "frontend";
-    applicationId = "servant.with.beam.frontend";
-    displayName = "Servant With Beam App";
+    bundleIdentifier = "servant.with.beam.frontend";
+    bundleName = "Servant With Beam App";
   };
 })
