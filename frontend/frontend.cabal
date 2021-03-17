@@ -30,7 +30,7 @@ executable frontend
     TypeApplications
 
   build-depends:
-    , base       >=4.12 && <4.17
+      base       >=4.12 && <4.17
     , universum  ^>=1.7
     , containers  ^>=0.6
     , generic-lens
