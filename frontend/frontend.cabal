@@ -45,5 +45,5 @@ executable frontend
   ghc-options:
     -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
     -Wcompat -Wnoncanonical-monad-instances -O2 -threaded
-  if os(darwin):
+  if os(darwin)
      ghc-options: -dynamic
