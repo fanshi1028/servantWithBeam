@@ -1,6 +1,7 @@
-{ useWarp ? false, pkgSets ? import ./nix/pkgs.nix { inherit useWarp; } }:
+{ useWarp ? false, pkgSets ? import ./nix/pkgs.nix { } }:
 let inherit (pkgSets) reflexProject;
 in reflexProject ({ pkgs, ... }: {
+  inherit useWarp;
   packages = { servant-with-beam-frontend = ./frontend; };
   shells = {
     ghc = [ "servant-with-beam-frontend" ];
