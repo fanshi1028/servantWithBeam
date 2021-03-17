@@ -2,18 +2,18 @@
 let inherit (pkgSets) reflexProject;
 in reflexProject ({ pkgs, ... }: {
   inherit useWarp;
-  packages = { servant-with-beam-frontend = ./frontend; };
+  packages = { frontend = ./frontend; };
   shells = {
-    ghc = [ "servant-with-beam-frontend" ];
-    ghcjs = [ "servant-with-beam-frontend" ];
+    ghc = [ "frontend" ];
+    ghcjs = [ "frontend" ];
   };
   android.frontend = {
-    executableName = "servant-with-beam-frontend";
+    executableName = "frontend";
     applicationId = "servant.with.beam.frontend";
     displayName = "Servant With Beam App";
   };
   ios.frontend = {
-    executableName = "servant-with-beam-frontend";
+    executableName = "frontend";
     applicationId = "servant.with.beam.frontend";
     displayName = "Servant With Beam App";
   };
