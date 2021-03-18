@@ -52,7 +52,7 @@ jobs:
             - name: upload artifact
               uses: actions/upload-artifact@v2
               with:
-                name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
+                name: frontend-${{matrix.release}}-ghc${{matrix.ghc}}
                 path: result*/**/*
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
