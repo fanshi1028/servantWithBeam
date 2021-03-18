@@ -72,7 +72,7 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                 name: backend/${{matrix.release}}/ghc${{matrix.ghc}}
-                path: results/
+                path: result*/**/*
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '8104'
               working-directory: ./backend

@@ -53,7 +53,7 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                 name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
-                path: results/
+                path: result*/**/*
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
               working-directory: ./frontend
