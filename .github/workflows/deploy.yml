@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build_and_deploy:
+  backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -45,3 +45,30 @@ jobs:
           docker tag servant-with-beam registry.heroku.com/servant-with-beam/web
           docker push registry.heroku.com/servant-with-beam/web
           heroku container:release web --app servant-with-beam
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v12
+        # with:
+        #   install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-2.4pre20201221_9fab14a/install
+        #   extra_nix_config: |
+        #     experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v8
+        with:
+            name: servant-with-beam
+            authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+            skipPush: true
+      - name: add haskell.nix pub keys
+        run: sed -i '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
+      - name: add haskell.nix substituters
+        run: sed -i '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
+      - name: build docker with nix
+        run: nix-build -j4 ./release.nix --arg js true
+      - name: Publish
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=result/bin/frontend.jsexe --prod
+          env:
+            NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

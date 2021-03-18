@@ -5,10 +5,22 @@
         "homepage": "https://input-output-hk.github.io/haskell.nix",
         "owner": "input-output-hk",
         "repo": "haskell.nix",
-        "rev": "9047c0f449b208d416c459888f50d98ea6c7cc0e",
-        "sha256": "0lk23n77w9vq2kmd4accql9wsg3i0afzjpxmh5qnx7g1hpxsbmzs",
+        "rev": "5a565b9d910fc72f84f620160fbf63cdbe2ba5a8",
+        "sha256": "17cr4vndbq8c3kw72590bcpy192arxwqdiqzx1mfb7478wrnkpmg",
         "type": "tarball",
-        "url": "https://github.com/input-output-hk/haskell.nix/archive/9047c0f449b208d416c459888f50d98ea6c7cc0e.tar.gz",
+        "url": "https://github.com/input-output-hk/haskell.nix/archive/5a565b9d910fc72f84f620160fbf63cdbe2ba5a8.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "static-haskell-nix": {
+        "branch": "master",
+        "description": "easily build most Haskell programs into fully static Linux executables",
+        "homepage": "",
+        "owner": "nh2",
+        "repo": "static-haskell-nix",
+        "rev": "382150290ba43b6eb41981c1ab3b32aa31798140",
+        "sha256": "0zsyplzf1k235rl26irm27y5ljd8ciayw80q575msxa69a9y2nvd",
+        "type": "tarball",
+        "url": "https://github.com/nh2/static-haskell-nix/archive/382150290ba43b6eb41981c1ab3b32aa31798140.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

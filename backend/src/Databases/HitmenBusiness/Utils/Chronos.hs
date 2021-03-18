@@ -2,14 +2,10 @@
 
 module Databases.HitmenBusiness.Utils.Chronos where
 
-import Chronos (Date (Date), Datetime (Datetime), DatetimeFormat (DatetimeFormat), DayOfMonth (DayOfMonth, getDayOfMonth), Month (getMonth), SubsecondPrecision (SubsecondPrecisionFixed), TimeOfDay (TimeOfDay), Year (Year, getYear), builderUtf8_YmdHMS, datetimeToTime, decode_YmdHMS_lenient)
-import Data.Aeson (FromJSON (..))
-import Data.Time (LocalTime)
+import Chronos (Date (Date), Datetime (Datetime), DatetimeFormat (DatetimeFormat), DayOfMonth (DayOfMonth, getDayOfMonth), Month (getMonth), SubsecondPrecision (SubsecondPrecisionFixed), TimeOfDay (TimeOfDay), Year (Year, getYear), builderUtf8_YmdHMS, decode_YmdHMS_lenient)
 import Data.Validity (Validity (..), declare)
 import Database.Beam (FromBackendRow, QGenExpr (..))
-import Database.Beam.AutoMigrate (HasColumnType (..))
-import Database.Beam.Backend (BeamSqlBackend, HasSqlValueSyntax (..), currentTimestampE, timestampType)
-import Database.Beam.Migrate (HasDefaultSqlDataType (..))
+import Database.Beam.Backend (BeamSqlBackend, HasSqlValueSyntax (..), currentTimestampE)
 import Database.Beam.Postgres (Postgres, ResultError (ConversionFailed, Incompatible, UnexpectedNull))
 import Database.Beam.Postgres.Syntax (PgValueSyntax, defaultPgValueSyntax)
 import Database.PostgreSQL.Simple.FromField (FromField (..), returnError, typeOid)
@@ -17,17 +13,11 @@ import Database.PostgreSQL.Simple.ToField (Action (Plain), ToField (..), inQuote
 import Database.PostgreSQL.Simple.TypeInfo.Static (timestampOid)
 import Universum
 
-instance HasDefaultSqlDataType Postgres Datetime where
-  defaultSqlDataType _ _ _ = timestampType Nothing False
-
 instance ToField Datetime where
   toField = Plain . inQuotes . builderUtf8_YmdHMS (SubsecondPrecisionFixed 6) (DatetimeFormat (Just '-') (Just ' ') (Just ':'))
 
 instance HasSqlValueSyntax PgValueSyntax Datetime where
   sqlValueSyntax = defaultPgValueSyntax
-
-instance FromJSON Datetime where
-  parseJSON v = parseJSON v >>= (maybe (fail "parse Datetime failed") return . decode_YmdHMS_lenient)
 
 instance FromField Datetime where
   fromField f
@@ -38,10 +28,6 @@ instance FromField Datetime where
         $ maybe (returnError ConversionFailed f "") return <$> decode_YmdHMS_lenient . decodeUtf8
 
 instance FromBackendRow Postgres Datetime
-
-instance HasColumnType Datetime where
-  defaultColumnType _ = defaultColumnType @LocalTime Proxy
-  defaultTypeCast _ = defaultTypeCast @LocalTime Proxy
 
 instance Validity Year where
   validate (Year y) = declare "Must between 1800 and 2100" $ 2100 >= y && y >= 1800

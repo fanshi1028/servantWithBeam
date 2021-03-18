@@ -21,7 +21,6 @@ import Universum
 import UnliftIO (MonadUnliftIO (..), toIO)
 import qualified UnliftIO (bracket)
 import UnliftIO.Pool (createPool, destroyAllResources)
-import Utils.Migration (doMigration, showMigration)
 import Utils.Types (Env (Env))
 
 server :: (With [MonadIO, MonadUnliftIO] m, WithLog env Message m) => Counter -> m ()
@@ -40,10 +39,7 @@ server ekgCounter = do
     >>= logInfo . fromString
       ||| flip
         withPool
-        ( -- tLog "show Migration: " . showMigration >=>
-          -- tLog "do Migration: " . doMigration >=>
-          liftIO . runSettings settings . errorMwDefJson . server'
-        )
+        (liftIO . runSettings settings . errorMwDefJson . server')
   where
     tLog context io =
       liftIO (stopwatch io)
@@ -64,3 +60,9 @@ main =
         logInfo "Using Backgroud Loggers"
         server counter
 
+-- TODO or brick ui commandline?
+-- TODO try capability NOTE ReaderT wrap IO make fork style concurrency easy, fail to build with ghc 8.10
+-- TODO try fused-effect NOTE flexibility to reinterpret effect
+-- TODO try eff NOTE still a WIP
+-- TODO nothunk? NOTE https://github.com/input-output-hk/nothunks
+-- TODO hasktorch NOTE https://www.reddit.com/r/haskell/comments/kyrpf4/machine_learning/
