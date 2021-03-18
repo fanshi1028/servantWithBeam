@@ -224,7 +224,7 @@ executable frontend
     , reflex      ^>=0.8
     , reflex-dom  ^>=0.6
 
-  ghcjs-options:  -dedupe
+  ghcjs-options:  -dedupe -DGHCJS_BROWSER
 
 executable scripts
   if !os(windows)

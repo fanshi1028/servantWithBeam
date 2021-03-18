@@ -133,8 +133,18 @@ main1 =
     evRsp <- performRequestAsyncWithError $ traceEvent "xhr" $ buildReq . apiCallConfig <$> evQueries
     let format = fromString @Text . intercalate "\n," . (toString <$>) . split (== ',')
         evResult = format . fromMaybe "Oops :Nothing in response" . either (Just . show) _xhrResponse_responseText <$> evRsp
+        -- gotEvResult <- ("progress is-info is-hidden" <$) <$> headE $ ffilter (\case
+        gotEvResult =
+          headE $
+            ffilter
+              ( \case
+                  Left _ -> False
+                  Right r -> isJust $ _xhrResponse_responseText r
+              )
+              evRsp
     divClass "box columns is-center" $
-      divClass "column" $
+      divClass "column" $ do
+        gotEvResult >>= holdDyn "progress is-info" . ($> "is-hidden") >>= flip (elDynClass "progress") blank
         component "Response:" . el "pre" . dynText =<< holdDyn "Waiting for initial api response" evResult
     return ()
 
