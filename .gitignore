@@ -6,6 +6,6 @@
 /.envrc
 dblog
 /.tasty-rerun-log
-/materialized/
 /result
 /frontend/.envrc
+/backend/.envrc
