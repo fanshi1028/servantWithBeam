@@ -1,12 +1,12 @@
 name: "Backend Build"
 on:
-  - pull_request
-  - push:
-      paths:
-        - 'backend/**'
-        # - 'nix/**'
-        - 'project.materialized'
-        # - 'servant-with-beam.cabal'
+  pull_request:
+  push:
+    paths:
+      - 'backend/**'
+      # - 'nix/**'
+      - 'project.materialized'
+      # - 'servant-with-beam.cabal'
 jobs:
     backend:
         name: backend /  ${{matrix.release}} / ghc ${{matrix.ghc}}

@@ -1,12 +1,12 @@
 name: "Frontend Build"
 on:
-  - pull_request
-  - push:
-      paths:
-        - 'frontend/**'
-        # - 'nix/**'
-        - 'project.frontend.materialized'
-        # - 'servant-with-beam.cabal'
+  pull_request:
+  push:
+    paths:
+      - 'frontend/**'
+      # - 'nix/**'
+      - 'project.frontend.materialized'
+      # - 'servant-with-beam.cabal'
 jobs:
     frontend:
         name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
