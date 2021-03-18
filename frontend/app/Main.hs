@@ -133,7 +133,7 @@ main1 =
     evRsp <- performRequestAsyncWithError $ traceEvent "xhr" $ buildReq . apiCallConfig <$> evQueries
     let format = fromString @Text . intercalate "\n," . (toString <$>) . split (== ',')
         evResult = format . fromMaybe "Oops :Nothing in response" . either (Just . show) _xhrResponse_responseText <$> evRsp
-    divClass "block columns is-center" $
+    divClass "box columns is-center" $
       divClass "column" $
         component "Response:" . el "pre" . dynText =<< holdDyn "Waiting for initial api response" evResult
     return ()
