@@ -1,8 +1,8 @@
 -c "cabal new-repl test --repl-options=-w -fghcid +RTS -N -T -RTS"
 -c "cabal new-repl scripts --repl-options=-w -fghcid -O2 -fno-code +RTS -N -T -RTS"
 -c "cabal new-repl app --repl-options=-w -fghcid -O2 -fno-code +RTS -N -T -RTS"
---reload=./app/Main.hs
---reload=./tests/Main.hs
---reload=./scripts/migration/Main.hs
+--reload=./backend/app/Main.hs
+--reload=./backend/tests/Main.hs
+--reload=./backend/scripts/migration/Main.hs
 -r
 --restart=./servant-with-beam.cabal
