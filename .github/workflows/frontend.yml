@@ -9,7 +9,7 @@ on:
       # - 'servant-with-beam.cabal'
 jobs:
     frontend:
-        name: frontend / ${{matrix.release}} / ghc ${{matrix.ghc}}
+        name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
         strategy:
             fail-fast: false
             matrix:
@@ -49,6 +49,11 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
+            - name: upload artifact
+              uses: actions/upload-artifact@v2
+              with:
+                name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
+                path: results/
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
               working-directory: ./frontend
