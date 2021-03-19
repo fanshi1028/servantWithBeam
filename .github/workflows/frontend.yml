@@ -6,6 +6,7 @@ on:
       - 'frontend/**'
       # - 'nix/**'
       - 'project.frontend.materialized'
+      - '.github/workflows/frontend.yml'
       # - 'servant-with-beam.cabal'
 jobs:
     frontend:
