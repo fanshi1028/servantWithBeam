@@ -57,12 +57,12 @@ jobs:
               run: nix-shell -j4
 
     frontend-phone:
-        name: frontend/phone/${{matrix.release}}/ghc${{matrix.ghc}}
+        name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
         strategy:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865]
+                ghc: [865, 8104]
                 sedArg: ["", "''"]
                 release: ["iphone", "android"]
                 exclude:
@@ -94,5 +94,5 @@ jobs:
             - name: upload artifact
               uses: actions/upload-artifact@v2
               with:
-                name: frontend-phone-${{matrix.release}}-ghc${{matrix.ghc}}
+                name: frontend-${{matrix.release}}-ghc${{matrix.ghc}}
                 path: result*/**/*
