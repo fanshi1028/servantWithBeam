@@ -64,7 +64,7 @@ jobs:
         run: sed -i '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
       - name: add haskell.nix substituters
         run: sed -i '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-      - name: build docker with nix
+      - name: build with nix
         run: nix-build -j4 ./release.nix --arg js true
       - name: Publish
         uses: netlify/actions/cli@master

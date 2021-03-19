@@ -6,6 +6,7 @@ on:
       - 'backend/**'
       # - 'nix/**'
       - 'project.materialized'
+      - '.github/workflows/backend.yml'
       # - 'servant-with-beam.cabal'
 jobs:
     backend:
