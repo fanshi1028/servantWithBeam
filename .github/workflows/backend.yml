@@ -32,13 +32,6 @@ jobs:
                     release: "static"
                   - os: macos-latest
                     release: "windows"
-                    # static don't work
-                  - release: "static"
-                    ghc: 865
-                  - release: "static"
-                    ghc: 884
-                  - release: "static"
-                    ghc: 8104
                     # no 8102 for osx and linux
                   - release: "windows"
                     ghc: 865

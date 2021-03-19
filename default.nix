@@ -95,14 +95,15 @@ let
         packages.ekg.enableSeparateDataOutput = true;
 
         # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/default.nix#L17
-        packages."postgresql-libpq".patches =
-          optional pkgs.hostPlatform.isWindows [
-            (pkgs.runCommand "libpq_paths.patch" { } ''
-              substitute ${
-                ./nix/libpq_paths.patch
-              } $out --subst-var-by libpq ${pkgs.libpq.out}
-            '')
-          ];
+        # NOTE https://github.com/input-output-hk/haskell.nix/pull/1056
+        # packages."postgresql-libpq".patches =
+        #   optional pkgs.hostPlatform.isWindows [
+        #     (pkgs.runCommand "libpq_paths.patch" { } ''
+        #       substitute ${
+        #         ./nix/libpq_paths.patch
+        #       } $out --subst-var-by libpq ${pkgs.libpq.out}
+        #     '')
+        #   ];
       }]
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/86#issuecomment-472748457
         # NOTE https://github.com/entropia/tip-toi-reveng/blob/2a30c2500b804b31ed4536a186d3f123e18651ae/default.nix#L41
