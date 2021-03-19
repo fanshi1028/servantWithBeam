@@ -8,12 +8,10 @@ let
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
   inherit (pkgs.lib.attrsets) mapAttrs;
-  inherit (pkgs.pkgsCross)
-    aarch64-android-prebuilt;
-    # armv7a-android-prebuilt
-  inherit (allow-unfree-pkgs.pkgsCross)
-    iphone64 iphone64-simulator;
-    # iphone32 iphone32-simulator;
+  inherit (pkgs.pkgsCross) aarch64-android-prebuilt;
+  # armv7a-android-prebuilt
+  inherit (allow-unfree-pkgs.pkgsCross) iphone64 iphone64-simulator;
+  # iphone32 iphone32-simulator;
 
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/864#issuecomment-702971226
   backendFiles = [ "backend" ];
@@ -60,8 +58,8 @@ let
 
       materialized = if (plan-sha256 != null) then
         (if js then
-          # NOTE: https://github.com/input-output-hk/haskell.nix/issues/614
-          # ./project.js.materialized
+        # NOTE: https://github.com/input-output-hk/haskell.nix/issues/614
+        # ./project.js.materialized
           null
         else if frontend then
           ./project.frontend.materialized
@@ -95,15 +93,15 @@ let
         packages.ekg.enableSeparateDataOutput = true;
 
         # NOTE https://github.com/wedens/yesod-cross-test-pg/blob/a9c46de9f0068686c8c256bc200e928d1de1c2d2/nix/default.nix#L17
-        # NOTE https://github.com/input-output-hk/haskell.nix/pull/1056
-        # packages."postgresql-libpq".patches =
-        #   optional pkgs.hostPlatform.isWindows [
-        #     (pkgs.runCommand "libpq_paths.patch" { } ''
-        #       substitute ${
-        #         ./nix/libpq_paths.patch
-        #       } $out --subst-var-by libpq ${pkgs.libpq.out}
-        #     '')
-        #   ];
+        # NOTE https://github.com/input-output-hk/haskell.nix/pull/1056 NOTE seems not helpful
+        packages."postgresql-libpq".patches =
+          optional pkgs.hostPlatform.isWindows [
+            (pkgs.runCommand "libpq_paths.patch" { } ''
+              substitute ${
+                ./nix/libpq_paths.patch
+              } $out --subst-var-by libpq ${pkgs.libpq.out}
+            '')
+          ];
       }]
         # NOTE https://github.com/input-output-hk/haskell.nix/issues/86#issuecomment-472748457
         # NOTE https://github.com/entropia/tip-toi-reveng/blob/2a30c2500b804b31ed4536a186d3f123e18651ae/default.nix#L41
@@ -117,7 +115,7 @@ let
 
         ++ optional useWarp { packages.reflex-dom.flags.use-warp = true; };
 
-      index-state = "2021-02-13T23:31:09Z";
+      index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
   releases = {
@@ -129,8 +127,8 @@ let
       "0000000000000000000000000000000000000000000000000000";
     android = mkProject aarch64-android-prebuilt
       "0000000000000000000000000000000000000000000000000000";
-    iphone = mkProject iphone64
-      "0000000000000000000000000000000000000000000000000000";
+    iphone =
+      mkProject iphone64 "0000000000000000000000000000000000000000000000000000";
   };
   exes = mapAttrs (name: value:
     value.servant-with-beam.components.exes."${if frontend then

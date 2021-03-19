@@ -188,6 +188,10 @@
             (hsPkgs."universum" or (errorHandler.buildDepError "universum"))
             (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
             (hsPkgs."generic-lens" or (errorHandler.buildDepError "generic-lens"))
+            (hsPkgs."text" or (errorHandler.buildDepError "text"))
+            (hsPkgs."chronos" or (errorHandler.buildDepError "chronos"))
+            (hsPkgs."clay" or (errorHandler.buildDepError "clay"))
+            (hsPkgs."file-embed" or (errorHandler.buildDepError "file-embed"))
             (hsPkgs."reflex" or (errorHandler.buildDepError "reflex"))
             (hsPkgs."reflex-dom" or (errorHandler.buildDepError "reflex-dom"))
             ];
