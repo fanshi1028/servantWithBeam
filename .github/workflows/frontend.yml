@@ -9,7 +9,7 @@ on:
       - '.github/workflows/frontend.yml'
       # - 'servant-with-beam.cabal'
 jobs:
-    frontend:
+    frontend-js:
         name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
         strategy:
             fail-fast: false
