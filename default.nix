@@ -51,18 +51,14 @@ let
         src = baseSrc;
       };
       cabalProjectFile = "cabal.project${
-        if useWarp then ".useWarp"
-        else if js then
-          (if compiler != "ghc865"
-           then ".frontend.88up"
-           else ".frontend"
-          )
-        else if frontend then
-          (if pkgs.hostPlatform.isDarwin
-           then ".frontend"
-           else ".webkit2gtk"
-          )
-          else ""
+          if useWarp then
+            ".useWarp"
+          else if js then
+            (if compiler != "ghc865" then ".frontend.88up" else ".frontend")
+          else if frontend then
+            (if pkgs.hostPlatform.isDarwin then ".frontend" else ".webkit2gtk")
+          else
+            ""
         }";
     in project {
       inherit src compiler-nix-name plan-sha256 checkMaterialization;
@@ -122,9 +118,7 @@ let
           # terminfo is disabled on musl by haskell.nix, but still the flag
           # is set in the package plan, so override this
           packages.haskeline.flags.terminfo = false;
-        }
-
-        ++ optional useWarp { packages.reflex-dom.flags.use-warp = true; };
+        };
 
       index-state = "2021-03-19T00:00:00Z";
     };

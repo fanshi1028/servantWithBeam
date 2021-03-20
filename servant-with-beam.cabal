@@ -225,6 +225,9 @@ executable frontend
     , reflex-dom  ^>=0.6
 
   ghcjs-options:  -dedupe -DGHCJS_BROWSER
+  ghc-options:  -threaded
+  if !impl(ghcjs) && (os(osx) || os(ios))
+    ghc-options:  -dynamic
 
 executable scripts
   if !os(windows)

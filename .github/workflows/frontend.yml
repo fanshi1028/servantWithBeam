@@ -70,9 +70,13 @@ jobs:
                     # no osx on ubuntu
                   - os: ubuntu-latest
                     release: "osx"
+                  - os: ubuntu-latest
+                    release: "iphone"
                     # only osx on macos
                   - os: macos-latest
                     release: "linux"
+                  - os: macos-latest
+                    release: "android"
 
         runs-on: ${{matrix.os}}
         if: ${{ !contains(github.event.head_commit.message, '[backend]') }}
