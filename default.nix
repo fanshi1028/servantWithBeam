@@ -60,7 +60,7 @@ let
         else if frontend then
           (if pkgs.hostPlatform.isDarwin
            then ".frontend"
-           else ".frontend.webkit2gtk"
+           else ".webkit2gtk"
           )
           else ""
         }";

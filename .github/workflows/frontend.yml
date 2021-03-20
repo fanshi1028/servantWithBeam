@@ -9,7 +9,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 884, 8104]
+                ghc: [865, 884]
                 sedArg: ["", "''"]
                 release: ["linux", "osx", "windows"]
                 exclude:
@@ -70,11 +70,7 @@ jobs:
                     # no osx on ubuntu
                   - os: ubuntu-latest
                     release: "osx"
-                  - os: ubuntu-latest
-                    release: "iphone"
                     # only osx on macos
-                  - os: macos-latest
-                    release: "android"
                   - os: macos-latest
                     release: "linux"
 
