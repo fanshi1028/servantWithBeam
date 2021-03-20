@@ -9,7 +9,8 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 884]
+                # seems 884 is fucked up by TH
+                ghc: [865]
                 sedArg: ["", "''"]
                 release: ["linux", "osx", "windows"]
                 exclude:
