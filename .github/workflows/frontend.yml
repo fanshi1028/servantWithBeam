@@ -44,11 +44,19 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/nixcache.reflex-frp.org/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
+            # https://github.com/actions/upload-artifact/issues/92
+            # https://github.com/minvws/nl-covid19-notification-app-community-website/blob/0b70c8ed7305fc3ff2e0726b8e1cf32ed39f27fb/.github/workflows/deploy.yml#L15
+            # NOTE Workaround for artifacts and deploy not liking symlinks to read-only paths.
+            - name: Copy artifacts
+              run: |
+                mkdir build
+                cp -r result/*  build/
+                chmod +w -R build/
             - name: upload artifact
               uses: actions/upload-artifact@v2
               with:
                 name: frontend-js-${{matrix.release}}-ghc${{matrix.ghc}}
-                path: result*/**/*
+                path: build
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
               working-directory: ./frontend
@@ -98,8 +106,16 @@ jobs:
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/nixcache.reflex-frp.org/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg frontend true -A servant-with-beam.${{matrix.release}}
+            # https://github.com/actions/upload-artifact/issues/92
+            # https://github.com/minvws/nl-covid19-notification-app-community-website/blob/0b70c8ed7305fc3ff2e0726b8e1cf32ed39f27fb/.github/workflows/deploy.yml#L15
+            # NOTE Workaround for artifacts and deploy not liking symlinks to read-only paths.
+            - name: Copy artifacts
+              run: |
+                mkdir build
+                cp -r result/*  build/
+                chmod +w -R build/
             - name: upload artifact
               uses: actions/upload-artifact@v2
               with:
                 name: frontend-${{matrix.release}}-ghc${{matrix.ghc}}
-                path: result*/**/*
+                path: build
