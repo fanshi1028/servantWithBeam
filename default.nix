@@ -51,7 +51,18 @@ let
         src = baseSrc;
       };
       cabalProjectFile = "cabal.project${
-          if useWarp then ".useWarp" else if frontend then ".frontend" else ""
+        if useWarp then ".useWarp"
+        else if js then
+          (if compiler != "ghc865"
+           then ".frontend.88up"
+           else ".frontend"
+          )
+        else if frontend then
+          (if pkgs.hostPlatform.isDarwin
+           then ".frontend"
+           else ".frontend.webkit2gtk"
+          )
+          else ""
         }";
     in project {
       inherit src compiler-nix-name plan-sha256 checkMaterialization;

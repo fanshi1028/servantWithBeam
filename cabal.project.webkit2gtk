@@ -1,0 +1,16 @@
+packages: .
+
+-- NOTE: https://github.com/ghcjs/jsaddle/pull/119
+source-repository-package
+  type:     git
+  location: https://github.com/maralorn/jsaddle/tree/bump-haskell-gi/jsaddle-webkit2gtk
+  tag:  f8427480ca827b2bee1d9b33dfa6118e14fe2924
+
+verbose: 2
+jobs: $ncpus
+optimization: 2
+cabal-lib-version: 3.2.0.0
+
+-- NOTE: https://github.com/input-output-hk/haskell.nix/issues/530
+package servant-with-beam
+  flags: +frontend

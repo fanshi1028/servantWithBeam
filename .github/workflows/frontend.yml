@@ -9,9 +9,9 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 884]
+                ghc: [865, 884, 8104]
                 sedArg: ["", "''"]
-                release: ["linux", "osx"]
+                release: ["linux", "osx", "windows"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -23,6 +23,8 @@ jobs:
                     # only osx on macos
                   - os: macos-latest
                     release: "linux"
+                  - os: macos-latest
+                    release: "windows"
 
         runs-on: ${{matrix.os}}
         if: ${{ !contains(github.event.head_commit.message, '[backend]') }}
@@ -55,9 +57,11 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
-                ghc: [865, 884, 8104]
+                # NOTE: 8104: reflex-dom won't resolve with 8104
+                ghc: [865, 884]
                 sedArg: ["", "''"]
-                release: ["linux", "osx", "windows", "iphone", "android"]
+                # NOTE: windows: unsupported system: x86_64-windows
+                release: ["linux", "osx", "iphone", "android"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -73,8 +77,6 @@ jobs:
                     release: "android"
                   - os: macos-latest
                     release: "linux"
-                  - os: macos-latest
-                    release: "windows"
 
         runs-on: ${{matrix.os}}
         if: ${{ !contains(github.event.head_commit.message, '[backend]') }}
