@@ -11,7 +11,7 @@ jobs:
                 os: [ubuntu-latest, macos-latest]
                 ghc: [865, 884, 8104]
                 sedArg: ["", "''"]
-                release: ["linux", "osx", "windows", "static"]
+                release: ["linux", "osx", "windows"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -23,8 +23,8 @@ jobs:
                     # only osx on macos
                   - os: macos-latest
                     release: "linux"
-                  - os: macos-latest
-                    release: "static"
+                  # - os: macos-latest
+                    # release: "static"
                   - os: macos-latest
                     release: "windows"
                     # no 8102 for osx and linux
@@ -32,12 +32,12 @@ jobs:
                     ghc: 865
                   - release: "windows"
                     ghc: 884
-                include:
-                  - release: "static"
-                    cache: "static-haskell-nix"
+                # include:
+                #   - release: "static"
+                #     cache: "static-haskell-nix"
 
         runs-on: ${{matrix.os}}
-        if: ${{ !contains(github.event.head_commit.message, '[frontend]') }}
+        if: ${{ !contains(github.event.head_commit.message, '[frontend]') && !contains(github.event.head_commit.message, '[js]') && !contains(github.event.head_commit.message, '[native]') }}
         steps:
             - uses: actions/checkout@v2.3.4
             - uses: cachix/install-nix-action@v12
@@ -50,7 +50,7 @@ jobs:
               with:
                   name: servant-with-beam
                   authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-                  extraPullNames: ${{ matrix.cache }}
+                  # extraPullNames: ${{ matrix.cache }}
             - name: add haskell.nix pub keys, add haskell.nix substituters
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
