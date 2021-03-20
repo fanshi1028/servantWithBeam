@@ -1,7 +1,7 @@
 { js ? false, optimization ? "0", frontend ? js
 , compiler ? if frontend then "ghc865" else "ghc8104", platform ? "osx"
 , default ? true, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
-, checkMaterialization ? false, useWarp ? frontend && !js, sha256 ? "" }:
+, checkMaterialization ? false, useWarp ? false, sha256 ? "" }:
 let
   inherit (pkgSets) pkgs static-pkgs win64-pkgs allow-unfree-pkgs;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
