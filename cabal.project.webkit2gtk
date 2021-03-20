@@ -7,7 +7,7 @@ source-repository-package
   branch: bump-haskell-gi
   tag: f8427480ca827b2bee1d9b33dfa6118e14fe2924
   subdir: jsaddle-webkit2gtk
---sha256: 06pd84kdgdrgnw7fdag6k0q5qfd6i120cqjvllfa7rsy7hlvqzy4
+  --sha256: 06pd84kdgdrgnw7fdag6k0q5qfd6i120cqjvllfa7rsy7hlvqzy4
 
 verbose: 2
 jobs: $ncpus

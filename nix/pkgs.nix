@@ -36,7 +36,7 @@ let
   # }).pkgs;
   static-pkgs = (import "${sources.static-haskell-nix}/survey" {
     inherit compiler;
-    # normalPkgs = import nixpkgsSrc nixpkgsArgs;
+    normalPkgs = import nixpkgsSrc nixpkgsArgs;
   }).pkgs.appendOverlays overlays;
   # staticHaskellNix = import "${sources.static-haskell-nix}/survey" { inherit compiler overlays; };
   # static-pkgs = (import "${sources.static-haskell-nix}/survey" {

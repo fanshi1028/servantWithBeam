@@ -39,6 +39,8 @@ jobs:
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
+                sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ ryantrinkle.com-1:JJiAKaRv9mWgpVAz8dwewnZe0AzzEAzPkagE9SP5NWI=/' ~/.config/nix/nix.conf
+                sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/nixcache.reflex-frp.org/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
             - name: upload artifact
@@ -91,6 +93,8 @@ jobs:
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
+                sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ ryantrinkle.com-1:JJiAKaRv9mWgpVAz8dwewnZe0AzzEAzPkagE9SP5NWI=/' ~/.config/nix/nix.conf
+                sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/nixcache.reflex-frp.org/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg frontend true -A servant-with-beam.${{matrix.release}}
             - name: upload artifact

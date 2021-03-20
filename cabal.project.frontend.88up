@@ -6,7 +6,7 @@ source-repository-package
   type:     git
   location: https://github.com/ghcjs/ghcjs-base
   tag:  18f31dec5d9eae1ef35ff8bbf163394942efd227
---sha256: 09h3rc639n4768y75v0dbrys9pnd4da538cdgzx11dzrjm971f60
+  --sha256: 09h3rc639n4768y75v0dbrys9pnd4da538cdgzx11dzrjm971f60
 
 verbose: 2
 jobs: $ncpus
