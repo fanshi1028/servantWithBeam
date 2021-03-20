@@ -32,9 +32,9 @@ jobs:
                     ghc: 865
                   - release: "windows"
                     ghc: 884
-                # include:
-                  # - release: "static"
-                  #   cache: "static-haskell-nix"
+                include:
+                  - release: "static"
+                    cache: "static-haskell-nix"
 
         runs-on: ${{matrix.os}}
         if: ${{ !contains(github.event.head_commit.message, '[frontend]') }}
@@ -50,7 +50,7 @@ jobs:
               with:
                   name: servant-with-beam
                   authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-                  # extraPullNames: ${{ matrix.cache }}
+                  extraPullNames: ${{ matrix.cache }}
             - name: add haskell.nix pub keys, add haskell.nix substituters
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
