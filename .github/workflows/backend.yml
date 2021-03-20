@@ -64,7 +64,7 @@ jobs:
               run: |
                 mkdir build
                 cp -r result/*  build/
-                chmod +w -R build/
+                chmod -R +w build/
             - name: upload artifact
               uses: actions/upload-artifact@v2
               with:
