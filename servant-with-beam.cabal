@@ -211,7 +211,7 @@ executable frontend
   main-is:        Main.hs
   hs-source-dirs: frontend/app
 
-  if impl(ghc >=8.10.1) || !flag(frontend)
+  if !flag(frontend)
     buildable: False
 
   build-depends:

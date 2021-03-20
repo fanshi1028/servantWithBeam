@@ -4,14 +4,14 @@ on:
   push:
 jobs:
     frontend-js:
-        name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
+        name: frontend/js/${{matrix.release}}/ghc${{matrix.ghc}}
         strategy:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest, macos-latest]
                 ghc: [865, 884]
                 sedArg: ["", "''"]
-                release: ["linux", "osx", "windows"]
+                release: ["linux", "osx"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -23,8 +23,6 @@ jobs:
                     # only osx on macos
                   - os: macos-latest
                     release: "linux"
-                  - os: macos-latest
-                    release: "windows"
 
         runs-on: ${{matrix.os}}
         if: ${{ !contains(github.event.head_commit.message, '[backend]') }}
@@ -44,7 +42,7 @@ jobs:
             - name: upload artifact
               uses: actions/upload-artifact@v2
               with:
-                name: frontend-${{matrix.release}}-ghc${{matrix.ghc}}
+                name: frontend-js-${{matrix.release}}-ghc${{matrix.ghc}}
                 path: result*/**/*
             - name: nix-shell
               if: matrix.release == 'osx' && matrix.ghc == '865'
@@ -67,10 +65,16 @@ jobs:
                     sedArg: ""
                     # no osx on ubuntu
                   - os: ubuntu-latest
+                    release: "osx"
+                  - os: ubuntu-latest
                     release: "iphone"
                     # only osx on macos
                   - os: macos-latest
                     release: "android"
+                  - os: macos-latest
+                    release: "linux"
+                  - os: macos-latest
+                    release: "windows"
 
         runs-on: ${{matrix.os}}
         if: ${{ !contains(github.event.head_commit.message, '[backend]') }}
