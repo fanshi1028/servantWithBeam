@@ -123,7 +123,7 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
-  reflexDef = reflexProject ({pkgs, ...}: {
+  reflexExes = reflexProject ({pkgs, ...}: {
     packages = {
       frontend = ./.;
     };
@@ -149,8 +149,6 @@ let
     #   "0000000000000000000000000000000000000000000000000000";
     # iphone =
     #   mkProject iphone64 "0000000000000000000000000000000000000000000000000000";
-    android = reflexDef.android;
-    iphone = reflexDef.ios;
   };
   exes = mapAttrs (name: value:
     value.servant-with-beam.components.exes."${if frontend then
@@ -161,7 +159,7 @@ let
 in if (default) then
   exes.${platform}
 else {
-  servant-with-beam = exes;
+  servant-with-beam = exes // { inherit (reflexExes) android ios; };
   pkgSet = pkgs;
   inherit shells;
 }
