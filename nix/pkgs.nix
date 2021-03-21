@@ -60,8 +60,6 @@ let
   win64-pkgs = import nixpkgsSrc
     (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
 
-  reflexProject = (import sources.reflex-platform {
-    config.android_sdk.accept_license = true;
-  }).project;
+  reflexPlatform = import sources.reflex-platform;
 
-in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexProject; }
+in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform; }

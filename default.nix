@@ -3,7 +3,8 @@
 , default ? true, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false, useWarp ? false, sha256 ? "" }:
 let
-  inherit (pkgSets) pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexProject;
+  inherit (pkgSets)
+    pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
@@ -123,19 +124,16 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
-  reflexExes = reflexProject ({ pkgs, ... }: {
-    packages = { frontend = ./.; };
-    android.frontend = {
-      executableName = "frontend";
-      applicationId = "my.frontend";
-      displayName = "Android App";
-    };
-    ios.frontend = {
-      executableName = "frontend";
-      bundleIdentifier = "my.frontend";
-      bundleName = "IOS App";
-    };
-  });
+  rp = reflexPlatform {
+    config.android_sdk.accept_license = true;
+    haskellOverlaysPost = [
+      (self: super: {
+        servant-with-beam =
+          pkgs.haskellPackages.callCabal2nixWithOptions "servant-with-beam" ./.
+          "-ffrontend" { };
+      })
+    ];
+  };
   releases = {
     linux = def;
     osx = def;
@@ -158,8 +156,18 @@ in if (default) then
   exes.${platform}
 else {
   servant-with-beam = exes // {
-    android = reflexExes.android.frontend;
-    ios = reflexExes.ios.frontend;
+    android = rp.android.buildApp ({
+      package = p: p.servant-with-beam;
+      executableName = "frontend";
+      applicationId = "my.frontend";
+      displayName = "Android App";
+    });
+    ios = rp.ios.buildApp ({
+      package = p: p.servant-with-beam;
+      executableName = "frontend";
+      bundleIdentifier = "my.frontend";
+      bundleName = "IOS App";
+    });
   };
   pkgSet = pkgs;
   inherit shells;

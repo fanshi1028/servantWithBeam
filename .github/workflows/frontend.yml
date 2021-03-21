@@ -128,7 +128,7 @@ jobs:
                   - os: macos-latest
                     sedArg: ""
                   - os: ubuntu-latest
-                    release: "iphone"
+                    release: "ios"
                   - os: macos-latest
                     release: "android"
 
