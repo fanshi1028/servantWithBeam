@@ -134,7 +134,7 @@ let
         # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
         reflex-dom = self.callHackageDirect {
           pkg = "reflex-dom";
-          ver = "0.6.1";
+          ver = "0.6.1.0";
           sha256 = "0000000000000000000000000000000000000000000000000000";
         } {};
       })
