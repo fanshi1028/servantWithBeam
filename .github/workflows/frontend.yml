@@ -28,7 +28,7 @@ jobs:
                     release: "windows"
 
         runs-on: ${{matrix.os}}
-        if: ${{ !contains(github.event.head_commit.message, '[backend]') && !contains(github.event.head_commit.message, '[native]') }}
+        if: ${{ !contains(github.event.head_commit.message, '[backend]') && !contains(github.event.head_commit.message, '[native]') && !contains(github.event.head_commit.message, '[mobile]') }}
         steps:
             - uses: actions/checkout@v2.3.4
             - uses: cachix/install-nix-action@v12
@@ -40,8 +40,6 @@ jobs:
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
-                sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ ryantrinkle.com-1:JJiAKaRv9mWgpVAz8dwewnZe0AzzEAzPkagE9SP5NWI=/' ~/.config/nix/nix.conf
-                sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/nixcache.reflex-frp.org/' ~/.config/nix/nix.conf
             - name: nix-build
               run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg js true -A servant-with-beam.${{matrix.release}}
             # https://github.com/actions/upload-artifact/issues/92
@@ -72,7 +70,7 @@ jobs:
                 ghc: [865, 884]
                 sedArg: ["", "''"]
                 # NOTE: windows: unsupported system: x86_64-windows
-                release: ["linux", "osx", "iphone", "android"]
+                release: ["linux", "osx"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
@@ -81,16 +79,12 @@ jobs:
                     # no osx on ubuntu
                   - os: ubuntu-latest
                     release: "osx"
-                  - os: ubuntu-latest
-                    release: "iphone"
                     # only osx on macos
                   - os: macos-latest
                     release: "linux"
-                  - os: macos-latest
-                    release: "android"
 
         runs-on: ${{matrix.os}}
-        if: ${{ !contains(github.event.head_commit.message, '[backend]') && !contains(github.event.head_commit.message, '[js]') }}
+        if: ${{ !contains(github.event.head_commit.message, '[backend]') && !contains(github.event.head_commit.message, '[js]') && !contains(github.event.head_commit.message, '[mobile]') }}
         steps:
             - uses: actions/checkout@v2.3.4
             - uses: cachix/install-nix-action@v12
@@ -102,6 +96,53 @@ jobs:
               run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ hydra.iohk.io:f\/Ea+s+dFdN+3Y\/G+FDgSq+a5NEWhJGzdjvKNGv0\/EQ=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/hydra.iohk.io/' ~/.config/nix/nix.conf
+            - name: nix-build
+              run: nix-build -j4 --argstr compiler ghc${{matrix.ghc}} --arg default false --arg frontend true -A servant-with-beam.${{matrix.release}}
+            # https://github.com/actions/upload-artifact/issues/92
+            # https://github.com/minvws/nl-covid19-notification-app-community-website/blob/0b70c8ed7305fc3ff2e0726b8e1cf32ed39f27fb/.github/workflows/deploy.yml#L15
+            # NOTE Workaround for artifacts and deploy not liking symlinks to read-only paths.
+            - name: Copy artifacts
+              run: |
+                mkdir build
+                cp -r result/*  build/
+                chmod -R +w build/
+            - name: upload artifact
+              uses: actions/upload-artifact@v2
+              with:
+                name: frontend-${{matrix.release}}-ghc${{matrix.ghc}}
+                path: build
+
+    frontend-mobile:
+        name: frontend/${{matrix.release}}/ghc${{matrix.ghc}}
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, macos-latest]
+                # NOTE: 8104: reflex-dom won't resolve with 8104
+                ghc: [865, 884]
+                sedArg: ["", "''"]
+                release: ["iphone", "android"]
+                exclude:
+                  - os: ubuntu-latest
+                    sedArg: "''"
+                  - os: macos-latest
+                    sedArg: ""
+                  - os: ubuntu-latest
+                    release: "iphone"
+                  - os: macos-latest
+                    release: "android"
+
+        runs-on: ${{matrix.os}}
+        if: ${{ !contains(github.event.head_commit.message, '[backend]') && !contains(github.event.head_commit.message, '[js]') && !contains(github.event.head_commit.message, '[native]') }}
+        steps:
+            - uses: actions/checkout@v2.3.4
+            - uses: cachix/install-nix-action@v12
+            - uses: cachix/cachix-action@v8
+              with:
+                  name: servant-with-beam
+                  authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+            - name: add haskell.nix pub keys, add haskell.nix substituters
+              run: |
                 sed -i ${{matrix.sedArg}} '/^trusted-public-keys =/ s/$/ ryantrinkle.com-1:JJiAKaRv9mWgpVAz8dwewnZe0AzzEAzPkagE9SP5NWI=/' ~/.config/nix/nix.conf
                 sed -i ${{matrix.sedArg}} '/^substituters =/ s/$/ https:\/\/nixcache.reflex-frp.org/' ~/.config/nix/nix.conf
             - name: nix-build
