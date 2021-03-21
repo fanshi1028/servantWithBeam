@@ -132,7 +132,11 @@ let
           pkgs.haskellPackages.callCabal2nixWithOptions "servant-with-beam" ./.
           "-ffrontend" { };
         # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
-        reflex-dom = self.callHackage "reflex-dom" "0.6.1" {};
+        reflex-dom = self.callHackageDirect {
+          pkg = "reflex-dom";
+          ver = "0.6.1";
+          sha256 = "0000000000000000000000000000000000000000000000000000";
+        };
       })
     ];
   };
