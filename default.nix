@@ -135,7 +135,7 @@ let
         reflex-dom = self.callHackageDirect {
           pkg = "reflex-dom";
           ver = "0.6.1.0";
-          sha256 = "0000000000000000000000000000000000000000000000000000";
+          sha256 = "1758v5vl5z3zcih0ikcbxbs42s9admmq4wfvhwa40z4kdjamzdf5";
         } {};
       })
     ];
