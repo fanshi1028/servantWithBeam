@@ -19,7 +19,10 @@ let
 
   pkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; });
 
-  allow-unfree-pkgs = import nixpkgsSrc (nixpkgsArgs // { inherit overlays; config.allowUnfree = true; });
+  allow-unfree-pkgs = import nixpkgsSrc (nixpkgsArgs // {
+    inherit overlays;
+    config.allowUnfree = true;
+  });
 
   # NOTE https://github.com/NixOS/nixpkgs/issues/85924#issuecomment-640277067
   # NOTE https://github.com/NixOS/nixpkgs/issues/89769
@@ -57,5 +60,8 @@ let
   win64-pkgs = import nixpkgsSrc
     (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
 
+  reflexProject = (import sources.reflex-platform {
+    config.android_sdk.accept_license = true;
+  }).project;
 
-in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs; }
+in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexProject; }

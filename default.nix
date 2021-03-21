@@ -3,7 +3,7 @@
 , default ? true, pkgSets ? import ./nix/pkgs.nix { inherit compiler; }
 , checkMaterialization ? false, useWarp ? false, sha256 ? "" }:
 let
-  inherit (pkgSets) pkgs static-pkgs win64-pkgs allow-unfree-pkgs;
+  inherit (pkgSets) pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexProject;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
@@ -123,6 +123,21 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
+  reflexDef = reflexProject ({pkgs, ...}: {
+    packages = {
+      frontend = ./.;
+    };
+    android = {
+      executableName = "frontend";
+      applicationId = "my.frontend";
+      displayName = "Android App";
+    };
+    ios = {
+      executableName = "frontend";
+      bundleIdentifier = "my.frontend";
+      bundleName = "IOS App";
+    };
+  });
   releases = {
     linux = def;
     osx = def;
@@ -130,10 +145,12 @@ let
       mkProject mingwW64 "0000000000000000000000000000000000000000000000000000";
     static = mkProject static-pkgs
       "0000000000000000000000000000000000000000000000000000";
-    android = mkProject aarch64-android-prebuilt
-      "0000000000000000000000000000000000000000000000000000";
-    iphone =
-      mkProject iphone64 "0000000000000000000000000000000000000000000000000000";
+    # android = mkProject aarch64-android-prebuilt
+    #   "0000000000000000000000000000000000000000000000000000";
+    # iphone =
+    #   mkProject iphone64 "0000000000000000000000000000000000000000000000000000";
+    android = reflexDef.android;
+    iphone = reflexDef.ios;
   };
   exes = mapAttrs (name: value:
     value.servant-with-beam.components.exes."${if frontend then
