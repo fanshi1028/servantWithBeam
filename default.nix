@@ -124,13 +124,15 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
-  rp = reflexPlatform {
+  rp = cross : reflexPlatform {
     config.android_sdk.accept_license = true;
     haskellOverlaysPost = [
       (self: super: {
         servant-with-beam =
           pkgs.haskellPackages.callCabal2nixWithOptions "servant-with-beam" ./.
           "-ffrontend" { };
+        # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
+        reflex-dom = cross.haskellPackages.reflex-dom;
       })
     ];
   };
@@ -156,13 +158,13 @@ in if (default) then
   exes.${platform}
 else {
   servant-with-beam = exes // {
-    android = rp.android.buildApp ({
+    android = (rp aarch64-android-prebuilt).android.buildApp ({
       package = p: p.servant-with-beam;
       executableName = "frontend";
       applicationId = "my.frontend";
       displayName = "Android App";
     });
-    ios = rp.ios.buildApp ({
+    ios = (rp iphone64).ios.buildApp ({
       package = p: p.servant-with-beam;
       executableName = "frontend";
       bundleIdentifier = "my.frontend";
