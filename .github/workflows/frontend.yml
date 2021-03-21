@@ -121,7 +121,7 @@ jobs:
                 # NOTE: 8104: reflex-dom won't resolve with 8104
                 ghc: [865, 884]
                 sedArg: ["", "''"]
-                release: ["iphone", "android"]
+                release: ["ios", "android"]
                 exclude:
                   - os: ubuntu-latest
                     sedArg: "''"
