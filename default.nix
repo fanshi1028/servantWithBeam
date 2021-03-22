@@ -126,17 +126,20 @@ let
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
   rp = reflexPlatform {
     config.android_sdk.accept_license = true;
+    haskellOverlaysPre = [
+      (self: super: {
+        # NOTE: https://github.com/NixOS/cabal2nix/blob/master/doc/03-map-cabal-files-to-nix-without-information-loss.md
+        # NOTE: For conditional, the build will take place with the same architecture, OS, and compiler version as were used to compile cabal2nix, so rebuild it to fix conditionals.
+        cabal2nix = self.callHackage "cabal2nix" "2.17.0" {};
+      })
+    ];
     haskellOverlaysPost = [
       (self: super: {
         servant-with-beam =
           pkgs.haskellPackages.callCabal2nixWithOptions "servant-with-beam" ./.
           "-ffrontend" { };
         # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
-        reflex-dom = self.callHackageDirect {
-          pkg = "reflex-dom";
-          ver = "0.6.1.0";
-          sha256 = "1758v5vl5z3zcih0ikcbxbs42s9admmq4wfvhwa40z4kdjamzdf5";
-        } {};
+        # reflex-dom = self.callHackage "reflex-dom" "0.6.1.0" {};
       })
     ];
   };
