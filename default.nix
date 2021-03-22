@@ -124,20 +124,25 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
-  reflexBuildApp = sys : (reflexPlatform {
-    config.android_sdk.accept_license = true;
-    haskellOverlaysPost = [
-      (self: super: {
-        # NOTE: https://github.com/NixOS/cabal2nix/blob/master/doc/03-map-cabal-files-to-nix-without-information-loss.md
-        # NOTE: For conditional, the build will take place with the same architecture, OS, and compiler version as were used to compile cabal2nix, so rebuild it to fix conditionals.
-        servant-with-beam =
-          pkgs.nixpkgsCross.${sys}.aarch64.haskellPackages.callCabal2nixWithOptions "servant-with-beam" ./.
-          "-ffrontend" { };
-        # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
-        # reflex-dom = self.callHackage "reflex-dom" "0.6.1.0" {};
-      })
-    ];
-  }).${sys}.buildApp;
+  reflexBuildApp = sys:
+    (reflexPlatform {
+      config.android_sdk.accept_license = true;
+      nixpkgsOverlays = [
+        (self: super: {
+          # NOTE: https://github.com/NixOS/cabal2nix/blob/master/doc/03-map-cabal-files-to-nix-without-information-loss.md
+          # NOTE: For conditional, the build will take place with the same architecture, OS, and compiler version as were used to compile cabal2nix, so rebuild it to fix conditionals.
+          haskell = super.haskell // {
+            packages = super.haskell.packages // {
+              servant-with-beam =
+                self.nixpkgsCross.${sys}.aarch64.haskellPackages.callCabal2nixWithOptions
+                "servant-with-beam" ./. "-ffrontend" { };
+            };
+          };
+          # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
+          # reflex-dom = self.callHackage "reflex-dom" "0.6.1.0" {};
+        })
+      ];
+    }).${sys}.buildApp;
   releases = {
     linux = def;
     osx = def;
