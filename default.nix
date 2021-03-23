@@ -124,25 +124,39 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
-  reflexBuildApp = sys:
+  reflexBuildApp =
+    # sys:
     (reflexPlatform {
       config.android_sdk.accept_license = true;
-      nixpkgsOverlays = [
-        (self: super: {
-          # NOTE: https://github.com/NixOS/cabal2nix/blob/master/doc/03-map-cabal-files-to-nix-without-information-loss.md
-          # NOTE: For conditional, the build will take place with the same architecture, OS, and compiler version as were used to compile cabal2nix, so rebuild it to fix conditionals.
-          haskell = super.haskell // {
-            packages = super.haskell.packages // {
-              servant-with-beam =
-                self.nixpkgsCross.${sys}.aarch64.haskellPackages.callCabal2nixWithOptions
-                "servant-with-beam" ./. "-ffrontend" { };
-            };
-          };
-          # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
-          # reflex-dom = self.callHackage "reflex-dom" "0.6.1.0" {};
-        })
-      ];
-    }).${sys}.buildApp;
+      # nixpkgsOverlays = [
+      #   (self: super: {
+      # NOTE: https://github.com/NixOS/cabal2nix/blob/master/doc/03-map-cabal-files-to-nix-without-information-loss.md
+      # NOTE: For conditional, the build will take place with the same architecture, OS, and compiler version as were used to compile cabal2nix, so rebuild it to fix conditionals.
+      # haskell = super.haskell // {
+      #   packages = super.haskell.packages // {
+      #     servant-with-beam = self.callCabal2nixWithOptions "servant-with-beam" baseSrc "-ffrontend" { };
+      # self.nixpkgsCross.${sys}.aarch64.haskellPackages.callCabal2nixWithOptions
+      # "servant-with-beam" ./. "-ffrontend" { };
+      #   };
+      # };
+      # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
+      # reflex-dom = self.callHackage "reflex-dom" "0.6.1.0" {};
+      #   })
+      # ];
+    }).project ({ pkgs, ... }: {
+      packages = { servant-with-beam = baseSrc; };
+      android.servant-with-beam = {
+        executableName = "frontend";
+        applicationId = "my.frontend";
+        displayName = "Android App";
+      };
+      ios.servant-with-beam = {
+        executableName = "frontend";
+        bundleIdentifier = "my.frontend";
+        bundleName = "IOS App";
+      };
+    });
+  # .${sys}.buildApp;
   releases = {
     linux = def;
     osx = def;
@@ -165,19 +179,27 @@ in if (default) then
   exes.${platform}
 else {
   servant-with-beam = exes // {
-    android = reflexBuildApp "android" ({
-      package = p: p.servant-with-beam;
-      executableName = "frontend";
-      applicationId = "my.frontend";
-      displayName = "Android App";
-    });
-    ios = reflexBuildApp "ios" ({
-      package = p: p.servant-with-beam;
-      executableName = "frontend";
-      bundleIdentifier = "my.frontend";
-      bundleName = "IOS App";
-    });
+    android = reflexBuildApp.android.servant-with-beam;
+    ios = reflexBuildApp.ios.servant-with-beam;
   };
+  #                   // {
+  # android = (reflexBuildApp "android" ({
+  #   package = p: p.servant-with-beam;
+  #   executableName = "frontend";
+  #   applicationId = "my.frontend";
+  #   displayName = "Android App";
+  # })).override {
+  #   overrides = (self: super:
+  #     {
+
+  #     });
+  # };
+  # ios = reflexBuildApp "ios" ({
+  #   package = p: p.servant-with-beam;
+  #   executableName = "frontend";
+  #   bundleIdentifier = "my.frontend";
+  #   bundleName = "IOS App";
+  # });
   pkgSet = pkgs;
   inherit shells;
 }
