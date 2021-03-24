@@ -124,34 +124,34 @@ let
       index-state = "2021-03-19T00:00:00Z";
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
-  rp = pkgs:
-    reflexPlatform {
-      config.android_sdk.accept_license = true;
-      haskellOverlaysPost = [
-        (self: super: {
-          servant-with-beam =
-            pkgs.haskellPackages.callCabal2nixWithOptions "servant-with-beam"
-            ./. "-ffrontend" { };
-          # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
-          # https://github.com/reflex-frp/reflex-platform/blob/f019863c21ee85498e6a6e0072e617b2462b70ed/haskell-overlays/reflex-packages/default.nix#L83
-          reflex-dom = pkgs.haskellPackages.lib.overrideCabal super.reflex-dom
-            (drv: {
-              # Hack until https://github.com/NixOS/cabal2nix/pull/432 lands
-              libraryHaskellDepends = (drv.libraryHaskellDepends or [ ])
-                ++ pkgs.lib.optionals pkgs.hostPlatform.isAndroid [
-                  self.android-activity
-                  self.aeson
-                  self.data-default
-                  self.jsaddle
-                ] ++ pkgs.lib.optionals pkgs.hostPlatform.isIos [
-                  self.data-default
-                  self.jsaddle
-                  self.jsaddle-wkwebview
-                ];
-            });
-        })
-      ];
-    };
+  # rp = pkgs:
+  #   reflexPlatform {
+  #     config.android_sdk.accept_license = true;
+  #     haskellOverlaysPost = [
+  #       (self: super: {
+  #         servant-with-beam =
+  #           pkgs.haskellPackages.callCabal2nixWithOptions "servant-with-beam"
+  #           ./. "-ffrontend" { };
+  #         # reflex-dom in reflex-platform was created by callCabal2nix which seems to be not respecting os conditional in its cabal, and cause dependency issue
+  #         # https://github.com/reflex-frp/reflex-platform/blob/f019863c21ee85498e6a6e0072e617b2462b70ed/haskell-overlays/reflex-packages/default.nix#L83
+  #         reflex-dom = pkgs.haskellPackages.lib.overrideCabal super.reflex-dom
+  #           (drv: {
+  #             # Hack until https://github.com/NixOS/cabal2nix/pull/432 lands
+  #             libraryHaskellDepends = (drv.libraryHaskellDepends or [ ])
+  #               ++ pkgs.lib.optionals pkgs.hostPlatform.isAndroid [
+  #                 self.android-activity
+  #                 self.aeson
+  #                 self.data-default
+  #                 self.jsaddle
+  #               ] ++ pkgs.lib.optionals pkgs.hostPlatform.isIos [
+  #                 self.data-default
+  #                 self.jsaddle
+  #                 self.jsaddle-wkwebview
+  #               ];
+  #           });
+  #       })
+  #     ];
+  #   };
   releases = {
     linux = def;
     osx = def;
@@ -159,10 +159,10 @@ let
       mkProject mingwW64 "0000000000000000000000000000000000000000000000000000";
     static = mkProject static-pkgs
       "0000000000000000000000000000000000000000000000000000";
-    # android = mkProject aarch64-android-prebuilt
-    #   "0000000000000000000000000000000000000000000000000000";
-    # iphone =
-    #   mkProject iphone64 "0000000000000000000000000000000000000000000000000000";
+    android = mkProject aarch64-android-prebuilt
+      "0000000000000000000000000000000000000000000000000000";
+    iphone =
+      mkProject iphone64 "0000000000000000000000000000000000000000000000000000";
   };
   exes = mapAttrs (name: value:
     value.servant-with-beam.components.exes."${if frontend then
@@ -173,20 +173,21 @@ let
 in if (default) then
   exes.${platform}
 else {
-  servant-with-beam = exes // {
-    android = (rp aarch64-android-prebuilt).android.buildApp ({
-      package = p: p.servant-with-beam;
-      executableName = "frontend";
-      applicationId = "my.frontend";
-      displayName = "Android App";
-    });
-    ios = (rp iphone64).ios.buildApp ({
-      package = p: p.servant-with-beam;
-      executableName = "frontend";
-      bundleIdentifier = "my.frontend";
-      bundleName = "IOS App";
-    });
-  };
+  servant-with-beam = exes;
+  #                     // {
+  #   android = (rp aarch64-android-prebuilt).android.buildApp ({
+  #     package = p: p.servant-with-beam;
+  #     executableName = "frontend";
+  #     applicationId = "my.frontend";
+  #     displayName = "Android App";
+  #   });
+  #   ios = (rp iphone64).ios.buildApp ({
+  #     package = p: p.servant-with-beam;
+  #     executableName = "frontend";
+  #     bundleIdentifier = "my.frontend";
+  #     bundleName = "IOS App";
+  #   });
+  # };
   pkgSet = pkgs;
   inherit shells;
 }
