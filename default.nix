@@ -157,7 +157,7 @@ let
         bundleName = "IOS App";
       };
       overrides = self: super: {
-        cabal2nix = self.callHackage "cabal2nix" "2.17.0" { };
+        cabal2nix-unwrapped = self.callHackage "cabal2nix-unwrapped" "2.17.0" { };
         servant-with-beam =
           self.callCabal2nixWithOptions "servant-with-beam" ./. "-ffrontend"
           { };
