@@ -144,7 +144,8 @@ let
       #   })
       # ];
     }).project ({ pkgs, ... }: {
-      packages = { servant-with-beam = baseSrc; };
+      # packages = { servant-with-beam = ./.; };
+      packages = {};
       android.servant-with-beam = {
         executableName = "frontend";
         applicationId = "my.frontend";
@@ -154,6 +155,9 @@ let
         executableName = "frontend";
         bundleIdentifier = "my.frontend";
         bundleName = "IOS App";
+      };
+      overrides = self: super: {
+         servant-with-beam = self.callCabal2nixWithOptions "servant-with-beam" ./. "-ffrontend" { };
       };
     });
   # .${sys}.buildApp;
