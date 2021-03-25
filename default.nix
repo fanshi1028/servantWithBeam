@@ -125,7 +125,11 @@ let
     };
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
   rp = (reflexPlatform {
-    config.android_sdk.accept_license = true;
+    config = {
+      android_sdk.accept_license = true;
+      allowBroken = true;
+    };
+
     # haskellOverlaysPost = [
     #   (self: super: {
     #     servant-with-beam =
