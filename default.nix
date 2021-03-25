@@ -4,7 +4,7 @@
 , checkMaterialization ? false, useWarp ? false, sha256 ? "" }:
 let
   inherit (pkgSets)
-    pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform obNixpkgsFunc;
+    pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform;
   # NOTE https://github.com/input-output-hk/haskell.nix/issues/276#issue-512788094
   inherit (win64-pkgs.pkgsCross) mingwW64;
   # inherit (pkgs.pkgsCross) mingwW64 musl64;
@@ -126,7 +126,6 @@ let
   def = mkProject pkgs "0000000000000000000000000000000000000000000000000000";
   rp = (reflexPlatform {
     config.android_sdk.accept_license = true;
-    nixpkgsFunc = obNixpkgsFunc ;
     # haskellOverlaysPost = [
     #   (self: super: {
     #     servant-with-beam =
