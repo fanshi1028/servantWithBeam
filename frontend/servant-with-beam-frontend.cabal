@@ -27,7 +27,6 @@ executable frontend
     generic-lens,
     text        ^>=1.2,
     chronos,
-    clay,
     file-embed,
     reflex      ^>=0.8,
     reflex-dom  ^>=0.6
