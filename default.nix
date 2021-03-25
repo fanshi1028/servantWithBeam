@@ -162,6 +162,9 @@ let
       bundleIdentifier = "my.frontend";
       bundleName = "IOS App";
     };
+    overrides = self: super: {
+      universum = pkgs.haskell.lib.dontCheck super.universum;
+    };
   });
   releases = {
     linux = def;
