@@ -24,10 +24,10 @@ executable frontend
     base       >=4.12 && <4.17,
     universum  ^>=1.7,
     containers  ^>=0.6,
-    generic-lens,
+    -- generic-lens,
     text        ^>=1.2,
     chronos,
-    file-embed,
+    -- file-embed,
     reflex      ^>=0.8,
     reflex-dom  ^>=0.6
 

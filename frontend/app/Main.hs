@@ -6,7 +6,7 @@
 
 import Chronos (Date (Date), builder_Ymd)
 import Control.Monad.Fix (MonadFix)
-import Data.Generics.Labels ()
+-- import Data.Generics.Labels ()
 import qualified Data.Map as Map (fromList)
 import qualified Data.Set as Set
 import Data.Text (split)
