@@ -11,6 +11,18 @@
         "url": "https://github.com/input-output-hk/haskell.nix/archive/4245567cb1dcc7048909801c541ecc17d7e67fe7.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "nixpkgs": {
+        "branch": "master",
+        "description": "Nix Packages collection",
+        "homepage": null,
+        "owner": "obsidiansystems",
+        "repo": "nixpkgs",
+        "rev": "d6c0115cee9507b1908e7e1b4ce08995e429611d",
+        "sha256": "0x4rdsmiwlbxis8djb8d7pn1ndyfc70dhqbbis41l8i5nvx2qx6i",
+        "type": "tarball",
+        "url": "https://github.com/obsidiansystems/nixpkgs/archive/d6c0115cee9507b1908e7e1b4ce08995e429611d.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "reflex-platform": {
         "branch": "develop",
         "description": "A curated package set and set of tools that let you build Haskell packages so they can run on a variety of platforms. reflex-platform is built on top of the nix package manager.",

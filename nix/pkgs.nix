@@ -62,4 +62,5 @@ let
 
   reflexPlatform = import sources.reflex-platform;
 
-in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform; }
+  obNixpkgsFunc = import sources.nixpkgs;
+in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform obNixpkgsFunc; }
