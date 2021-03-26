@@ -32,12 +32,9 @@ executable frontend
 
   ghc-options:
     -W -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates
-    -Wcompat -Wnoncanonical-monad-instances -O2 -threaded
+    -Wcompat -Wnoncanonical-monad-instances -O2 -threaded -dynamic
 
-  if !impl(ghcjs) && (os(osx) || os(ios))
-    ghc-options:  -dynamic
-
-  ghcjs-options:  -dedupe -DGHCJS_BROWSER
+  -- ghcjs-options:  -dedupe -DGHCJS_BROWSER
 
   default-language:   Haskell2010
 
