@@ -41,7 +41,8 @@ let
       ignore = path:
         baseNameOf path != ".envrc" || baseNameOf path != "shell.nix"
         || baseNameOf path != ".ghcid" || baseNameOf path
-        != "servant-with-beam-frontend.cabal";
+        != "servant-with-beam-frontend.cabal" || baseNameOf path
+        != "Setup.hs";
       filter = path: type:
         ignore path && any (f:
           let p = toString (baseSrc + ("/" + f));
