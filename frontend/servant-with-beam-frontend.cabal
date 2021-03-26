@@ -16,7 +16,6 @@ source-repository head
   location: https://github.com/fanshi1028/servantWithBeam
 
 executable frontend
-  import:         prelude
   main-is:        Main.hs
   hs-source-dirs: app
 
