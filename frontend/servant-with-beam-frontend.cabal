@@ -22,7 +22,7 @@ executable frontend
 
   build-depends:
     base       >=4.12 && <4.17,
-    universum  ^>=1.7,
+    universum  ,
     containers  ^>=0.6,
     -- generic-lens,
     text        ^>=1.2,
