@@ -195,13 +195,11 @@
             (hsPkgs."reflex" or (errorHandler.buildDepError "reflex"))
             (hsPkgs."reflex-dom" or (errorHandler.buildDepError "reflex-dom"))
             ];
-          buildable = if compiler.isGhc && (compiler.version).ge "8.10.1" || !flags.frontend
-            then false
-            else true;
+          buildable = if !flags.frontend then false else true;
           hsSourceDirs = [ "frontend/app" ];
-          mainPath = [
+          mainPath = ([
             "Main.hs"
-            ] ++ (pkgs.lib).optional (compiler.isGhc && (compiler.version).ge "8.10.1" || !flags.frontend) "";
+            ] ++ (pkgs.lib).optional (!flags.frontend) "") ++ (pkgs.lib).optional (!(compiler.isGhcjs && true) && (system.isOsx || system.isIos)) "";
           };
         "scripts" = {
           depends = (pkgs.lib).optionals (!system.isWindows) (if flags.ghcid
