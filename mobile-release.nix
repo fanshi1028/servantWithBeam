@@ -9,7 +9,7 @@ let
   rp = (reflexPlatform {
     config = {
       android_sdk.accept_license = true;
-      allowBroken = true;
+      # allowBroken = true;
     };
 
     # haskellOverlaysPost = [
