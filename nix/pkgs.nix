@@ -1,4 +1,4 @@
-{ compiler ? "ghc8102", sources ? import ./sources.nix }:
+{ compiler ? "ghc8102", sources ? import ./sources.nix, reflex ? false }:
 let
   haskellNix = import sources.haskell-nix { };
   # nixpkgsSrc = haskellNix.sources.nixpkgs-2009;
@@ -60,6 +60,8 @@ let
   win64-pkgs = import nixpkgsSrc
     (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
 
-  reflexPlatform = import sources.reflex-platform;
-
-in { inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs reflexPlatform; }
+in if reflex then {
+  reflex = import sources.reflex-platform;
+} else {
+  inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs;
+}
