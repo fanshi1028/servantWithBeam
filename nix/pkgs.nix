@@ -65,7 +65,7 @@ in if reflex then
     config = {
       android_sdk.accept_license = true;
       nixpkgsFunc = import nixpkgsSrc;
-      # allowBroken = true;
+      allowBroken = true;
     };
   }
 else {
