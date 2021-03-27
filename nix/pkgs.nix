@@ -63,6 +63,12 @@ let
 in if reflex then
   import sources.reflex-platform {
     nixpkgsFunc = import nixpkgsSrc;
+    nixpkgsOverlays = [
+      (self: super: {
+        # reflex-platform use jdk12 which doesn't exist on more update nixpkgs, hacking to override it
+        openjdk12 = super.jdk;
+      })
+    ];
     config = {
       android_sdk.accept_license = true;
       # allowBroken = true;
