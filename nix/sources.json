@@ -17,10 +17,10 @@
         "homepage": "https://reflex-frp.org",
         "owner": "fanshi1028",
         "repo": "reflex-platform",
-        "rev": "e01867c9f4510114626d58b8a35722b956409fc0",
-        "sha256": "0frc3b9ss8l47vggmyg0xw4dnbkpf7sbr85n3j4w90dsh76mzb1p",
+        "rev": "cf29017c446e1d686ea0425ac2fb7cc3af0fcd22",
+        "sha256": "1qw69b7q4kwq1b0f2wsqcr6bskdvqnl5lc55kaygrh41cbcml6y1",
         "type": "tarball",
-        "url": "https://github.com/fanshi1028/reflex-platform/archive/e01867c9f4510114626d58b8a35722b956409fc0.tar.gz",
+        "url": "https://github.com/fanshi1028/reflex-platform/archive/cf29017c446e1d686ea0425ac2fb7cc3af0fcd22.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "static-haskell-nix": {
