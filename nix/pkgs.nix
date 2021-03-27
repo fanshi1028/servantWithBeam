@@ -71,7 +71,6 @@ in if reflex then
     # ];
     config = {
       android_sdk.accept_license = true;
-      allowBroken = true;
     };
   }
 else {

@@ -23,8 +23,8 @@ let
       bundleIdentifier = "my.frontend";
       bundleName = "IOS App";
     };
-    overrides = self: super: {
-      universum = pkgs.haskell.lib.dontCheck super.universum;
+    overrides = self: super: with pkgs.haskell.lib; {
+      universum = markUnbroken (dontCheck super.universum);
     };
   });
 in {
