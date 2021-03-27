@@ -42,6 +42,8 @@ let
       executableName = "frontend";
       applicationId = "my.frontend";
       displayName = "Android App";
+      # github action run out of space, try build only this to see if it helps
+      abiVersions = [ "arm64-v8a" ];
     };
     ios.servant-with-beam-frontend = {
       executableName = "frontend";
