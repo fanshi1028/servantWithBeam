@@ -62,9 +62,9 @@ let
 
 in if reflex then
   import sources.reflex-platform {
+    nixpkgsFunc = import nixpkgsSrc;
     config = {
       android_sdk.accept_license = true;
-      nixpkgsFunc = import nixpkgsSrc;
       allowBroken = true;
     };
   }
