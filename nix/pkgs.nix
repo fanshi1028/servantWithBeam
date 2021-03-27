@@ -60,8 +60,13 @@ let
   win64-pkgs = import nixpkgsSrc
     (nixpkgsArgs // { overlays = overlays ++ windowOverlays; });
 
-in if reflex then {
-  reflex = import sources.reflex-platform;
-} else {
+in if reflex then
+  import sources.reflex-platform {
+    config = {
+      android_sdk.accept_license = true;
+      # allowBroken = true;
+    };
+  }
+else {
   inherit pkgs static-pkgs win64-pkgs allow-unfree-pkgs;
 }
