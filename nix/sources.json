@@ -15,12 +15,12 @@
         "branch": "develop",
         "description": "A curated package set and set of tools that let you build Haskell packages so they can run on a variety of platforms. reflex-platform is built on top of the nix package manager.",
         "homepage": "https://reflex-frp.org",
-        "owner": "reflex-frp",
+        "owner": "fanshi1028",
         "repo": "reflex-platform",
-        "rev": "f019863c21ee85498e6a6e0072e617b2462b70ed",
-        "sha256": "146xfjqdwd55s9jg1ggi6akcxxxd5c0pvc4bpjx3whwiikpcv8y4",
+        "rev": "d6ce7ac9c27594945b8db61a8d72cc7a097e5a0f",
+        "sha256": "1m2l8r4nl9v0gbwxf9340szpicr5g1zyq9djc781v4yhf3wcpw5q",
         "type": "tarball",
-        "url": "https://github.com/reflex-frp/reflex-platform/archive/f019863c21ee85498e6a6e0072e617b2462b70ed.tar.gz",
+        "url": "https://github.com/fanshi1028/reflex-platform/archive/d6ce7ac9c27594945b8db61a8d72cc7a097e5a0f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "static-haskell-nix": {
