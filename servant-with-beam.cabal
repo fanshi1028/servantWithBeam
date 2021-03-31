@@ -206,23 +206,45 @@ executable app
 
   ghc-options:    -threaded
 
+common frontend
+  build-depends:
+    , containers  ^>=0.6
+    , text        ^>=1.2
+    , chronos
+    , reflex      ^>=0.8
+    , reflex-dom  ^>=0.6
+
+library frontend-internal
+  import:         prelude, frontend
+  hs-source-dirs: frontend/src
+  exposed-modules: Widgets.Currency
+                   Utils.Head
+  build-depends:
+     , time
+     , time-compat
+
 executable frontend
-  import:         prelude
+  import:         prelude, frontend
   main-is:        Main.hs
-  hs-source-dirs: frontend/app
+
+  if flag(ghcid)
+    hs-source-dirs: frontend/app frontend/src
+    build-depends:
+      , time
+      , time-compat
+
+  else
+    hs-source-dirs: frontend/app
+    build-depends:
+      , frontend-internal
 
   if !flag(frontend)
     buildable: False
 
   build-depends:
-    , containers  ^>=0.6
     , generic-lens
-    , text        ^>=1.2
-    , chronos
     , clay
     , file-embed
-    , reflex      ^>=0.8
-    , reflex-dom  ^>=0.6
 
   ghcjs-options:  -dedupe -DGHCJS_BROWSER
   ghc-options:  -threaded
