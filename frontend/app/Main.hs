@@ -1,6 +1,6 @@
 import Universum
 import Utils.Head (myMainWidget)
-import Widgets.Currency (currencyFetcher)
+import Widgets.Tomato (tomato)
 
 main :: IO ()
-main = myMainWidget currencyFetcher
+main = myMainWidget tomato

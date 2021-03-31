@@ -218,6 +218,7 @@ library frontend-internal
   import:         prelude, frontend
   hs-source-dirs: frontend/src
   exposed-modules: Widgets.Currency
+                   Widgets.Tomato
                    Utils.Head
   if !flag(frontend)
     buildable: False
