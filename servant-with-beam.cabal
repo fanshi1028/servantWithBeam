@@ -40,295 +40,56 @@ common prelude
     , base       >=4.12 && <4.17
     , universum  ^>=1.7
 
-common monitor
-  build-depends:
-    , co-log    ^>=0.4.0.1
-    , ekg-core  ^>=0.1
+common backend-common
+  import:   prelude
 
-common app-depends
-  import:
-    prelude,
-    monitor
-
-  build-depends:
-    , chronos              ^>=1.1
-    , envy                 ^>=2.1.0.0
-    , postgresql-simple    ^>=0.6
-    , servant-auth-server  ^>=0.4.6.0
-    , servant-errors       ^>=0.1.6.0
-    , sqlite-simple        ^>=0.4.0.0
-    , unliftio             ^>=0.2.13.1
-    , unliftio-pool        ^>=0.2.1.1
-
-common sql
-  build-depends:
-    , beam-core      ^>=0.9.0.0
-    , beam-postgres  ^>=0.5.0.0
-    , beam-sqlite    ^>=0.5.0.0
-
-common servant
-  build-depends:
-    , servant-auth         ^>=0.4
-    , servant-auth-client  ^>=0.4
-    , servant-auth-docs    ^>=0.2.10.0
-    , servant-docs         ^>=0.11
-    , servant-server       ^>=0.18
-
-common password
-  build-depends:
-    , password   ^>=2.1
-    , zxcvbn-hs  ^>=0.3
-
-common validation
-  import:        password
-  build-depends:
-    , validation-selective  ^>=0.1
-    , validity              ^>=0.11.0.0
-
-common lens
-  build-depends:
-    , generic-lens  ^>=2.0.0.0
-    , microlens     ^>=0.4.11.0
-
-common server
-  import:
-    servant,
-    validation,
-
-  build-depends:
-    , http-types  ^>=0.12
-    , wai         ^>=3.2.2
-
-common client
-  build-depends:
-    , http-client     ^>=0.6.4.1
-    , servant-client  ^>=0.18
-
-common libdeps
-  import:
-    app-depends,
-    sql,
-    lens,
-    server,
-    client
-
-  build-depends:
-    , addy                    ^>=0.1
-    , aeson                   ^>=1.4
-    , attoparsec              ^>=0.13.2
-    , mtl                     ^>=2.2
-    , natural-transformation  ^>=0.4
-    , time                    ^>=1.9
-    , unordered-containers    ^>=0.2.13
-
-common migration
-  import:
-    prelude,
-    sql
-
-  build-depends:
-    , beam-automigrate   ^>=0.1.1.0
-    , beam-migrate       ^>=0.5.0.0
-    , chronos            ^>=1.1
-    , co-log             ^>=0.4.0.1
-    , envy               ^>=2.1.0.0
-    , optparse-generic   ^>=1.4.4
-    , password           ^>=2.1
-    , postgresql-simple  ^>=0.6
-    , time               ^>=1.9
-    , unliftio           ^>=0.2.13.1
-    , unliftio-pool      ^>=0.2.1.1
-
-library
-  import:          libdeps
-  exposed-modules:
-    Controllers
-    Controllers.ErasedMarks
-    Controllers.Handlers
-    Controllers.Hitmen
-    Controllers.Marks
-    Controllers.PursuingMarks
-    Databases.HitmenBusiness
-    Databases.HitmenBusiness.ErasedMarks
-    Databases.HitmenBusiness.Handlers
-    Databases.HitmenBusiness.Hitmen
-    Databases.HitmenBusiness.Marks
-    Databases.HitmenBusiness.PursuingMarks
-    Databases.HitmenBusiness.Utils.Auth
-    Databases.HitmenBusiness.Utils.Chronos
-    Databases.HitmenBusiness.Utils.Email
-    Databases.HitmenBusiness.Utils.JSON
-    Databases.HitmenBusiness.Utils.Password
-    Databases.HitmenBusiness.Utils.Types
-    Models
-    Models.HitmenBusiness
-    Servers
-    Servers.Home
-    Utils.Account
-    Utils.Account.Auth
-    Utils.Account.Login
-    Utils.Account.SignUp
-    Utils.Client
-    Utils.Constraints
-    Utils.CRUD
-    Utils.CRUD.CreateRoute
-    Utils.CRUD.DeleteRoute
-    Utils.CRUD.ReadRoute
-    Utils.CRUD.UpdateRoute
-    Utils.Docs
-    Utils.FromAccount
-    Utils.Meta
-    Utils.QueryRunner
-    Utils.Types
+library backend-internal
+  import:      backend-common
 
   hs-source-dirs:  backend/src
 
   if flag(frontend)
     buildable: False
 
-executable app
+executable backend
   if flag(ghcid)
-    import:         libdeps
+    import:         backend-common
     hs-source-dirs: backend/src
 
   else
-    import:        app-depends
-    build-depends: servant-with-beam
+    build-depends:
+        , backend-internal
 
   if flag(frontend)
     buildable: False
 
   main-is:        Main.hs
   hs-source-dirs: backend/app
-  build-depends:
-    , ekg   ^>=0.4
-    , warp  ^>=3.3.10
 
   ghc-options:    -threaded
 
-common frontend
-  build-depends:
-    , containers  ^>=0.6
-    , text        ^>=1.2
-    , chronos
-    , reflex      ^>=0.8
-    , reflex-dom  ^>=0.6
-
+common frontend-common
+  import:  prelude
   if !flag(frontend)
     buildable: False
 
 library frontend-internal
-  import:         prelude, frontend
+  import:         frontend-common
   hs-source-dirs: frontend/src
-  exposed-modules: Widgets.Currency
-                   Widgets.Tomato
-                   Widgets.Timer
-                   Utils.Animate
-                   Utils.Bulma.Elements
-                   Utils.Bulma.Components.Breadcrumb
-                   Utils.Bulma.Components.Card
-                   Utils.Bulma.Components.Dropdown
-                   Utils.Bulma.Components.Menu
-                   Utils.Bulma.Components.Message
-                   Utils.Bulma.Components.Modal
-                   Utils.Bulma.Components.Navbar
-                   Utils.Bulma.Components.Pagination
-                   Utils.Bulma.Components.Panel
-                   Utils.Bulma.Components.Tabs
-                   Utils.Common
-                   Utils.Head
-
-  build-depends:
-     , time
-     , time-compat
-     , unordered-containers ^>=0.2
 
 executable frontend
-  import:         prelude, frontend
-  main-is:        Main.hs
-
   if flag(ghcid)
-    hs-source-dirs: frontend/app frontend/src
-    build-depends:
-      , time
-      , time-compat
-      , unordered-containers ^>=0.2
+    import:         frontend-common
+    hs-source-dirs: frontend/src
 
   else
-    hs-source-dirs: frontend/app
     build-depends:
       , frontend-internal
 
-  build-depends:
-    , generic-lens
-    , clay
-    , file-embed
+  hs-source-dirs: frontend/app
+  main-is:        Main.hs
 
   ghcjs-options:  -dedupe -DGHCJS_BROWSER
   ghc-options:  -threaded
   if !impl(ghcjs) && (os(osx) || os(ios))
     ghc-options:  -dynamic
-
-executable scripts
-  if !os(windows)
-    if flag(ghcid)
-      import:         libdeps, migration
-      hs-source-dirs: backend/src
-
-    else
-      import:        migration
-      build-depends: servant-with-beam
-
-    buildable:     False
-    other-modules:
-      Migration.Databases.HitmenBusiness
-      Migration.Databases.HitmenBusiness.Handlers
-      Migration.Utils.Chronos
-      Migration.Utils.Types
-
-  if flag(frontend)
-    buildable: False
-
-  main-is:        Main.hs
-  hs-source-dirs: scripts
-  ghc-options:    -threaded
-
-test-suite test
-  if flag(ghcid)
-    import:         libdeps
-    hs-source-dirs: backend/src backend/app
-
-  else
-    import:        app-depends, client
-    build-depends: servant-with-beam
-
-  if flag(frontend)
-    buildable: False
-
-  type:           exitcode-stdio-1.0
-  main-is:        Main.hs
-  hs-source-dirs: tests
-  other-modules:  Client
-  build-depends:
-    , fakedata                 ^>=0.8.0
-    , genvalidity              ^>=0.11.0.0
-    , genvalidity-aeson        ^>=0.3.0.0
-    , genvalidity-hspec        ^>=0.7.0.4
-    , genvalidity-hspec-aeson  ^>=0.3.1.1
-    , genvalidity-property     ^>=0.5.0.1
-    , genvalidity-text         ^>=0.7.0.2
-    , hedgehog                 ^>=1.0.4
-    , hedgehog-corpus          ^>=0.2.0
-    , hedgehog-fakedata        ^>=0.0.1.3
-    , hedgehog-quickcheck      ^>=0.1.1
-    , QuickCheck               ^>=2.14
-    , servant-quickcheck       ^>=0.0.10.0
-    , tasty                    ^>=1.4.0.2
-    , tasty-expected-failure   ^>=0.12.2
-    , tasty-golden             ^>=2.3.4
-    , tasty-hedgehog           ^>=1.0.0.2
-    , tasty-hspec              ^>=1.1.6
-    , tasty-hunit              ^>=0.10.0.3
-    , tasty-rerun              ^>=1.1.18
-
-  ghc-options:    -threaded

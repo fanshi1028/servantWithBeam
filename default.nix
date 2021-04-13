@@ -142,7 +142,7 @@ let
     value.servant-with-beam.components.exes."${if frontend then
       "frontend"
     else
-      "app"}") releases;
+      "backend"}") releases;
   shells = mapAttrs (name: value: value.shellFor) releases;
 in if (default) then
   exes.${platform}
