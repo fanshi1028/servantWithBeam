@@ -13,6 +13,7 @@ headElement = do
   meta $ "charset" =: "utf-8"
   elAttr "script" ("src" =: "https://kit.fontawesome.com/182812e72f.js" <> "crossorigin" =: "anonymous") blank
   styleSheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+  styleSheet "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
   where
     -- styleSheet "/frontend/css/simple.css"
     styleSheet l = elAttr "link" (("rel" =: "stylesheet") <> ("href" =: l)) blank

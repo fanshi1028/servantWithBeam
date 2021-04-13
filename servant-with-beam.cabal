@@ -214,17 +214,34 @@ common frontend
     , reflex      ^>=0.8
     , reflex-dom  ^>=0.6
 
+  if !flag(frontend)
+    buildable: False
+
 library frontend-internal
   import:         prelude, frontend
   hs-source-dirs: frontend/src
   exposed-modules: Widgets.Currency
                    Widgets.Tomato
+                   Widgets.Timer
+                   Utils.Animate
+                   Utils.Bulma.Elements
+                   Utils.Bulma.Components.Breadcrumb
+                   Utils.Bulma.Components.Card
+                   Utils.Bulma.Components.Dropdown
+                   Utils.Bulma.Components.Menu
+                   Utils.Bulma.Components.Message
+                   Utils.Bulma.Components.Modal
+                   Utils.Bulma.Components.Navbar
+                   Utils.Bulma.Components.Pagination
+                   Utils.Bulma.Components.Panel
+                   Utils.Bulma.Components.Tabs
+                   Utils.Common
                    Utils.Head
-  if !flag(frontend)
-    buildable: False
+
   build-depends:
      , time
      , time-compat
+     , unordered-containers ^>=0.2
 
 executable frontend
   import:         prelude, frontend
@@ -235,14 +252,12 @@ executable frontend
     build-depends:
       , time
       , time-compat
+      , unordered-containers ^>=0.2
 
   else
     hs-source-dirs: frontend/app
     build-depends:
       , frontend-internal
-
-  if !flag(frontend)
-    buildable: False
 
   build-depends:
     , generic-lens
