@@ -114,6 +114,34 @@
           ];
         hsSourceDirs = [ "backend/src" ];
         };
+      sublibs = {
+        "frontend-internal" = {
+          depends = [
+            (hsPkgs."base" or (errorHandler.buildDepError "base"))
+            (hsPkgs."universum" or (errorHandler.buildDepError "universum"))
+            (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
+            (hsPkgs."text" or (errorHandler.buildDepError "text"))
+            (hsPkgs."chronos" or (errorHandler.buildDepError "chronos"))
+            (hsPkgs."reflex" or (errorHandler.buildDepError "reflex"))
+            (hsPkgs."reflex-dom" or (errorHandler.buildDepError "reflex-dom"))
+            (hsPkgs."time" or (errorHandler.buildDepError "time"))
+            (hsPkgs."time-compat" or (errorHandler.buildDepError "time-compat"))
+            (hsPkgs."unordered-containers" or (errorHandler.buildDepError "unordered-containers"))
+            ];
+          buildable = if !flags.frontend then false else true;
+          modules = [
+            "Widgets/Currency"
+            "Widgets/Tomato"
+            "Widgets/Timer"
+            "Utils/Animate"
+            "Utils/Bulma/Elements"
+            "Utils/Bulma/Components"
+            "Utils/Common"
+            "Utils/Head"
+            ];
+          hsSourceDirs = [ "frontend/src" ];
+          };
+        };
       exes = {
         "app" = {
           depends = [
@@ -187,21 +215,31 @@
             (hsPkgs."base" or (errorHandler.buildDepError "base"))
             (hsPkgs."universum" or (errorHandler.buildDepError "universum"))
             (hsPkgs."containers" or (errorHandler.buildDepError "containers"))
-            (hsPkgs."generic-lens" or (errorHandler.buildDepError "generic-lens"))
             (hsPkgs."text" or (errorHandler.buildDepError "text"))
             (hsPkgs."chronos" or (errorHandler.buildDepError "chronos"))
-            (hsPkgs."clay" or (errorHandler.buildDepError "clay"))
-            (hsPkgs."file-embed" or (errorHandler.buildDepError "file-embed"))
             (hsPkgs."reflex" or (errorHandler.buildDepError "reflex"))
             (hsPkgs."reflex-dom" or (errorHandler.buildDepError "reflex-dom"))
-            ];
-          buildable = if compiler.isGhc && (compiler.version).ge "8.10.1" || !flags.frontend
-            then false
-            else true;
-          hsSourceDirs = [ "frontend/app" ];
-          mainPath = [
+            (hsPkgs."generic-lens" or (errorHandler.buildDepError "generic-lens"))
+            (hsPkgs."clay" or (errorHandler.buildDepError "clay"))
+            (hsPkgs."file-embed" or (errorHandler.buildDepError "file-embed"))
+            ] ++ (if flags.ghcid
+            then [
+              (hsPkgs."time" or (errorHandler.buildDepError "time"))
+              (hsPkgs."time-compat" or (errorHandler.buildDepError "time-compat"))
+              (hsPkgs."unordered-containers" or (errorHandler.buildDepError "unordered-containers"))
+              ]
+            else [
+              (hsPkgs."servant-with-beam".components.sublibs.frontend-internal or (errorHandler.buildDepError "servant-with-beam:frontend-internal"))
+              ]);
+          buildable = if !flags.frontend then false else true;
+          hsSourceDirs = if flags.ghcid
+            then [ "frontend/app" "frontend/src" ]
+            else [ "frontend/app" ];
+          mainPath = (([
             "Main.hs"
-            ] ++ (pkgs.lib).optional (compiler.isGhc && (compiler.version).ge "8.10.1" || !flags.frontend) "";
+            ] ++ (pkgs.lib).optional (!flags.frontend) "") ++ [
+            ""
+            ]) ++ (pkgs.lib).optional (!(compiler.isGhcjs && true) && (system.isOsx || system.isIos)) "";
           };
         "scripts" = {
           depends = (pkgs.lib).optionals (!system.isWindows) (if flags.ghcid

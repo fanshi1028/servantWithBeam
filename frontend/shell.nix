@@ -2,5 +2,5 @@
 import ../shell.nix {
   inherit checkMaterialization;
   frontend = true;
-  sha256 = "05cn5463494qp9sgkxk80h6fqhwxi5xs9s80raxwbrgsd8900ixx";
+  sha256 = "0fi60bszfb8d59v1k18isakry607x6v6qdaf3nyxahx34hyv8c0c";
 }

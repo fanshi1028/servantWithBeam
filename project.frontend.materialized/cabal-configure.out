@@ -1,0 +1,19 @@
+Warning: The package list for 'hackage.haskell.org-at-2021-03-19T000000Z' is
+18730 days old.
+Run 'cabal update' to get the latest list of available packages.
+Warning: Requested index-state 2021-03-19T00:00:00Z is newer than
+'hackage.haskell.org-at-2021-03-19T000000Z'! Falling back to older state
+(2021-03-18T23:14:27Z).
+Resolving dependencies...
+cabal: Could not resolve dependencies:
+[__0] trying: servant-with-beam-0.1.0.0 (user goal)
+[__1] rejecting: servant-with-beam:-frontend (constraint from config file,
+command line flag, or user target requires opposite flag selection)
+[__1] rejecting: servant-with-beam:+frontend (constraint from config file,
+command line flag, or user target requires opposite flag selection)
+[__1] fail (backjumping, conflict set: servant-with-beam,
+servant-with-beam:frontend)
+After searching the rest of the dependency tree exhaustively, these were the
+goals I've had most trouble fulfilling: servant-with-beam:frontend,
+servant-with-beam
+
