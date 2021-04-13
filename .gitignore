@@ -7,5 +7,6 @@
 dblog
 /.tasty-rerun-log
 /result
-/frontend/.envrc
-/backend/.envrc
+**/.envrc
+**/.DS_Store
+*.local
